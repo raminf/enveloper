@@ -44,6 +44,44 @@ enveloper push github --domain aws
 enveloper pull aws-ssm --domain aws --prefix /myproject/prod/
 ```
 
+## Platform Setup
+
+After installing, run `enveloper init` to configure your OS keychain for
+frictionless access:
+
+```bash
+enveloper init
+```
+
+### macOS
+
+- **Keychain auto-lock**: `init` disables auto-lock on the login keychain so
+  it stays unlocked while you're logged in.
+- **First access dialog**: macOS shows an "allow this application to access
+  keychain item?" dialog the first time Python reads each secret. Click
+  **Always Allow** to permanently authorize. If you change Python venvs or
+  upgrade Python, the dialog appears once more (macOS tracks the binary path).
+- **Touch ID for sudo**: If your Mac has Touch ID, `init` shows how to enable
+  Touch ID for `sudo` commands (useful for build steps that need elevated
+  privileges). Add to `/etc/pam.d/sudo_local`:
+  ```
+  auth       sufficient     pam_tid.so
+  ```
+
+### Linux
+
+- GNOME Keyring and KDE Wallet auto-unlock at login. No password prompts
+  during builds.
+- `init` checks that a Secret Service daemon is running. If not, install
+  `gnome-keyring` or `kwallet` and ensure it starts at login.
+
+### Windows
+
+- Windows Credential Locker is unlocked with your user session. No additional
+  setup needed.
+- If Windows Hello (fingerprint/face) is configured for login, credentials
+  are available after biometric unlock.
+
 ## Concepts
 
 ### Project + Domain hierarchy
@@ -96,6 +134,7 @@ Third-party stores register via the `enveloper.stores` entry-point group.
 ## CLI Reference
 
 ```
+enveloper init                             Configure OS keychain for frictionless access
 enveloper import <file> [-d DOMAIN]        Import .env file into keychain
 enveloper export [-d DOMAIN] [--format]    Export to stdout (env, dotenv, json)
 enveloper get <key> [-d DOMAIN]            Get a single secret

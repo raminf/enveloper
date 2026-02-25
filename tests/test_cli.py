@@ -105,6 +105,14 @@ def test_import_missing_file(mock_keyring):
     assert result.exit_code != 0
 
 
+def test_init(monkeypatch):
+    """init command runs without error on any platform."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["init"])
+    assert result.exit_code == 0
+    assert "Init complete" in result.output
+
+
 def test_generate_codebuild(mock_keyring, sample_env):
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
