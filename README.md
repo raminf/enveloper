@@ -56,8 +56,8 @@ You can use `pip`, `poetry`, oe `uv` to install `enveloper`.
 The CLI can be run as **`enveloper`** or **`envr`** (same binary).
 
 ```bash
-# Import your existing .env file into the keychain
-enveloper import .env --domain {domain-name}
+# Import an existing .env file into the keychain
+enveloper import sample.env --domain {domain-name}
 
 # List what's stored
 enveloper list
@@ -65,8 +65,14 @@ enveloper list
 # Export for a build (use with eval in Makefiles/scripts; --format unix adds export keyword)
 eval "$(enveloper --domain {domain-name} export --format unix)"
 
+# To verify that the environment variable is set:
+echo $(VARIABLE_NAME_FROM_FILE)
+
 # Clear those variables later:
 eval "$(enveloper --domain {domain-name} unexport)"
+
+# To verify that the environment variable is cleared -- should return blank:
+echo $(VARIABLE_NAME_FROM_FILE)
 
 # Push to AWS SSM Parameter Store (you provide the prefix)
 enveloper --service aws --domain {domain-name} --prefix /myproject/prod/ push 

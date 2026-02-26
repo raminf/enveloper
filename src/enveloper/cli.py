@@ -36,8 +36,8 @@ console = Console(stderr=True)
 _KEYRING_URL = "https://github.com/jaraco/keyring"
 _LOCAL_PLATFORMS: list[tuple[str, str, str]] = [
     (
-        "local (macOS)",
-        "macOS Keychain",
+        "local (MacOS)",
+        "MacOS Keychain",
         "https://support.apple.com/guide/keychain-access/welcome/mac",
     ),
     (
@@ -83,7 +83,7 @@ _SERVICE_PROVIDER_INFO: dict[str, tuple[str, str]] = {
 }
 
 
-def _doc_link(url: str, label: str = "Open") -> Text:
+def _doc_link(url: str, label: str = "Doc Link") -> Text:
     """Return a Rich Text renderable with an OSC 8 hyperlink for terminal clickability."""
     return Text(label, style=Style(link=url))
 
@@ -91,9 +91,10 @@ def _doc_link(url: str, label: str = "Open") -> Text:
 def _local_doc_cell(keyring_url: str, platform_url: str) -> Text:
     """Two links for local rows: keyring (library) and docs (OS-specific)."""
     return (
-        Text("keyring", style=Style(link=keyring_url))
-        .append(" · ")
-        .append("docs", style=Style(link=platform_url))
+        Text("Doc Link", style=Style(link=platform_url))
+        # Text("Keyring", style=Style(link=keyring_url))
+        # .append(" · ")
+        # .append("Docs", style=Style(link=platform_url))
     )
 
 
@@ -783,6 +784,7 @@ def service_list(ctx: click.Context) -> None:
         else:
             table.add_row(name, "(plugin)", "")
     console.print(table)
+    console.print("[yellow]Note: To open documentation links, you may need to Command-Click on them.[/yellow]")
 
 
 # ---------------------------------------------------------------------------
