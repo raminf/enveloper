@@ -180,6 +180,3 @@ class AliyunSmStore(SecretStore):
             page += 1
         return sorted(set(keys))
 
-    def clear(self) -> None:
-        for key in self.list_keys():
-            self.delete(key)

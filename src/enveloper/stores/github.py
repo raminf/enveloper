@@ -95,6 +95,3 @@ class GitHubStore(SecretStore):
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             return []
 
-    def clear(self) -> None:
-        for key in self.list_keys():
-            self.delete(key)

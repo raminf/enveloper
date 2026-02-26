@@ -146,7 +146,3 @@ class GcpSmStore(SecretStore):
                     key = secret_id[len(self._prefix) :]
                     keys.append(key)
         return sorted(set(keys))
-
-    def clear(self) -> None:
-        for key in self.list_keys():
-            self.delete(key)

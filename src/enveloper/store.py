@@ -48,15 +48,21 @@ class SecretStore(ABC):
 
     @abstractmethod
     def delete(self, key: str) -> None:
-        """Remove *key*.  No error if the key does not exist."""
+        """Remove the entire key/secret from the store.
+
+        The key must no longer appear in :meth:`list_keys` and :meth:`get`
+        must return ``None`` for it. No error if the key does not exist.
+        """
 
     @abstractmethod
     def list_keys(self) -> list[str]:
         """Return all key names managed by this store."""
 
-    @abstractmethod
     def clear(self) -> None:
-        """Remove every key managed by this store.
+        """Remove every key managed by this store (default: delete each key from list_keys).
 
         Used by the CLI when the user runs ``enveloper clear --service <name>``.
+        Subclasses may override for a more efficient bulk clear.
         """
+        for key in self.list_keys():
+            self.delete(key)

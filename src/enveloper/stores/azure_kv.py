@@ -120,6 +120,3 @@ class AzureKvStore(SecretStore):
                 keys.append(self._name_to_key(name))
         return sorted(set(keys))
 
-    def clear(self) -> None:
-        for key in self.list_keys():
-            self.delete(key)

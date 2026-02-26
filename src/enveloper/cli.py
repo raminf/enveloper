@@ -696,19 +696,21 @@ def list_keys(ctx: click.Context) -> None:
     else:
         store = _get_store(ctx)
         keys = store.list_keys()
+        # Cloud stores (e.g. AWS SSM) can be eventually consistent: list_keys may still return
+        # recently deleted keys; get(key) returns None for those. Skip them so list matches clear.
+        keys_with_values = [(k, store.get(k)) for k in keys]
+        keys_to_show = [(k, v) for k, v in keys_with_values if v is not None]
         title = f"Secrets ({service})"
         if service == "file":
             title = f"Secrets (file: {ctx.obj['path']})"
         table = Table(title=title)
         table.add_column("Key", style="white")
         table.add_column("Value (masked)", style="dim")
-        if not keys:
+        if not keys_to_show:
             table.add_row("(empty)", "(empty)")
         else:
-            for key in sorted(keys):
-                val = store.get(key)
-                masked = _mask(val) if val else "(empty)"
-                table.add_row(key, masked)
+            for key, val in sorted(keys_to_show, key=lambda x: x[0]):
+                table.add_row(key, _mask(val))
         console.print(table)
 
 

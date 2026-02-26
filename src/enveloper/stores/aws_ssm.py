@@ -113,7 +113,3 @@ class AwsSsmStore(SecretStore):
                 if name.startswith(self._prefix):
                     keys.append(name[len(self._prefix) :])
         return sorted(keys)
-
-    def clear(self) -> None:
-        for key in self.list_keys():
-            self.delete(key)
