@@ -1,10 +1,10 @@
 # enveloper
 
-<img src="media/envelope.svg" width="64" height="64" alt="Envelope icon" />
+<img src="media/enveloper.svg" width="100%" alt="Envelope Services" />
 
-Manage `.env` secrets via your system keychain or cloud secret stores.
+Manage `.env` secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
 
-For backward-compatibility, you can also use **`file`** as a service to work with regular `.env` files to read, write, list, import, or export secrets, via:
+`envelopers` is a cross-platform, cross-cloud way to manage secrets. Support for:
 
 - **Local keychain** (default): 
   - MacOS Keychain
@@ -19,20 +19,21 @@ For backward-compatibility, you can also use **`file`** as a service to work wit
   - **Azure** Key Vault (`azure`)
   - **Alibaba Cloud** KMS Secrets Manager (`aliyun`)
 
-Run the CLI as **`enveloper`** or **`envr`**. It manages individual values, bulk import/export, sync to cloud, and can be used inside scripts and `Makefiles`. **Import/Export** conversion supports the following formats:
+Through the **`enveloper`** CLI, you can easily inject secrets into your shell instance (useful for local build operations), as well as Github actions, Docker instances, or CI/CD builders.
+
+**Import/Export** conversion supports the following formats:
 
 - **dotenv** (default for export): `KEY=value` lines, no `export` keyword — use to recreate a local `.env` file; works on Windows too.
 - **unix**: `export KEY=value` for sourcing in Unix shells, e.g. `eval "$(enveloper export -d aws --format unix)"`.
 - **win**: PowerShell format `$env:KEY = 'value'`; load with `enveloper export -d aws --format win | Invoke-Expression` (or `iex`).
-- **JSON** and **YAML**
+- Convert to **JSON** and **YAML** files.
 
 The design supports hierarchical ordering of secrets into _domains_ and _projects_.
 
-There's also an optional Python **SDK**, compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` file, you can have it load values from your secure keychain or cloud service secret manager (currently compatible with _AWS SSM Parameters_ and _Lambdas_). 
+The optional Python **SDK** is compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` files, you can have it load values from your local secure keychain or cloud service secret manager (SDK is currently only compatible with _AWS SSM Parameters_ and _Lambdas_). 
 
-Having secrets stored on the cloud also means there is a single source of truth that can be share between projects or team-members. New developers can be provided with managed access credentials and obtain a faster local copy, stored in secure keychain.
+Having secrets stored on the cloud also means there is a single source of truth that can be shared between projects or team-members. New developers can be provided with managed access to credentials and obtain a local copy, stored in secure keychain to speed up local builds.
 
-Pro tip: _Moving secrets out of local files also keeps them away from roving scans of AI Agents and MCP tools._
 
 ## Installation
 
@@ -45,7 +46,7 @@ pip install enveloper[vault]     # CLI + HashiCorp Vault KV v2 (hvac)
 pip install enveloper[gcp]       # CLI + GCP Secret Manager
 pip install enveloper[azure]     # CLI + Azure Key Vault (secrets)
 pip install enveloper[alibaba]   # CLI + Alibaba Cloud KMS Secrets Manager
-pip install enveloper[all]       # CLI + SDK + AWS + Vault + GCP + Azure + Alibaba
+pip install enveloper[all]       # Go to town. CLI + SDK + AWS + Vault + GCP + Azure + Alibaba
 ```
 
 You can use `pip`, `poetry`, oe `uv` to install `enveloper`.
