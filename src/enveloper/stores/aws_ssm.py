@@ -10,7 +10,7 @@ from typing import Any
 from enveloper.store import SecretStore
 
 _MISSING_BOTO3 = (
-    "boto3 is required for the aws-ssm store. "
+    "boto3 is required for the aws store. "
     "Install it with: pip install enveloper[aws]"
 )
 

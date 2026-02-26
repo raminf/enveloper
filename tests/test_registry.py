@@ -11,7 +11,7 @@ from enveloper.stores.keychain import KeychainStore
 def test_list_store_names():
     names = list_store_names()
     assert "keychain" in names
-    assert "aws-ssm" in names
+    assert "aws" in names
     assert "github" in names
 
 

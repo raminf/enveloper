@@ -8,24 +8,123 @@ from pathlib import Path
 
 import click
 from rich.console import Console
+from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 
 from enveloper import __version__
 from enveloper.config import load_config
 from enveloper.env_file import parse_env_file
-from enveloper.stores import get_store_class
+from enveloper.resolve_store import get_store as resolve_get_store
+from enveloper.resolve_store import make_cloud_store as resolve_make_cloud_store
+from enveloper.store import SecretStore
+from enveloper.stores import list_store_names
 from enveloper.stores.keychain import KeychainStore
+from enveloper.util import strip_domain_prefix
+
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
 
 console = Console(stderr=True)
+
+# Service provider metadata for `enveloper service` (description and doc links).
+# "local" is expanded into three platform rows; each has two doc links: keyring (library) + platform (OS docs).
+_KEYRING_URL = "https://github.com/jaraco/keyring"
+_LOCAL_PLATFORMS: list[tuple[str, str, str]] = [
+    (
+        "local (macOS)",
+        "macOS Keychain",
+        "https://support.apple.com/guide/keychain-access/welcome/mac",
+    ),
+    (
+        "local (Windows)",
+        "Windows Credential Locker",
+        "https://learn.microsoft.com/en-us/windows/win32/secauthn/credential-manager",
+    ),
+    (
+        "local (Linux)",
+        "Linux Secret Service",
+        "https://specifications.freedesktop.org/secret-service/",
+    ),
+]
+_SERVICE_PROVIDER_INFO: dict[str, tuple[str, str]] = {
+    "file": (
+        "Plain .env file",
+        "https://github.com/motdotla/dotenv",
+    ),
+    "aws": (
+        "AWS Systems Manager Parameter Store",
+        "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html",
+    ),
+    "github": (
+        "GitHub Actions encrypted secrets",
+        "https://docs.github.com/en/actions/security-guides/encrypted-secrets",
+    ),
+    "vault": (
+        "HashiCorp Vault KV v2",
+        "https://developer.hashicorp.com/vault/docs",
+    ),
+    "gcp": (
+        "Google Cloud Secret Manager",
+        "https://cloud.google.com/secret-manager/docs",
+    ),
+    "azure": (
+        "Azure Key Vault",
+        "https://learn.microsoft.com/en-us/azure/key-vault/",
+    ),
+    "aliyun": (
+        "Alibaba Cloud KMS Secrets Manager",
+        "https://www.alibabacloud.com/help/en/kms/key-management-service/getting-started/getting-started-with-secrets-manager",
+    ),
+}
+
+
+def _doc_link(url: str, label: str = "Open") -> Text:
+    """Return a Rich Text renderable with an OSC 8 hyperlink for terminal clickability."""
+    return Text(label, style=Style(link=url))
+
+
+def _local_doc_cell(keyring_url: str, platform_url: str) -> Text:
+    """Two links for local rows: keyring (library) and docs (OS-specific)."""
+    return (
+        Text("keyring", style=Style(link=keyring_url))
+        .append(" · ")
+        .append("docs", style=Style(link=platform_url))
+    )
 
 
 def _get_keychain(project: str, domain: str | None) -> KeychainStore:
     return KeychainStore(project=project, domain=domain)
 
 
+def _get_store(ctx: click.Context) -> SecretStore:
+    """Return the current store for get/set/list/import/export (from --service and --path)."""
+    service = ctx.obj.get("service", "local")
+    project = ctx.obj["project"]
+    domain = ctx.obj.get("domain_resolved", "default")
+    cfg = ctx.obj["config"]
+    env_name = ctx.obj["env_name"]
+    path = ctx.obj.get("path", ".env")
+    try:
+        return resolve_get_store(
+            service, project, domain, cfg,
+            path=path, env_name=env_name,
+        )
+    except ValueError as e:
+        raise click.UsageError(str(e))
+
+
 @click.group()
-@click.option("--project", "-p", default=None, help="Project namespace (default: from config).")
-@click.option("--domain", "-d", default=None, help="Domain / subsystem scope.")
+@click.option("--project", "-p", default=None, help="Project namespace (default: from config or ENVELOPER_PROJECT env var).")
+@click.option("--domain", "-d", default=None, help="Domain / subsystem scope (default: from ENVELOPER_DOMAIN env var).")
+@click.option(
+    "--service", "-s", default=None,
+    help="Backend: local, file (.env), or cloud. Default: ENVELOPER_SERVICE or config, else local.",
+)
+@click.option("--path", default=None, help="Path to .env file when --service file (default: .env).")
 @click.option("--env", "-e", "env_name", default=None, help="Environment name (resolves {env}).")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output.")
 @click.version_option(__version__)
@@ -34,15 +133,27 @@ def cli(
     ctx: click.Context,
     project: str | None,
     domain: str | None,
+    service: str | None,
+    path: str | None,
     env_name: str | None,
     verbose: bool,
 ) -> None:
     """Manage .env secrets via system keychain with cloud store plugins."""
+    import os
+
     cfg = load_config()
     ctx.ensure_object(dict)
     ctx.obj["config"] = cfg
-    ctx.obj["project"] = project or cfg.project
-    ctx.obj["domain"] = domain
+    # Environment variables take precedence over CLI options
+    ctx.obj["project"] = project or os.environ.get("ENVELOPER_PROJECT") or cfg.project
+    ctx.obj["domain"] = domain or os.environ.get("ENVELOPER_DOMAIN")  # None if not set
+    ctx.obj["domain_resolved"] = ctx.obj["domain"] or "default"
+    ctx.obj["service"] = (
+        service
+        if service is not None
+        else (os.environ.get("ENVELOPER_SERVICE") or cfg.service or "local")
+    )
+    ctx.obj["path"] = path if path is not None else ".env"
     ctx.obj["env_name"] = env_name
     ctx.obj["verbose"] = verbose
 
@@ -191,9 +302,27 @@ def init() -> None:
 
 @cli.command("import")
 @click.argument("file", required=False, type=click.Path(exists=False))
+@click.option(
+    "--format", "fmt",
+    type=click.Choice(["env", "json", "yaml"]),
+    default="env",
+    help="Input format (env, json, yaml). Default: env.",
+)
 @click.pass_context
-def import_env(ctx: click.Context, file: str | None) -> None:
-    """Import a .env file into the local keychain."""
+def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
+    """Import a file into the local keychain.
+
+    Supports .env, JSON, and YAML formats.
+
+    For JSON/YAML, supports nested structure with domains and projects:
+    {
+        "domain_name": {
+            "project_name": {
+                "KEY": "value"
+            }
+        }
+    }
+    """
     cfg = ctx.obj["config"]
     domain = ctx.obj["domain"]
 
@@ -206,19 +335,88 @@ def import_env(ctx: click.Context, file: str | None) -> None:
     if not path.is_file():
         raise click.BadParameter(f"File not found: {file}", param_hint="FILE")
 
-    pairs = parse_env_file(path)
+    # Parse the file based on format
+    if fmt == "env":
+        pairs = parse_env_file(path)
+    else:
+        if fmt == "json":
+            try:
+                content = path.read_text()
+                data = json.loads(content)
+            except json.JSONDecodeError as e:
+                raise click.ClickException(f"Invalid JSON file: {e}")
+        else:
+            if not HAS_YAML:
+                raise click.ClickException(
+                    "PyYAML is not installed. Install with: pip install pyyaml"
+                )
+            try:
+                content = path.read_text()
+                data = yaml.safe_load(content)
+            except yaml.YAMLError as e:
+                raise click.ClickException(f"Invalid YAML file: {e}")
+
+        # Handle different formats:
+        # 1. Simple: {key: value}
+        # 2. Domain only: {domain: {key: value}}
+        # 3. Domain + Project: {domain: {project: {key: value}}}
+        pairs = {}
+        if isinstance(data, dict):
+            has_domains = False
+            has_projects = False
+
+            # Check if top-level keys are domains (values are dicts)
+            for k, v in data.items():
+                if isinstance(v, dict):
+                    # Check if values are projects (dicts with non-dict values)
+                    for pk, pv in v.items():
+                        if isinstance(pv, dict):
+                            has_projects = True
+                        else:
+                            has_domains = True
+                        break
+                    break
+
+            if has_projects:
+                # Format: {domain: {project: {key: value}}}
+                for d_name, d_content in data.items():
+                    if isinstance(d_content, dict):
+                        for p_name, p_content in d_content.items():
+                            if isinstance(p_content, dict):
+                                for k, v in p_content.items():
+                                    pairs[k] = str(v)
+            elif has_domains:
+                # Format: {domain: {key: value}}
+                for d_name, d_content in data.items():
+                    if isinstance(d_content, dict):
+                        for k, v in d_content.items():
+                            pairs[k] = str(v)
+            else:
+                # Format: {key: value}
+                for k, v in data.items():
+                    pairs[k] = str(v)
+        elif isinstance(data, list):
+            raise click.ClickException(
+                f"{fmt.upper()} file must contain an object/dictionary, not a list."
+            )
+        else:
+            raise click.ClickException(
+                f"{fmt.upper()} file must contain an object/dictionary."
+            )
+
     if not pairs:
         console.print(f"[yellow]No variables found in {file}[/yellow]")
         return
 
-    store = _get_keychain(ctx.obj["project"], domain)
+    store = _get_store(ctx)
     for key, value in pairs.items():
-        store.set_with_domain_tracking(key, value)
+        if isinstance(store, KeychainStore):
+            store.set_with_domain_tracking(key, value)
+        else:
+            store.set(key, value)
 
     console.print(
-        f"[green]Imported {len(pairs)} variable(s) from {file}"
-        + (f" into domain '{domain}'" if domain else "")
-        + "[/green]"
+        f"[green]Imported {len(pairs)} variable(s) from {file}[/green]"
     )
 
 
@@ -226,45 +424,85 @@ def import_env(ctx: click.Context, file: str | None) -> None:
 # export
 # ---------------------------------------------------------------------------
 
-@cli.command()
+@cli.command("export")
 @click.option(
     "--format", "fmt",
-    type=click.Choice(["env", "dotenv", "json"]),
+    type=click.Choice(["env", "dotenv", "json", "yaml"]),
     default="env",
     help="Output format.",
 )
+@click.option(
+    "--output", "-o",
+    type=click.Path(exists=False),
+    default=None,
+    help="Output file path (default: stdout).",
+)
 @click.pass_context
-def export(ctx: click.Context, fmt: str) -> None:
-    """Export secrets from keychain to stdout.
+def export(ctx: click.Context, fmt: str, output: str | None) -> None:
+    """Export secrets from the current service to stdout or file.
 
     Use with eval: eval "$(enveloper export -d aws)"
+    Write to file: enveloper export -d aws -o .env
+    From .env file: enveloper export --service file --path .env
     """
     project = ctx.obj["project"]
     domain = ctx.obj["domain"]
+    service = ctx.obj["service"]
 
-    if domain:
-        domains = [domain]
-    else:
+    store: SecretStore
+    if service == "local" and domain is None:
         global_store = KeychainStore(project=project)
-        domains = global_store.list_domains() or [None]  # type: ignore[list-item]
-
-    pairs: dict[str, str] = {}
-    for d in domains:
-        store = _get_keychain(project, d)
+        domains = global_store.list_domains() or ["default"]
+        pairs = {}
+        for d in domains:
+            store = _get_keychain(project, d)
+            for key in store.list_keys():
+                val = store.get(key)
+                if val is not None:
+                    pairs[key] = val
+    else:
+        store = _get_store(ctx)
+        pairs = {}
+        use_local_key = service not in ("local", "file")  # strip domain/project when loading from cloud
         for key in store.list_keys():
             val = store.get(key)
             if val is not None:
-                pairs[key] = val
+                out_key = strip_domain_prefix(key) if use_local_key else key
+                pairs[out_key] = val
 
-    out = Console(file=sys.stdout, highlight=False)
-    if fmt == "json":
-        out.print(json.dumps(pairs, indent=2))
-    else:
-        for key, value in sorted(pairs.items()):
-            if fmt == "env":
-                out.print(f"export {key}={_shell_escape(value)}")
+    if output:
+        path = Path(output)
+        with path.open("w") as f:
+            if fmt == "json":
+                f.write(json.dumps(pairs, indent=2))
+                f.write("\n")
+            elif fmt == "yaml":
+                if not HAS_YAML:
+                    console.print("[red]PyYAML is not installed. Install with: pip install pyyaml[/red]")
+                    return
+                yaml.dump(pairs, f, default_flow_style=False, sort_keys=True)
             else:
-                out.print(f"{key}={value}")
+                for key, value in sorted(pairs.items()):
+                    if fmt == "env":
+                        f.write(f"export {key}={_shell_escape(value)}\n")
+                    else:
+                        f.write(f"{key}={value}\n")
+        console.print(f"[green]Exported {len(pairs)} secret(s) to {output}[/green]")
+    else:
+        out = Console(file=sys.stdout, highlight=False)
+        if fmt == "json":
+            out.print(json.dumps(pairs, indent=2))
+        elif fmt == "yaml":
+            if not HAS_YAML:
+                console.print("[red]PyYAML is not installed. Install with: pip install pyyaml[/red]")
+                return
+            yaml.dump(pairs, sys.stdout, default_flow_style=False, sort_keys=True)
+        else:
+            for key, value in sorted(pairs.items()):
+                if fmt == "env":
+                    out.print(f"export {key}={_shell_escape(value)}")
+                else:
+                    out.print(f"{key}={value}")
 
 
 def _shell_escape(value: str) -> str:
@@ -282,7 +520,7 @@ def _shell_escape(value: str) -> str:
 @click.pass_context
 def get(ctx: click.Context, key: str) -> None:
     """Get a single secret value."""
-    store = _get_keychain(ctx.obj["project"], ctx.obj["domain"])
+    store = _get_store(ctx)
     value = store.get(key)
     if value is None:
         raise click.ClickException(f"Key '{key}' not found.")
@@ -295,8 +533,11 @@ def get(ctx: click.Context, key: str) -> None:
 @click.pass_context
 def set_key(ctx: click.Context, key: str, value: str) -> None:
     """Set a single secret."""
-    store = _get_keychain(ctx.obj["project"], ctx.obj["domain"])
-    store.set_with_domain_tracking(key, value)
+    store = _get_store(ctx)
+    if isinstance(store, KeychainStore):
+        store.set_with_domain_tracking(key, value)
+    else:
+        store.set(key, value)
     console.print(f"[green]Set {key}[/green]")
 
 
@@ -305,7 +546,7 @@ def set_key(ctx: click.Context, key: str, value: str) -> None:
 @click.pass_context
 def rm(ctx: click.Context, key: str) -> None:
     """Remove a single secret."""
-    store = _get_keychain(ctx.obj["project"], ctx.obj["domain"])
+    store = _get_store(ctx)
     store.delete(key)
     console.print(f"[green]Removed {key}[/green]")
 
@@ -319,32 +560,56 @@ def rm(ctx: click.Context, key: str) -> None:
 def list_keys(ctx: click.Context) -> None:
     """List stored secret key names."""
     project = ctx.obj["project"]
-    domain = ctx.obj["domain"]
+    domain = ctx.obj["domain"]  # None when user did not pass -d
+    service = ctx.obj["service"]
+    store: SecretStore
 
-    if domain:
-        domains_to_show = [domain]
-    else:
+    if service == "local" and domain is None:
+        # Keychain: show all domains (or default when none)
         global_store = KeychainStore(project=project)
-        domains_to_show = global_store.list_domains() or []
-
-    if not domains_to_show:
-        console.print("[yellow]No secrets stored.[/yellow]")
-        return
-
-    table = Table(title=f"Secrets for project '{project}'")
-    table.add_column("Domain", style="cyan")
-    table.add_column("Key", style="white")
-    table.add_column("Value (masked)", style="dim")
-
-    for d in sorted(domains_to_show):
-        store = _get_keychain(project, d)
+        domains_to_show = global_store.list_domains() or ["default"]
+        if not domains_to_show:
+            console.print("[yellow]No secrets stored.[/yellow]")
+            return
+        table = Table(title=f"Secrets for project '{project}'")
+        table.add_column("Project", style="cyan")
+        table.add_column("Domain", style="cyan")
+        table.add_column("Key", style="white")
+        table.add_column("Value (masked)", style="dim")
+        has_secrets = False
+        for d in sorted(domains_to_show):
+            store = _get_keychain(project, d)
+            keys = store.list_keys()
+            if not keys:
+                table.add_row(project, d, "(empty)", "(empty)")
+                has_secrets = True
+                continue
+            for key in sorted(keys):
+                val = store.get(key)
+                masked = _mask(val) if val else "(empty)"
+                table.add_row(project, d, key, masked)
+                has_secrets = True
+        if not has_secrets:
+            console.print("[yellow]No secrets stored.[/yellow]")
+            return
+        console.print(table)
+    else:
+        store = _get_store(ctx)
         keys = store.list_keys()
-        for key in sorted(keys):
-            val = store.get(key)
-            masked = _mask(val) if val else "(empty)"
-            table.add_row(d, key, masked)
-
-    console.print(table)
+        title = f"Secrets ({service})"
+        if service == "file":
+            title = f"Secrets (file: {ctx.obj['path']})"
+        table = Table(title=title)
+        table.add_column("Key", style="white")
+        table.add_column("Value (masked)", style="dim")
+        if not keys:
+            table.add_row("(empty)", "(empty)")
+        else:
+            for key in sorted(keys):
+                val = store.get(key)
+                masked = _mask(val) if val else "(empty)"
+                table.add_row(key, masked)
+        console.print(table)
 
 
 def _mask(value: str) -> str:
@@ -358,27 +623,52 @@ def _mask(value: str) -> str:
 # ---------------------------------------------------------------------------
 
 @cli.command()
-@click.confirmation_option(prompt="Are you sure you want to clear all secrets?")
+@click.option(
+    "--quiet", "-q",
+    is_flag=True,
+    help="Skip confirmation prompts (for automation).",
+)
 @click.pass_context
-def clear(ctx: click.Context) -> None:
-    """Clear all secrets for the current project/domain."""
-    project = ctx.obj["project"]
-    domain = ctx.obj["domain"]
+def clear(ctx: click.Context, quiet: bool) -> None:
+    """Clear all secrets for the current service (local keychain, file, or cloud store)."""
+    service = ctx.obj["service"]
 
-    if domain:
-        store = _get_keychain(project, domain)
-        store.clear()
-        console.print(f"[green]Cleared all secrets in domain '{domain}'[/green]")
+    if not quiet:
+        if not click.confirm("Are you sure you want to clear all secrets?"):
+            raise click.Abort()
+
+    store = _get_store(ctx)
+    store.clear()
+    if service == "local":
+        domain = ctx.obj["domain_resolved"]
+        console.print(f"[green]Cleared all secrets for service 'local' (domain '{domain}')[/green]")
     else:
-        global_store = KeychainStore(project=project)
-        for d in global_store.list_domains():
-            _get_keychain(project, d).clear()
-        try:
-            import keyring
-            keyring.delete_password(f"enveloper:{project}", "__domains__")
-        except Exception:
-            pass
-        console.print(f"[green]Cleared all secrets for project '{project}'[/green]")
+        console.print(f"[green]Cleared all secrets for service '{service}'[/green]")
+
+
+@cli.command("service")
+def service_list() -> None:
+    """List all available service providers in a table (local, file, then cloud stores)."""
+    cloud = [n for n in sorted(list_store_names()) if n != "keychain"]
+    table = Table(title="Service providers")
+    table.add_column("Service", style="cyan")
+    table.add_column("Description", style="white")
+    table.add_column("Documentation", style="dim")
+    # Local: one row per platform; each has two doc links (keyring + OS docs)
+    for name, desc, platform_url in _LOCAL_PLATFORMS:
+        table.add_row(name, desc, _local_doc_cell(_KEYRING_URL, platform_url))
+    # File
+    desc, url = _SERVICE_PROVIDER_INFO["file"]
+    table.add_row("file", desc, _doc_link(url))
+    # Cloud stores (aws, github, vault, gcp, azure, aliyun, and any plugins)
+    for name in cloud:
+        info = _SERVICE_PROVIDER_INFO.get(name)
+        if info:
+            desc, url = info
+            table.add_row(name, desc, _doc_link(url))
+        else:
+            table.add_row(name, "(plugin)", "")
+    console.print(table)
 
 
 # ---------------------------------------------------------------------------
@@ -386,70 +676,81 @@ def clear(ctx: click.Context) -> None:
 # ---------------------------------------------------------------------------
 
 @cli.command()
-@click.argument("store_name")
+@click.option("--from", "from_service", default="local", help="Source service to push from (default: local).")
 @click.option("--prefix", default=None, help="Key prefix for the target store.")
-@click.option("--profile", default=None, help="AWS profile (aws-ssm store).")
-@click.option("--region", default=None, help="AWS region (aws-ssm store).")
+@click.option("--profile", default=None, help="AWS profile (aws store).")
+@click.option("--region", default=None, help="AWS region (aws store).")
 @click.option("--repo", default=None, help="GitHub repo owner/name (github store).")
 @click.pass_context
 def push(
     ctx: click.Context,
-    store_name: str,
+    from_service: str,
     prefix: str | None,
     profile: str | None,
     region: str | None,
     repo: str | None,
 ) -> None:
-    """Push keychain secrets to a cloud store."""
-    project = ctx.obj["project"]
-    domain = ctx.obj["domain"]
+    """Push secrets to a cloud store. Use global --service to specify the cloud store (e.g. --service aws)."""
+    cloud_store = ctx.obj["service"]
+    if cloud_store in ("local", "file"):
+        raise click.UsageError("Push target must be a cloud store. Use --service aws, github, vault, gcp, azure, or aliyun.")
+    domain = ctx.obj["domain_resolved"]
     cfg = ctx.obj["config"]
     env_name = ctx.obj["env_name"]
-
-    kc = _get_keychain(project, domain)
-    keys = kc.list_keys()
+    path = ctx.obj.get("path", ".env")
+    # Source: from_service (local, file, or cloud)
+    orig_service = ctx.obj["service"]
+    ctx.obj["service"] = from_service
+    ctx.obj["path"] = path
+    try:
+        source = _get_store(ctx)
+    finally:
+        ctx.obj["service"] = orig_service
+    keys = source.list_keys()
     if not keys:
         console.print("[yellow]No secrets to push.[/yellow]")
         return
 
     target = _make_cloud_store(
-        store_name, cfg, domain, env_name,
+        cloud_store, cfg, domain, env_name,
         prefix=prefix, profile=profile, region=region, repo=repo,
     )
 
     count = 0
     for key in keys:
-        val = kc.get(key)
+        val = source.get(key)
         if val is not None:
             target.set(key, val)
             count += 1
             if ctx.obj["verbose"]:
                 console.print(f"  {key}")
 
-    console.print(f"[green]Pushed {count} secret(s) to {store_name}[/green]")
+    console.print(f"[green]Pushed {count} secret(s) to {cloud_store}[/green]")
 
 
 @cli.command()
-@click.argument("store_name")
+@click.option("--to", "to_service", default="local", help="Target service to pull into (default: local).")
 @click.option("--prefix", default=None, help="Key prefix on the source store.")
-@click.option("--profile", default=None, help="AWS profile (aws-ssm store).")
-@click.option("--region", default=None, help="AWS region (aws-ssm store).")
+@click.option("--profile", default=None, help="AWS profile (aws store).")
+@click.option("--region", default=None, help="AWS region (aws store).")
 @click.pass_context
 def pull(
     ctx: click.Context,
-    store_name: str,
+    to_service: str,
     prefix: str | None,
     profile: str | None,
     region: str | None,
 ) -> None:
-    """Pull secrets from a cloud store into the local keychain."""
-    project = ctx.obj["project"]
-    domain = ctx.obj["domain"]
+    """Pull secrets from a cloud store. Use global --service to specify the cloud store (e.g. --service aws)."""
+    cloud_store = ctx.obj["service"]
+    if cloud_store in ("local", "file"):
+        raise click.UsageError("Pull source must be a cloud store. Use --service aws, vault, gcp, azure, or aliyun.")
+    domain = ctx.obj["domain_resolved"]
     cfg = ctx.obj["config"]
     env_name = ctx.obj["env_name"]
-
+    path = ctx.obj.get("path", ".env")
     source = _make_cloud_store(
-        store_name, cfg, domain, env_name,
+        cloud_store, cfg, domain, env_name,
         prefix=prefix, profile=profile, region=region,
     )
 
@@ -458,17 +759,28 @@ def pull(
         console.print("[yellow]No secrets found in remote store.[/yellow]")
         return
 
-    kc = _get_keychain(project, domain)
+    # Target: to_service (local, file, or cloud)
+    orig_service = ctx.obj["service"]
+    ctx.obj["service"] = to_service
+    ctx.obj["path"] = path
+    try:
+        target = _get_store(ctx)
+    finally:
+        ctx.obj["service"] = orig_service
     count = 0
     for key in keys:
         val = source.get(key)
         if val is not None:
-            kc.set_with_domain_tracking(key, val)
+            local_key = strip_domain_prefix(key)  # strip domain/project for local env vars
+            if isinstance(target, KeychainStore):
+                target.set_with_domain_tracking(local_key, val)
+            else:
+                target.set(local_key, val)
             count += 1
             if ctx.obj["verbose"]:
-                console.print(f"  {key}")
+                console.print(f"  {local_key}")
 
-    console.print(f"[green]Pulled {count} secret(s) from {store_name}[/green]")
+    console.print(f"[green]Pulled {count} secret(s) from {cloud_store}[/green]")
 
 
 def _make_cloud_store(
@@ -486,24 +798,14 @@ def _make_cloud_store(
     from enveloper.config import EnveloperConfig
 
     assert isinstance(cfg, EnveloperConfig)
-    store_cls = get_store_class(store_name)
-
-    if store_name == "aws-ssm":
-        resolved_prefix = prefix
-        if resolved_prefix is None and domain:
-            resolved_prefix = cfg.resolve_ssm_prefix(domain, env_name)
-        if resolved_prefix is None:
-            resolved_prefix = "/enveloper/"
-        return store_cls(
-            prefix=resolved_prefix,
-            profile=profile or cfg.aws_profile,
-            region=region or cfg.aws_region,
+    domain_str = domain or "default"
+    try:
+        return resolve_make_cloud_store(
+            store_name, cfg, domain_str, env_name,
+            prefix=prefix, profile=profile, region=region, repo=repo,
         )
-    elif store_name == "github":
-        gh_prefix = prefix if prefix is not None else cfg.github_prefix
-        return store_cls(prefix=gh_prefix, repo=repo)
-    else:
-        return store_cls()
+    except ValueError as e:
+        raise click.UsageError(str(e))
 
 
 # ---------------------------------------------------------------------------
@@ -540,7 +842,7 @@ def generate() -> None:
 def gen_codebuild(ctx: click.Context, prefix: str | None) -> None:
     """Generate AWS CodeBuild buildspec parameter-store YAML."""
     project = ctx.obj["project"]
-    domain = ctx.obj["domain"]
+    domain = ctx.obj["domain_resolved"]
     cfg = ctx.obj["config"]
     env_name = ctx.obj["env_name"]
 

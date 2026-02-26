@@ -1,0 +1,124 @@
+# Publish to PyPI or TestPyPI. Does NOT run on every push.
+#
+# Triggers:
+#   1. Push a version tag (e.g. v0.1.9) → build and publish to PyPI.
+#   2. Manual run from Actions tab → choose PyPI or TestPyPI.
+#
+# Setup:
+#   - PyPI: Add a trusted publisher at https://pypi.org/manage/account/publishing/
+#     (GitHub repo, workflow name "publish.yml", environment "pypi").
+#   - TestPyPI: Same at https://test.pypi.org/manage/account/publishing/
+#     with environment "testpypi".
+#   - Create GitHub Environments "pypi" and "testpypi" in repo Settings → Environments
+#     (no protection rules required).
+#   - Ensure the version in pyproject.toml matches the tag (e.g. tag v0.1.9 → version = "0.1.9").
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Publish target"
+        required: true
+        default: "pypi"
+        type: choice
+        options:
+          - pypi
+          - testpypi
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --extra dev --extra aws
+
+      - name: Lint (ruff)
+        run: uv run ruff check src/ tests/
+
+      - name: Type-check (mypy)
+        run: uv run mypy -p enveloper && uv run mypy tests/
+
+      - name: Test
+        run: uv run pytest tests/ -v --ignore=tests/integration
+
+  build:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Build package
+        run: uv build
+
+      - name: Check version matches tag (on tag push)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#v}"
+          PYPROJECT_VERSION=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if [ "$VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "Tag $TAG does not match pyproject.toml version $PYPROJECT_VERSION"
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi')
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-testpypi:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/

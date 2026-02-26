@@ -11,6 +11,9 @@ class SecretStore(ABC):
     Implementations must handle their own authentication and connection
     lifecycle.  Write-only stores (e.g. GitHub Secrets) should raise
     ``NotImplementedError`` from :meth:`get`.
+
+    All stores must implement :meth:`clear`; it is used when the user runs
+    ``enveloper clear --service <name>`` to remove every key from that backend.
     """
 
     @abstractmethod
@@ -31,4 +34,7 @@ class SecretStore(ABC):
 
     @abstractmethod
     def clear(self) -> None:
-        """Remove every key managed by this store."""
+        """Remove every key managed by this store.
+
+        Used by the CLI when the user runs ``enveloper clear --service <name>``.
+        """

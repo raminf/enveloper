@@ -33,10 +33,18 @@ class EnveloperConfig:
     """Resolved configuration for the current invocation."""
 
     project: str = "default"
+    service: str | None = None
     domains: dict[str, DomainConfig] = field(default_factory=dict)
     aws_profile: str = "default"
     aws_region: str | None = None
     github_prefix: str = ""
+    vault_url: str | None = None
+    vault_mount: str = "secret"
+    gcp_project: str | None = None
+    azure_vault_url: str | None = None
+    aliyun_region_id: str = "cn-hangzhou"
+    aliyun_access_key_id: str | None = None
+    aliyun_access_key_secret: str | None = None
     config_path: Path | None = None
 
     def resolve_ssm_prefix(self, domain: str, env: str | None = None) -> str | None:
@@ -82,12 +90,24 @@ def load_config(path: Path | None = None) -> EnveloperConfig:
 
     aws = section.get("aws", {})
     gh = section.get("github", {})
+    vault = section.get("vault", {})
+    gcp = section.get("gcp", {})
+    azure = section.get("azure", {})
+    aliyun = section.get("aliyun", {})
 
     return EnveloperConfig(
         project=section.get("project", "default"),
+        service=section.get("service"),
         domains=domains,
         aws_profile=aws.get("profile", "default"),
         aws_region=aws.get("region"),
         github_prefix=gh.get("prefix", ""),
+        vault_url=vault.get("url"),
+        vault_mount=vault.get("mount", "secret"),
+        gcp_project=gcp.get("project"),
+        azure_vault_url=azure.get("vault_url"),
+        aliyun_region_id=aliyun.get("region_id", "cn-hangzhou"),
+        aliyun_access_key_id=aliyun.get("access_key_id"),
+        aliyun_access_key_secret=aliyun.get("access_key_secret"),
         config_path=path,
     )
