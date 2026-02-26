@@ -82,3 +82,13 @@ def test_manifest_consistency_after_set_delete(mock_keyring):
     assert sorted(store.list_keys()) == ["A", "B"]
     store.delete("A")
     assert store.list_keys() == ["B"]
+
+
+def test_delete_last_key_unregisters_domain(mock_keyring):
+    """Deleting the last key in a domain removes that domain from list_domains()."""
+    store = KeychainStore(project="test", domain="aws")
+    store.set_with_domain_tracking("name", "value")
+    global_store = KeychainStore(project="test")
+    assert "aws" in global_store.list_domains()
+    store.delete("name")
+    assert "aws" not in global_store.list_domains()

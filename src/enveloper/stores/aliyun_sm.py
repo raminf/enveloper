@@ -13,7 +13,7 @@ import re
 import time
 from typing import Any
 
-from enveloper.store import SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_ALIBABA = (
     "alibabacloud_kms20160120 is required for the aliyun store. "
@@ -70,6 +70,15 @@ class AliyunSmStore(SecretStore):
     Uses ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET, or
     [enveloper.aliyun] access_key_id / access_key_secret in config.
     """
+
+    default_namespace: str = "_default_"
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default prefix: enveloper--{domain}--{project}-- (separator --)."""
+        d = _sanitize_prefix_segment_aliyun(domain)
+        p = _sanitize_prefix_segment_aliyun(project)
+        return f"enveloper--{d}--{p}--"
 
     def __init__(
         self,

@@ -23,7 +23,7 @@ _MANIFEST_KEY = "__keys__"
 class KeychainStore(SecretStore):
     """Read/write secrets in the OS keychain, scoped by project and domain."""
 
-    def __init__(self, project: str = "default", domain: str | None = None) -> None:
+    def __init__(self, project: str = "_default_", domain: str | None = None) -> None:
         self._service = f"enveloper:{project}"
         self._domain = domain
 
@@ -69,6 +69,9 @@ class KeychainStore(SecretStore):
         if key in manifest:
             manifest.remove(key)
             self._write_manifest(manifest)
+            # If domain is now empty, remove it from the domain list so list_domains() doesn't show it
+            if not manifest and self._domain:
+                self.unregister_domain(self._domain)
 
     def list_keys(self) -> list[str]:
         return self._read_manifest()
@@ -83,6 +86,8 @@ class KeychainStore(SecretStore):
             keyring.delete_password(self._service, self._manifest_username())
         except keyring.errors.PasswordDeleteError:
             pass
+        if self._domain:
+            self.unregister_domain(self._domain)
 
     def list_domains(self) -> list[str]:
         """Return domain names that have a manifest entry.
@@ -104,6 +109,20 @@ class KeychainStore(SecretStore):
         if domain not in domains:
             domains.append(domain)
             keyring.set_password(self._service, "__domains__", json.dumps(sorted(domains)))
+
+    def unregister_domain(self, domain: str) -> None:
+        """Remove *domain* from the top-level domain manifest (e.g. when last key in domain is deleted)."""
+        domains = self.list_domains()
+        if domain not in domains:
+            return
+        domains = [d for d in domains if d != domain]
+        if domains:
+            keyring.set_password(self._service, "__domains__", json.dumps(sorted(domains)))
+        else:
+            try:
+                keyring.delete_password(self._service, "__domains__")
+            except keyring.errors.PasswordDeleteError:
+                pass
 
     def set_with_domain_tracking(self, key: str, value: str) -> None:
         """Set a key and ensure its domain is registered in the domain manifest."""

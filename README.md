@@ -2,11 +2,9 @@
 
 <img src="media/envelope.svg" width="64" height="64" alt="Envelope icon" />
 
-Manage `.env` secrets via your system keychain, plain `.env` files, or optional cloud secret stores.
+Manage `.env` secrets via your system keychain or cloud secret stores.
 
-Stop storing your secrets in local `.env` files. Reduce exposure to LLMs and Agents!
-
-You can use **`file`** as a backward-compatible service to work with regular `.env` files (read, write, list, import, export), use the OS keychain (default) sync your environment variables with cloud services:
+For backward-compatibility, you can also use **`file`** as a service to work with regular `.env` files to read, write, list, import, or export secrets, via:
 
 - **Local keychain** (default): 
   - MacOS Keychain
@@ -21,28 +19,37 @@ You can use **`file`** as a backward-compatible service to work with regular `.e
   - **Azure** Key Vault (`azure`)
   - **Alibaba Cloud** KMS Secrets Manager (`aliyun`)
 
-You can run the CLI as **`enveloper`** or **`envr`** (same binary). It manages individual values, syncs to cloud, and can be use inside scripts and `Makefiles`. It also supports bulk **import/export** in the following formats:
+Run the CLI as **`enveloper`** or **`envr`**. It manages individual values, bulk import/export, sync to cloud, and can be used inside scripts and `Makefiles`. **Import/Export** conversion supports the following formats:
 
-- **dotenv**
-- **JSON**
-- **YAML**
+- **dotenv** (default for export): `KEY=value` lines, no `export` keyword — use to recreate a local `.env` file; works on Windows too.
+- **unix**: `export KEY=value` for sourcing in Unix shells, e.g. `eval "$(enveloper export -d aws --format unix)"`.
+- **win**: PowerShell format `$env:KEY = 'value'`; load with `enveloper export -d aws --format win | Invoke-Expression` (or `iex`).
+- **JSON** and **YAML**
 
-There's also an optional Python **SDK**, compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` file, it loads values from your secure keychain or cloud service secret manager.
+The design supports hierarchical ordering of secrets into _domains_ and _projects_.
 
+There's also an optional Python **SDK**, compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` file, you can have it load values from your secure keychain or cloud service secret manager (currently compatible with _AWS SSM Parameters_ and _Lambdas_). 
+
+Having secrets stored on the cloud also means there is a single source of truth that can be share between projects or team-members. New developers can be provided with managed access credentials and obtain a faster local copy, stored in secure keychain.
+
+Pro tip: _Moving secrets out of local files also keeps them away from roving scans of AI Agents and MCP tools._
 
 ## Installation
 
 ```bash
-pip install enveloper              # CLI only
-pip install enveloper[sdk]         # CLI + SDK (load_dotenv / dotenv_values)
-pip install enveloper[cli,sdk]     # CLI + SDK (same as [sdk])
-pip install enveloper[aws]         # CLI + AWS SSM and Lambda support (boto3)
-pip install enveloper[vault]       # CLI + HashiCorp Vault KV v2 (hvac)
-pip install enveloper[gcp]        # CLI + GCP Secret Manager
-pip install enveloper[azure]       # CLI + Azure Key Vault (secrets)
-pip install enveloper[alibaba]     # CLI + Alibaba Cloud KMS Secrets Manager
-pip install enveloper[all]        # CLI + SDK + AWS + Vault + GCP + Azure + Alibaba
+pip install enveloper            # CLI only
+pip install enveloper[sdk]       # CLI + SDK (load_dotenv / dotenv_values)
+pip install enveloper[cli,sdk]   # CLI + SDK (same as [sdk])
+pip install enveloper[aws]       # CLI + AWS SSM and Lambda support (boto3)
+pip install enveloper[vault]     # CLI + HashiCorp Vault KV v2 (hvac)
+pip install enveloper[gcp]       # CLI + GCP Secret Manager
+pip install enveloper[azure]     # CLI + Azure Key Vault (secrets)
+pip install enveloper[alibaba]   # CLI + Alibaba Cloud KMS Secrets Manager
+pip install enveloper[all]       # CLI + SDK + AWS + Vault + GCP + Azure + Alibaba
 ```
+
+You can use `pip`, `poetry`, oe `uv` to install `enveloper`.
+
 
 ## CLI Quick Start
 
@@ -55,17 +62,20 @@ enveloper import .env --domain {domain-name}
 # List what's stored
 enveloper list
 
-# Export for a build (use with eval in Makefiles/scripts)
-eval "$(enveloper export --domain {domain-name})"
+# Export for a build (use with eval in Makefiles/scripts; --format unix adds export keyword)
+eval "$(enveloper --domain {domain-name} export --format unix)"
+
+# Clear those variables later:
+eval "$(enveloper --domain {domain-name} unexport)"
 
 # Push to AWS SSM Parameter Store (you provide the prefix)
-enveloper push --service aws --domain {domain-name} --prefix /myproject/prod/
+enveloper --service aws --domain {domain-name} --prefix /myproject/prod/ push 
 
 # Pull from AWS SSM into local keychain
-enveloper pull --service aws --domain {domain-name} --prefix /myproject/prod/
+enveloper --service aws --domain {domain-name} --prefix /myproject/prod/ pull 
 
 # Push to GitHub Actions Secrets
-enveloper push --service github --domain {domain-name}
+enveloper --service github --domain {domain-name} push 
 
 # Same pattern for other stores: --service vault, gcp, azure, aliyun
 # List all service providers: enveloper service
@@ -81,7 +91,9 @@ Import:
 
 Export, for injecting into shell environment:
 
- `eval "$(enveloper export -d {domain-name})"` 
+ `eval "$(enveloper export -d {domain-name} --format unix)"`
+ To clear them: `eval "$(enveloper -d {domain-name} unexport)"`
+ On Windows PowerShell: `enveloper export -d {domain-name} --format win | Invoke-Expression` (or `iex`).
 
 Export back out to and `.env` file:
 
@@ -349,11 +361,12 @@ For **push** / **pull**, use **`--service`** to specify the cloud store (e.g. **
 ```
 enveloper init                             Configure OS keychain for frictionless access
 enveloper import <file> [-d DOMAIN] [-s SERVICE] [--path PATH] [--format env|json|yaml]   Import into current service
-enveloper export [-d DOMAIN] [-s SERVICE] [--path PATH] [--format env|dotenv|json|yaml] [-o FILE]   Export from current service
+enveloper export [-d DOMAIN] [-s SERVICE] [--path PATH] [--format dotenv|unix|win|json|yaml] [-o FILE]   Export (default: dotenv)
+enveloper unexport [-d DOMAIN] [-s SERVICE] [--path PATH] [--format unix|win]   Output unset commands (unix or PowerShell)
 enveloper get <key> [-d DOMAIN] [-s SERVICE] [--path PATH]   Get a single secret
 enveloper set <key> <value> [-d DOMAIN] [-s SERVICE] [--path PATH]   Set a single secret
 enveloper list [-d DOMAIN] [-s SERVICE] [--path PATH]       List keys (rich table)
-enveloper rm <key> [-d DOMAIN] [-s SERVICE] [--path PATH]   Remove a single secret
+enveloper delete <key> [-d DOMAIN] [-s SERVICE] [--path PATH]   Remove a single secret
 enveloper clear [-d DOMAIN] [-s SERVICE] [--path PATH] [--quiet]   Clear all secrets (prompts unless -q)
 
 enveloper push --service <store> [--from local|file] [-d DOMAIN] [--path PATH] [--prefix ...]   Push to cloud store

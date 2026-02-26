@@ -79,7 +79,7 @@ def test_get_missing(mock_keyring):
 def test_rm(mock_keyring):
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "d", "set", "FOO", "bar"])
-    result = runner.invoke(cli, ["--project", "test", "-d", "d", "rm", "FOO"])
+    result = runner.invoke(cli, ["--project", "test", "-d", "d", "delete", "FOO"])
     assert result.exit_code == 0
 
     result = runner.invoke(cli, ["--project", "test", "-d", "d", "get", "FOO"])
@@ -191,7 +191,7 @@ def test_path_ignored_when_service_local(mock_keyring):
     )
     assert result.exit_code == 0
     # Should show keychain list (default or empty), not try to read file
-    assert "No secrets stored" in result.output or "default" in result.output or "Project" in result.output
+    assert "No secrets stored" in result.output or "_default_" in result.output or "Project" in result.output
 
 
 def test_service_file_nonexistent_path_list():
@@ -357,10 +357,10 @@ def test_set_missing_arguments(mock_keyring):
     assert result.exit_code != 0
 
 
-def test_rm_missing_key_argument(mock_keyring):
-    """Test rm command without key argument."""
+def test_delete_missing_key_argument(mock_keyring):
+    """Test delete command without key argument."""
     runner = CliRunner()
-    result = runner.invoke(cli, ["--project", "test", "rm"])
+    result = runner.invoke(cli, ["--project", "test", "delete"])
     assert result.exit_code != 0
 
 
@@ -386,6 +386,59 @@ def test_pull_missing_store_argument(mock_keyring):
     result = runner.invoke(cli, ["--project", "test", "pull"])
     assert result.exit_code != 0
     assert "cloud store" in result.output.lower() or "UsageError" in str(type(result.exception))
+
+
+# ---------------------------------------------------------------------------
+# Missing required parameters (negative): with options before or after subcommand
+# ---------------------------------------------------------------------------
+
+def test_import_missing_file_with_options_after(mock_keyring):
+    """import without FILE and no configured domain fails even when options are after subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["import", "--project", "test"])
+    assert result.exit_code != 0
+    assert "Provide a file path" in result.output or "FILE" in result.output or "missing" in result.output.lower()
+
+
+def test_get_missing_key_with_options_after(mock_keyring):
+    """get without KEY fails when options are passed after the subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["get", "--project", "test", "--domain", "aws"])
+    assert result.exit_code != 0
+    assert "KEY" in result.output or "missing" in result.output.lower() or "argument" in result.output.lower()
+
+
+def test_set_missing_arguments_with_options_after(mock_keyring):
+    """set without KEY/VALUE fails when options are after the subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["set", "--project", "test"])
+    assert result.exit_code != 0
+    result2 = runner.invoke(cli, ["set", "KEY", "--project", "test"])
+    assert result2.exit_code != 0
+
+
+def test_delete_missing_key_with_options_after(mock_keyring):
+    """delete without KEY fails when options are after the subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["delete", "-p", "test", "-d", "aws"])
+    assert result.exit_code != 0
+    assert "KEY" in result.output or "missing" in result.output.lower() or "argument" in result.output.lower()
+
+
+def test_push_missing_service_with_options_after(mock_keyring):
+    """push without --service (cloud) fails when options are after the subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["push", "--project", "test", "--domain", "aws"])
+    assert result.exit_code != 0
+    assert "cloud store" in result.output.lower()
+
+
+def test_pull_missing_service_with_options_after(mock_keyring):
+    """pull without --service (cloud) fails when options are after the subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["pull", "-p", "test", "-d", "aws"])
+    assert result.exit_code != 0
+    assert "cloud store" in result.output.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -421,12 +474,11 @@ def test_flags_before_command(mock_keyring, sample_env):
 
 
 def test_flags_after_command(mock_keyring, sample_env):
-    """Test that flags work after the command (Click allows this)."""
+    """Options --project/--domain/--service work after the subcommand (common_options)."""
     runner = CliRunner()
     result = runner.invoke(cli, ["import", str(sample_env), "--project", "test", "-d", "aws"])
-    # Click may not handle flags after command well, but let's test it
-    # This might fail depending on how Click parses this
-    assert result.exit_code == 0 or "Error" in result.output
+    assert result.exit_code == 0
+    assert "Imported" in result.output
 
 
 def test_mixed_flags_order(mock_keyring, sample_env):
@@ -449,6 +501,91 @@ def test_domain_flag_before_list(mock_keyring):
     runner = CliRunner()
     result = runner.invoke(cli, ["--project", "test", "-d", "aws", "list"])
     assert result.exit_code == 0
+
+
+def test_domain_and_project_after_list(mock_keyring):
+    """Options --project/--domain can appear after the subcommand (any order)."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["list", "--domain", "aws", "-p", "test"])
+    assert result.exit_code == 0
+    result2 = runner.invoke(cli, ["list", "-p", "test", "--domain", "aws"])
+    assert result2.exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# Options in any order: project, domain, service (before / after / mixed)
+# ---------------------------------------------------------------------------
+
+def test_project_domain_service_all_orders_before_subcommand(mock_keyring, sample_env):
+    """-p, -d, -s in any order before the subcommand all work."""
+    runner = CliRunner()
+    orders = [
+        ["--project", "test", "--domain", "aws", "--service", "local", "import", str(sample_env)],
+        ["--domain", "aws", "--project", "test", "--service", "local", "import", str(sample_env)],
+        ["--service", "local", "--domain", "aws", "--project", "test", "import", str(sample_env)],
+        ["-p", "test", "-d", "aws", "-s", "local", "import", str(sample_env)],
+        ["-d", "aws", "-p", "test", "-s", "local", "import", str(sample_env)],
+    ]
+    for args in orders:
+        result = runner.invoke(cli, args)
+        assert result.exit_code == 0, f"Failed for args {args}: {result.output}"
+        assert "Imported" in result.output
+
+
+def test_project_domain_service_all_orders_after_subcommand(mock_keyring, sample_env):
+    """-p, -d, -s in any order after the subcommand all work."""
+    runner = CliRunner()
+    orders = [
+        ["import", str(sample_env), "--project", "test", "--domain", "aws", "--service", "local"],
+        ["import", str(sample_env), "--domain", "aws", "--project", "test", "--service", "local"],
+        ["import", str(sample_env), "--service", "local", "--domain", "aws", "--project", "test"],
+        ["import", str(sample_env), "-p", "test", "-d", "aws", "-s", "local"],
+        ["list", "--project", "test", "--domain", "aws"],
+        ["list", "--domain", "aws", "--project", "test"],
+        ["list", "-p", "test", "-d", "aws"],
+    ]
+    for args in orders:
+        result = runner.invoke(cli, args)
+        assert result.exit_code == 0, f"Failed for args {args}: {result.output}"
+
+
+def test_project_domain_service_mixed_before_and_after_subcommand(mock_keyring, sample_env):
+    """Options can be split: some before and some after the subcommand."""
+    runner = CliRunner()
+    # project before, domain after
+    result = runner.invoke(cli, ["--project", "test", "import", str(sample_env), "--domain", "aws"])
+    assert result.exit_code == 0
+    assert "Imported" in result.output
+    # domain before, project after
+    result2 = runner.invoke(cli, ["--domain", "aws", "list", "--project", "test"])
+    assert result2.exit_code == 0
+    # service before, domain after
+    result3 = runner.invoke(cli, ["--service", "local", "list", "-d", "aws", "-p", "test"])
+    assert result3.exit_code == 0
+
+
+def test_get_set_with_options_after_subcommand(mock_keyring, sample_env):
+    """get/set work with -p/-d/-s after the subcommand."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    result = runner.invoke(cli, ["get", "TWILIO_API_SID", "--project", "test", "-d", "aws"])
+    assert result.exit_code == 0
+    assert "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" in result.output
+    result2 = runner.invoke(cli, ["set", "SOME_KEY", "some_val", "-p", "test", "--domain", "aws"])
+    assert result2.exit_code == 0
+    assert "Set" in result2.output
+
+
+def test_export_unexport_with_options_after_subcommand(mock_keyring, sample_env):
+    """export/unexport work with options after the subcommand."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    result = runner.invoke(cli, ["export", "--project", "test", "--domain", "aws"])
+    assert result.exit_code == 0
+    assert "TWILIO_API_SID" in result.output
+    result2 = runner.invoke(cli, ["unexport", "-p", "test", "-d", "aws"])
+    assert result2.exit_code == 0
+    assert "unset" in result2.output
 
 
 # ---------------------------------------------------------------------------
@@ -505,7 +642,7 @@ def test_list_empty_project(mock_keyring):
     runner = CliRunner()
     result = runner.invoke(cli, ["--project", "empty_project_xyz", "list"])
     assert result.exit_code == 0
-    assert "default" in result.output and "(empty)" in result.output
+    assert "_default_" in result.output and "(empty)" in result.output
 
 
 def test_get_from_empty_domain(mock_keyring):
@@ -523,6 +660,36 @@ def test_export_empty_domain(mock_keyring):
     assert result.exit_code == 0
     # Empty export should produce empty output
     assert result.output == "" or result.output.strip() == ""
+
+
+def test_unexport_outputs_unset_commands(mock_keyring):
+    """Unexport outputs unset KEY for each key that export would set."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "set", "FOO", "bar"])
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "set", "BAZ", "qux"])
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "unexport"])
+    assert result.exit_code == 0
+    lines = [s.strip() for s in result.output.strip().splitlines()]
+    assert "unset BAZ" in lines
+    assert "unset FOO" in lines
+    assert all(line.startswith("unset ") for line in lines if line)
+
+
+def test_unexport_win_format(mock_keyring):
+    """Unexport --format win outputs PowerShell Remove-Item Env:KEY."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "set", "FOO", "bar"])
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "unexport", "--format", "win"])
+    assert result.exit_code == 0
+    assert "Remove-Item Env:FOO" in result.output
+
+
+def test_unexport_empty_domain(mock_keyring):
+    """Unexport with no secrets outputs nothing."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["--project", "test", "-d", "empty_unexport", "unexport"])
+    assert result.exit_code == 0
+    assert result.output.strip() == ""
 
 
 def test_clear_empty_domain(mock_keyring):
@@ -641,17 +808,28 @@ def test_export_to_file_json(mock_keyring, sample_env, tmp_path):
     assert "TWILIO_API_SID" in data
 
 
-def test_export_to_file_env_format(mock_keyring, sample_env, tmp_path):
-    """Test exporting secrets to a file in env format."""
+def test_export_to_file_unix_format(mock_keyring, sample_env, tmp_path):
+    """Test exporting secrets to a file in unix format (export KEY=value)."""
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
 
     output_file = tmp_path / "exported.env"
-    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "export", "--format", "env", "-o", str(output_file)])
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "export", "--format", "unix", "-o", str(output_file)])
     assert result.exit_code == 0
 
     content = output_file.read_text()
     assert "export TWILIO_API_SID=" in content
+
+
+def test_export_to_file_win_format(mock_keyring, sample_env, tmp_path):
+    """Test exporting secrets in PowerShell format ($env:KEY = 'value')."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "export", "--format", "win"])
+    assert result.exit_code == 0
+    assert "$env:TWILIO_API_SID =" in result.output or "$env:TWILIO_API_SID=" in result.output
+    assert "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" in result.output
 
 
 def test_export_to_default_env_file(mock_keyring, sample_env, tmp_path):
@@ -688,11 +866,11 @@ def test_clear_nonexistent_domain(mock_keyring):
 
 
 def test_clear_nonexistent_project(mock_keyring):
-    """Test clearing a project that doesn't exist (clears default domain)."""
+    """Test clearing a project that doesn't exist (clears all domains / default)."""
     runner = CliRunner()
     result = runner.invoke(cli, ["--project", "nonexistent_project_xyz", "clear", "--quiet"])
     assert result.exit_code == 0
-    assert "Cleared all secrets for service 'local' (domain 'default')" in result.output
+    assert "Cleared all secrets for service 'local' (all domains)" in result.output
 
 
 def test_clear_empty_domain_explicit(mock_keyring):
@@ -723,10 +901,10 @@ def test_clear_project_after_domain_clear(mock_keyring):
     result = runner.invoke(cli, ["--project", "test", "-d", "aws", "clear", "--quiet"])
     assert result.exit_code == 0
 
-    # Clear without -d clears default domain only
+    # Clear without -d clears all domains (web and default)
     result = runner.invoke(cli, ["--project", "test", "clear", "--quiet"])
     assert result.exit_code == 0
-    assert "Cleared all secrets for service 'local' (domain 'default')" in result.output
+    assert "Cleared all secrets for service 'local' (all domains)" in result.output
 
 
 # ---------------------------------------------------------------------------
@@ -741,11 +919,11 @@ def test_get_nonexistent_key_raises():
     assert "not found" in result.output.lower() or "clickexception" in str(type(result.exception)).lower()
 
 
-def test_rm_nonexistent_key():
-    """Test that rm on nonexistent key does not raise exception (idempotent)."""
+def test_delete_nonexistent_key():
+    """Test that delete on nonexistent key does not raise exception (idempotent)."""
     runner = CliRunner()
-    result = runner.invoke(cli, ["--project", "test", "-d", "d", "rm", "NONEXISTENT_KEY"])
-    # rm should succeed even for nonexistent key (idempotent operation)
+    result = runner.invoke(cli, ["--project", "test", "-d", "d", "delete", "NONEXISTENT_KEY"])
+    # delete should succeed even for nonexistent key (idempotent operation)
     assert result.exit_code == 0
     assert "Removed" in result.output
 

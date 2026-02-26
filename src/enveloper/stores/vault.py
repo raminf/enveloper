@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from enveloper.store import SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_HVAC = (
     "hvac is required for the vault store. "
@@ -41,6 +41,13 @@ def _vault_path_not_found(exc: BaseException) -> bool:
         return "404" in str(exc) or "not found" in str(exc).lower()
 
 
+def _sanitize_path_segment(s: str) -> str:
+    """Path segment: no slashes or backslashes (Vault path uses /)."""
+    if not s or not s.strip():
+        return DEFAULT_NAMESPACE
+    return s.replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
+
+
 class VaultStore(SecretStore):
     """Read/write secrets as a single KV v2 secret at a given path.
 
@@ -49,6 +56,15 @@ class VaultStore(SecretStore):
     (e.g. ``myapp/prod``). Uses ``VAULT_ADDR`` and ``VAULT_TOKEN`` if not
     passed in.
     """
+
+    default_namespace: str = "_default_"
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default Vault path: enveloper/{domain}/{project} (path separator /)."""
+        d = _sanitize_path_segment(domain)
+        p = _sanitize_path_segment(project)
+        return f"enveloper/{d}/{p}"
 
     def __init__(
         self,

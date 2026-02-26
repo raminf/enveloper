@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from enveloper.store import SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_GCP = (
     "google-cloud-secret-manager is required for the gcp store. "
@@ -33,12 +33,28 @@ def _get_client() -> Any:
     return secretmanager.SecretManagerServiceClient()
 
 
+def _sanitize_prefix_segment(s: str) -> str:
+    """Segment for prefix with '--' separator: no '--' inside (GCP allows [a-zA-Z0-9_-])."""
+    if not s or not s.strip():
+        return DEFAULT_NAMESPACE
+    return s.replace("--", "_").replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
+
+
 class GcpSmStore(SecretStore):
     """Read/write secrets as Google Cloud Secret Manager secrets.
 
     Each key is stored as a separate secret; secret ID = prefix + sanitized key.
     Uses Application Default Credentials (ADC) or GOOGLE_APPLICATION_CREDENTIALS.
     """
+
+    default_namespace: str = "_default_"
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default prefix: enveloper--{domain}--{project}-- (separator --)."""
+        d = _sanitize_prefix_segment(domain)
+        p = _sanitize_prefix_segment(project)
+        return f"enveloper--{d}--{p}--"
 
     def __init__(
         self,

@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from enveloper.store import SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_AZURE = (
     "azure-keyvault-secrets and azure-identity are required for the azure store. "
@@ -19,6 +19,13 @@ _MISSING_AZURE = (
 
 # Azure Key Vault secret names: 1-127 chars, [a-zA-Z0-9-]+ only
 _SECRET_NAME_RE = re.compile(r"[^a-zA-Z0-9-]+")
+
+
+def _sanitize_prefix_segment_azure(s: str) -> str:
+    """Azure allows [a-zA-Z0-9-] only; use 'default' when empty (no underscore)."""
+    if not s or not s.strip():
+        return "default"
+    return re.sub(r"[^a-zA-Z0-9-]", "-", s).strip("-") or "default"
 
 
 def _sanitize_secret_name(key: str) -> str:
@@ -42,6 +49,15 @@ class AzureKvStore(SecretStore):
     Each key is stored as a separate secret; secret name = prefix + sanitized key
     (Azure allows only alphanumeric and hyphens). Uses DefaultAzureCredential.
     """
+
+    default_namespace: str = "default"  # Azure disallows _ in names; use 'default'
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default prefix: enveloper--{domain}--{project}-- (separator --)."""
+        d = _sanitize_prefix_segment_azure(domain)
+        p = _sanitize_prefix_segment_azure(project)
+        return f"enveloper--{d}--{p}--"
 
     def __init__(
         self,

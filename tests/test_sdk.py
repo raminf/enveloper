@@ -130,13 +130,13 @@ def test_load_dotenv_resolves_from_env(mock_keyring, sample_env, monkeypatch):
 
 
 def test_load_dotenv_default_domain_when_unspecified(mock_keyring, sample_env, monkeypatch):
-    """When domain is not passed and ENVELOPER_DOMAIN is unset, domain defaults to 'default'."""
+    """When domain is not passed and ENVELOPER_DOMAIN is unset, domain defaults to '_default_'."""
     from click.testing import CliRunner
 
     from enveloper.cli import cli
 
     runner = CliRunner()
-    runner.invoke(cli, ["--project", "test", "import", str(sample_env)])  # no -d -> domain "default"
+    runner.invoke(cli, ["--project", "test", "import", str(sample_env)])  # no -d -> domain "_default_"
     monkeypatch.delenv("ENVELOPER_DOMAIN", raising=False)
     monkeypatch.delenv("ENVELOPER_PROJECT", raising=False)
     for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):

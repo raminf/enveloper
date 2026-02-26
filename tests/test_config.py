@@ -56,7 +56,7 @@ prefix = "MYPROJ_"
 
 def test_load_config_defaults():
     cfg = load_config(path=None)
-    assert cfg.project == "default"
+    assert cfg.project == "_default_"
     assert cfg.service is None
     assert cfg.aws_profile == "default"
     assert cfg.github_prefix == ""

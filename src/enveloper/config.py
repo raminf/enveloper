@@ -32,7 +32,7 @@ class DomainConfig:
 class EnveloperConfig:
     """Resolved configuration for the current invocation."""
 
-    project: str = "default"
+    project: str = "_default_"
     service: str | None = None
     domains: dict[str, DomainConfig] = field(default_factory=dict)
     aws_profile: str = "default"
@@ -96,7 +96,7 @@ def load_config(path: Path | None = None) -> EnveloperConfig:
     aliyun = section.get("aliyun", {})
 
     return EnveloperConfig(
-        project=section.get("project", "default"),
+        project=section.get("project", "_default_"),
         service=section.get("service"),
         domains=domains,
         aws_profile=aws.get("profile", "default"),

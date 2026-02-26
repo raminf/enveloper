@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from enveloper.store import SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_BOTO3 = (
     "boto3 is required for the aws store. "
@@ -30,12 +30,28 @@ def _get_client(profile: str | None = None, region: str | None = None) -> Any:
     return session.client("ssm")
 
 
+def _sanitize_path_segment(s: str) -> str:
+    """Path segment: no slashes or backslashes (SSM path uses /)."""
+    if not s or not s.strip():
+        return DEFAULT_NAMESPACE
+    return s.replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
+
+
 class AwsSsmStore(SecretStore):
     """Read/write secrets as SSM parameters under a path prefix.
 
     Parameters are stored as ``{prefix}{key}`` using ``SecureString`` type
     by default.
     """
+
+    default_namespace: str = "_default_"
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default SSM path: /enveloper/{domain}/{project}/ (path separator /)."""
+        d = _sanitize_path_segment(domain)
+        p = _sanitize_path_segment(project)
+        return f"/enveloper/{d}/{p}/"
 
     def __init__(
         self,

@@ -12,7 +12,9 @@ import json
 import shutil
 import subprocess
 
-from enveloper.store import SecretStore
+import re
+
+from enveloper.store import DEFAULT_NAMESPACE, SecretStore
 
 _MISSING_GH = (
     "The 'gh' CLI is required for the github store. "
@@ -20,11 +22,27 @@ _MISSING_GH = (
 )
 
 
+def _sanitize_github_segment(s: str) -> str:
+    """GitHub secret names: letters, numbers, underscores, hyphens."""
+    if not s or not s.strip():
+        return DEFAULT_NAMESPACE
+    return re.sub(r"[^a-zA-Z0-9_-]", "_", s).strip() or DEFAULT_NAMESPACE
+
+
 class GitHubStore(SecretStore):
     """Push secrets to GitHub Actions repository secrets.
 
     Values are sent directly via ``gh secret set`` with no intermediate files.
     """
+
+    default_namespace: str = "_default_"
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default prefix: ENVELOPER__{domain}__{project}__ (separator __)."""
+        d = _sanitize_github_segment(domain)
+        p = _sanitize_github_segment(project)
+        return f"ENVELOPER__{d}__{p}__"
 
     def __init__(self, prefix: str = "", repo: str | None = None) -> None:
         self._prefix = prefix

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import sys
 from pathlib import Path
@@ -104,7 +105,7 @@ def _get_store(ctx: click.Context) -> SecretStore:
     """Return the current store for get/set/list/import/export (from --service and --path)."""
     service = ctx.obj.get("service", "local")
     project = ctx.obj["project"]
-    domain = ctx.obj.get("domain_resolved", "default")
+    domain = ctx.obj.get("domain_resolved", "_default_")
     cfg = ctx.obj["config"]
     env_name = ctx.obj["env_name"]
     path = ctx.obj.get("path", ".env")
@@ -115,6 +116,45 @@ def _get_store(ctx: click.Context) -> SecretStore:
         )
     except ValueError as e:
         raise click.UsageError(str(e))
+
+
+def _merge_common(
+    ctx: click.Context,
+    project: str | None,
+    domain: str | None,
+    service: str | None,
+) -> None:
+    """Merge subcommand-level project/domain/service into ctx.obj. Group already set from env/config; only override when subcommand passed a value."""
+    if project is not None:
+        ctx.obj["project"] = project
+    if domain is not None:
+        ctx.obj["domain"] = domain
+    ctx.obj["domain_resolved"] = ctx.obj["domain"] or "_default_"
+    if service is not None:
+        ctx.obj["service"] = service
+
+
+def common_options(f: object) -> object:
+    """Add --project, --domain, --service to a command so they can appear anywhere (before or after subcommand)."""
+    @functools.wraps(f)
+    @click.option(
+        "--service", "-s", default=None,
+        help="Backend: local, file (.env), or cloud. Default: ENVELOPER_SERVICE or config, else local.",
+    )
+    @click.option("--domain", "-d", default=None, help="Domain / subsystem scope (default: from ENVELOPER_DOMAIN env var).")
+    @click.option("--project", "-p", default=None, help="Project namespace (default: from config or ENVELOPER_PROJECT env var).")
+    @click.pass_context
+    def wrapper(
+        ctx: click.Context,
+        project: str | None,
+        domain: str | None,
+        service: str | None,
+        *args: object,
+        **kwargs: object,
+    ) -> object:
+        _merge_common(ctx, project, domain, service)
+        return f(ctx, *args, **kwargs)
+    return wrapper
 
 
 @click.group()
@@ -147,7 +187,7 @@ def cli(
     # Environment variables take precedence over CLI options
     ctx.obj["project"] = project or os.environ.get("ENVELOPER_PROJECT") or cfg.project
     ctx.obj["domain"] = domain or os.environ.get("ENVELOPER_DOMAIN")  # None if not set
-    ctx.obj["domain_resolved"] = ctx.obj["domain"] or "default"
+    ctx.obj["domain_resolved"] = ctx.obj["domain"] or "_default_"
     ctx.obj["service"] = (
         service
         if service is not None
@@ -163,7 +203,8 @@ def cli(
 # ---------------------------------------------------------------------------
 
 @cli.command()
-def init() -> None:
+@common_options
+def init(ctx: click.Context) -> None:
     """Configure the OS keychain for frictionless access.
 
     Platform-specific setup to minimize password prompts during builds.
@@ -308,7 +349,7 @@ def init() -> None:
     default="env",
     help="Input format (env, json, yaml). Default: env.",
 )
-@click.pass_context
+@common_options
 def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
     """Import a file into the local keychain.
 
@@ -427,9 +468,9 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
 @cli.command("export")
 @click.option(
     "--format", "fmt",
-    type=click.Choice(["env", "dotenv", "json", "yaml"]),
-    default="env",
-    help="Output format.",
+    type=click.Choice(["dotenv", "unix", "win", "json", "yaml"]),
+    default="dotenv",
+    help="Output format: dotenv (default, KEY=value), unix (export KEY=value), win (PowerShell), json, yaml.",
 )
 @click.option(
     "--output", "-o",
@@ -437,13 +478,14 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
     default=None,
     help="Output file path (default: stdout).",
 )
-@click.pass_context
+@common_options
 def export(ctx: click.Context, fmt: str, output: str | None) -> None:
     """Export secrets from the current service to stdout or file.
 
-    Use with eval: eval "$(enveloper export -d aws)"
-    Write to file: enveloper export -d aws -o .env
-    From .env file: enveloper export --service file --path .env
+    Default format is dotenv (KEY=value, no \"export\") so output can recreate a
+    local .env file and works on Windows. Use --format unix for shell sourcing:
+    eval \"$(enveloper export -d aws --format unix)\". Use --format win for
+    PowerShell: enveloper export -d aws --format win | Invoke-Expression (or iex).
     """
     project = ctx.obj["project"]
     domain = ctx.obj["domain"]
@@ -452,7 +494,7 @@ def export(ctx: click.Context, fmt: str, output: str | None) -> None:
     store: SecretStore
     if service == "local" and domain is None:
         global_store = KeychainStore(project=project)
-        domains = global_store.list_domains() or ["default"]
+        domains = global_store.list_domains() or ["_default_"]
         pairs = {}
         for d in domains:
             store = _get_keychain(project, d)
@@ -482,11 +524,8 @@ def export(ctx: click.Context, fmt: str, output: str | None) -> None:
                     return
                 yaml.dump(pairs, f, default_flow_style=False, sort_keys=True)
             else:
-                for key, value in sorted(pairs.items()):
-                    if fmt == "env":
-                        f.write(f"export {key}={_shell_escape(value)}\n")
-                    else:
-                        f.write(f"{key}={value}\n")
+                for line in _format_export_lines(pairs, fmt):
+                    f.write(line + "\n")
         console.print(f"[green]Exported {len(pairs)} secret(s) to {output}[/green]")
     else:
         out = Console(file=sys.stdout, highlight=False)
@@ -498,26 +537,87 @@ def export(ctx: click.Context, fmt: str, output: str | None) -> None:
                 return
             yaml.dump(pairs, sys.stdout, default_flow_style=False, sort_keys=True)
         else:
-            for key, value in sorted(pairs.items()):
-                if fmt == "env":
-                    out.print(f"export {key}={_shell_escape(value)}")
-                else:
-                    out.print(f"{key}={value}")
+            for line in _format_export_lines(pairs, fmt):
+                out.print(line)
 
 
 def _shell_escape(value: str) -> str:
+    """Escape for Unix sh: single-quote wrapped, internal ' -> '\\''."""
     if not value or any(c in value for c in " \t'\"\\$`!#&|;(){}"):
         return "'" + value.replace("'", "'\\''") + "'"
     return value
 
 
+def _powershell_escape(value: str) -> str:
+    """Escape for PowerShell single-quoted string: ' -> ''."""
+    return value.replace("'", "''")
+
+
+def _format_export_lines(pairs: dict[str, str], fmt: str) -> list[str]:
+    """Return lines for dotenv/unix/win text formats (sorted by key)."""
+    lines: list[str] = []
+    for key, value in sorted(pairs.items()):
+        if fmt == "dotenv":
+            lines.append(f"{key}={value}")
+        elif fmt == "unix":
+            lines.append(f"export {key}={_shell_escape(value)}")
+        elif fmt == "win":
+            lines.append(f"$env:{key} = '{_powershell_escape(value)}'")
+        else:
+            lines.append(f"{key}={value}")
+    return lines
+
+
+@cli.command("unexport")
+@click.option(
+    "--format", "fmt",
+    type=click.Choice(["unix", "win"]),
+    default="unix",
+    help="Output format. Default: unix (unset KEY). Use win for PowerShell (Remove-Item Env:KEY).",
+)
+@common_options
+def unexport(ctx: click.Context, fmt: str) -> None:
+    """Output shell unset commands for all variables that export would set.
+
+    Use with eval to clear env vars loaded by export. Unix: eval \"$(enveloper export -d {domain} --format unix)\"
+    then eval \"$(enveloper -d {domain} unexport)\". Win: pipe export to Invoke-Expression, then
+    enveloper unexport --format win | Invoke-Expression (or iex).
+    """
+    project = ctx.obj["project"]
+    domain = ctx.obj["domain"]
+    service = ctx.obj["service"]
+
+    keys_out: list[str] = []
+    store: SecretStore
+    if service == "local" and domain is None:
+        global_store = KeychainStore(project=project)
+        domains = global_store.list_domains() or ["_default_"]
+        for d in domains:
+            store = _get_keychain(project, d)
+            for key in store.list_keys():
+                keys_out.append(key)
+    else:
+        store = _get_store(ctx)
+        use_local_key = service not in ("local", "file")
+        for key in store.list_keys():
+            out_key = strip_domain_prefix(key) if use_local_key else key
+            keys_out.append(out_key)
+
+    out = Console(file=sys.stdout, highlight=False)
+    for key in sorted(set(keys_out)):
+        if fmt == "win":
+            out.print(f"Remove-Item Env:{key} -ErrorAction SilentlyContinue")
+        else:
+            out.print(f"unset {key}")
+
+
 # ---------------------------------------------------------------------------
-# get / set / rm
+# get / set / delete
 # ---------------------------------------------------------------------------
 
 @cli.command()
 @click.argument("key")
-@click.pass_context
+@common_options
 def get(ctx: click.Context, key: str) -> None:
     """Get a single secret value."""
     store = _get_store(ctx)
@@ -530,7 +630,7 @@ def get(ctx: click.Context, key: str) -> None:
 @cli.command("set")
 @click.argument("key")
 @click.argument("value")
-@click.pass_context
+@common_options
 def set_key(ctx: click.Context, key: str, value: str) -> None:
     """Set a single secret."""
     store = _get_store(ctx)
@@ -543,8 +643,8 @@ def set_key(ctx: click.Context, key: str, value: str) -> None:
 
 @cli.command()
 @click.argument("key")
-@click.pass_context
-def rm(ctx: click.Context, key: str) -> None:
+@common_options
+def delete(ctx: click.Context, key: str) -> None:
     """Remove a single secret."""
     store = _get_store(ctx)
     store.delete(key)
@@ -556,7 +656,7 @@ def rm(ctx: click.Context, key: str) -> None:
 # ---------------------------------------------------------------------------
 
 @cli.command("list")
-@click.pass_context
+@common_options
 def list_keys(ctx: click.Context) -> None:
     """List stored secret key names."""
     project = ctx.obj["project"]
@@ -567,7 +667,7 @@ def list_keys(ctx: click.Context) -> None:
     if service == "local" and domain is None:
         # Keychain: show all domains (or default when none)
         global_store = KeychainStore(project=project)
-        domains_to_show = global_store.list_domains() or ["default"]
+        domains_to_show = global_store.list_domains() or ["_default_"]
         if not domains_to_show:
             console.print("[yellow]No secrets stored.[/yellow]")
             return
@@ -628,26 +728,38 @@ def _mask(value: str) -> str:
     is_flag=True,
     help="Skip confirmation prompts (for automation).",
 )
-@click.pass_context
+@common_options
 def clear(ctx: click.Context, quiet: bool) -> None:
-    """Clear all secrets for the current service (local keychain, file, or cloud store)."""
+    """Clear all secrets for the current service (local keychain, file, or cloud store).
+    Without -d, local keychain clears all domains (same scope as list)."""
     service = ctx.obj["service"]
 
     if not quiet:
         if not click.confirm("Are you sure you want to clear all secrets?"):
             raise click.Abort()
 
-    store = _get_store(ctx)
-    store.clear()
-    if service == "local":
-        domain = ctx.obj["domain_resolved"]
-        console.print(f"[green]Cleared all secrets for service 'local' (domain '{domain}')[/green]")
+    if service == "local" and ctx.obj["domain"] is None:
+        # No -d: clear all domains (match list behavior so clear then list shows nothing)
+        project = ctx.obj["project"]
+        global_store = KeychainStore(project=project)
+        domains_to_clear = global_store.list_domains() or ["_default_"]
+        for d in domains_to_clear:
+            store = _get_keychain(project, d)
+            store.clear()
+        console.print(f"[green]Cleared all secrets for service 'local' (all domains)[/green]")
     else:
-        console.print(f"[green]Cleared all secrets for service '{service}'[/green]")
+        store = _get_store(ctx)
+        store.clear()
+        if service == "local":
+            domain = ctx.obj["domain_resolved"]
+            console.print(f"[green]Cleared all secrets for service 'local' (domain '{domain}')[/green]")
+        else:
+            console.print(f"[green]Cleared all secrets for service '{service}'[/green]")
 
 
 @cli.command("service")
-def service_list() -> None:
+@common_options
+def service_list(ctx: click.Context) -> None:
     """List all available service providers in a table (local, file, then cloud stores)."""
     cloud = [n for n in sorted(list_store_names()) if n != "keychain"]
     table = Table(title="Service providers")
@@ -681,7 +793,7 @@ def service_list() -> None:
 @click.option("--profile", default=None, help="AWS profile (aws store).")
 @click.option("--region", default=None, help="AWS region (aws store).")
 @click.option("--repo", default=None, help="GitHub repo owner/name (github store).")
-@click.pass_context
+@common_options
 def push(
     ctx: click.Context,
     from_service: str,
@@ -712,7 +824,7 @@ def push(
         return
 
     target = _make_cloud_store(
-        cloud_store, cfg, domain, env_name,
+        cloud_store, cfg, ctx.obj["project"], domain, env_name,
         prefix=prefix, profile=profile, region=region, repo=repo,
     )
 
@@ -733,7 +845,7 @@ def push(
 @click.option("--prefix", default=None, help="Key prefix on the source store.")
 @click.option("--profile", default=None, help="AWS profile (aws store).")
 @click.option("--region", default=None, help="AWS region (aws store).")
-@click.pass_context
+@common_options
 def pull(
     ctx: click.Context,
     to_service: str,
@@ -750,7 +862,7 @@ def pull(
     env_name = ctx.obj["env_name"]
     path = ctx.obj.get("path", ".env")
     source = _make_cloud_store(
-        cloud_store, cfg, domain, env_name,
+        cloud_store, cfg, ctx.obj["project"], domain, env_name,
         prefix=prefix, profile=profile, region=region,
     )
 
@@ -786,6 +898,7 @@ def pull(
 def _make_cloud_store(
     store_name: str,
     cfg: object,
+    project: str | None,
     domain: str | None,
     env_name: str | None,
     *,
@@ -794,14 +907,16 @@ def _make_cloud_store(
     region: str | None = None,
     repo: str | None = None,
 ) -> object:
-    """Instantiate a cloud store with resolved options."""
+    """Instantiate a cloud store with resolved options (project/domain in key path when prefix not set)."""
     from enveloper.config import EnveloperConfig
 
     assert isinstance(cfg, EnveloperConfig)
-    domain_str = domain or "default"
+    domain_str = domain or "_default_"
+    project_str = project or "_default_"
     try:
         return resolve_make_cloud_store(
             store_name, cfg, domain_str, env_name,
+            project=project_str,
             prefix=prefix, profile=profile, region=region, repo=repo,
         )
     except ValueError as e:
@@ -813,7 +928,8 @@ def _make_cloud_store(
 # ---------------------------------------------------------------------------
 
 @cli.command()
-def stores() -> None:
+@common_options
+def stores(ctx: click.Context) -> None:
     """List available store plugins."""
     table = Table(title="Available Stores")
     table.add_column("Name", style="cyan")
@@ -838,7 +954,7 @@ def generate() -> None:
 
 @generate.command("codebuild-env")
 @click.option("--prefix", default=None, help="SSM prefix (e.g. /stillup/test/).")
-@click.pass_context
+@common_options
 def gen_codebuild(ctx: click.Context, prefix: str | None) -> None:
     """Generate AWS CodeBuild buildspec parameter-store YAML."""
     project = ctx.obj["project"]

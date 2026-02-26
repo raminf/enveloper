@@ -20,7 +20,7 @@ def _resolve_project_domain(
         project or os.environ.get("ENVELOPER_PROJECT") or cfg.project
     )
     resolved_domain = (
-        domain or os.environ.get("ENVELOPER_DOMAIN") or "default"
+        domain or os.environ.get("ENVELOPER_DOMAIN") or "_default_"
     )
     return resolved_project, resolved_domain
 
@@ -140,7 +140,7 @@ def load_dotenv(
 
     Uses the same project/domain/service resolution as the CLI: optional
     arguments, then ENVELOPER_PROJECT / ENVELOPER_DOMAIN / ENVELOPER_SERVICE,
-    then config (e.g. .enveloper.toml), and defaults project ``"default"``,
+    then config (e.g. .enveloper.toml), and defaults project ``"_default_"``,
     service ``"local"``.
 
     Parameters
@@ -148,7 +148,7 @@ def load_dotenv(
     project : str, optional
         Project namespace. Defaults from ENVELOPER_PROJECT or config.
     domain : str, optional
-        Domain / subsystem scope. Defaults from ENVELOPER_DOMAIN, then ``"default"``.
+        Domain / subsystem scope. Defaults from ENVELOPER_DOMAIN, then ``"_default_"``.
     override : bool, default True
         If True, overwrite existing keys in os.environ. If False, only set
         keys that are not already set (matches python-dotenv semantics).
@@ -223,7 +223,7 @@ def dotenv_values(
     project : str, optional
         Project namespace. Defaults from ENVELOPER_PROJECT or config.
     domain : str, optional
-        Domain / subsystem scope. Defaults from ENVELOPER_DOMAIN, then ``"default"``.
+        Domain / subsystem scope. Defaults from ENVELOPER_DOMAIN, then ``"_default_"``.
     service : str, optional
         Backend to load from. Defaults from ENVELOPER_SERVICE or config, else ``"local"``.
     path : str, default ".env"
