@@ -21,17 +21,36 @@ enveloper import sample.env --domain dev
 # List what's stored
 enveloper list
 
-# Export for a build
+<img src="media/enveloper-keychain.png" width="80%" alt="Envelope Keychain" />
+
+# Load local environment settings from keychain, then once done, get rid of them
+
 eval "$(enveloper --domain dev export --format unix)"
 
 # Unexport to remove the set of env variables after a build
 eval "$(enveloper --domain dev unexport --format unix)"
 
+<img src="media/enveloper-export.png" width="80%" alt="Envelope Keychain" />
+
 # Push to AWS SSM
 enveloper --service aws --domain dev push
 
-# Pull from AWS SSM
+<img src="media/enveloper-aws.png" width="80%" alt="Envelope Keychain" />
+
+# Verify that they worked
+
+<img src="media/enveloper-aws-list.png" width="80%" alt="Envelope Keychain" />
+
+
+# Pull from AWS SSM into local keychain
+
 enveloper --service aws --domain dev pull
+
+# Clear environment settings
+
+<img src="media/enveloper-clear.png" width="80%" alt="Envelope Keychain" />
+
+
 ```
 
 ## Features
