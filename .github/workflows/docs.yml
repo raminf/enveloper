@@ -7,6 +7,7 @@ on:
     paths:
       - 'docs/**'
       - 'docs-site/**'
+      - 'media/**'
       - 'README.md'
       - 'Makefile'
   workflow_dispatch:
@@ -39,6 +40,12 @@ jobs:
 
       - name: Install dependencies
         run: cd docs-site && uv sync
+
+      - name: Sync media into docs
+        run: |
+          mkdir -p docs/media
+          cp -n media/*.svg docs/media/ 2>/dev/null || true
+          cp -n media/*.png docs/media/ 2>/dev/null || true
 
       - name: Build documentation
         run: cd docs-site && uv run mkdocs build

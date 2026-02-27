@@ -1,6 +1,6 @@
 VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
 
-.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-install docs-serve docs-build docs-deploy docs-check
+.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-sync-media docs-install docs-serve docs-build docs-deploy docs-check
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -70,27 +70,38 @@ clean: ## Remove build artifacts
 
 # --- Documentation (MkDocs @ https://enveloper.net) ---
 # Content: docs/ (index.md = README), theme: Material (dark + orange). CNAME in docs/ for custom domain.
+# MkDocs only copies from docs_dir (docs/), so sync repo root media/ into docs/media/ before build.
+
+docs-sync-media: ## Copy repo root media images into docs/media/ so they are included in the built site
+	@mkdir -p docs/media
+	@test -d media && cp -n media/*.png docs/media/ 2>/dev/null || true
+
+# Use docs-site's .venv (avoids "VIRTUAL_ENV does not match" when repo root has an active venv)
+DOCS_UV = cd docs-site && unset VIRTUAL_ENV &&
 
 docs-install: ## Install MkDocs and docs-site dependencies (run once)
-	cd docs-site && uv sync
+	$(DOCS_UV) uv sync
 
 docs-serve: docs-install ## Serve documentation locally — open http://127.0.0.1:8000 or http://localhost:8000 in your browser
 	@echo ""
 	@echo "  Open in your browser:  http://127.0.0.1:8000  (or http://localhost:8000)"
 	@echo "  Do not use http://0.0.0.0:8000 — that will show a blank page."
 	@echo ""
-	cd docs-site && uv run mkdocs serve --dev-addr=127.0.0.1:8000
+	$(DOCS_UV) uv run mkdocs serve --dev-addr=127.0.0.1:8000
 
-docs-build: docs-install ## Build static site into docs-site/site/
+# Filter out Material theme's MkDocs 2.0 deprecation warning (stderr; may include ANSI codes)
+DOCS_FILTER = 2>&1 | grep -vE 'MkDocs 2.0|incompatible|Zensical|squidfunk.github.io|new static site generator|analysis of the situation|We recommend switching' | grep -v '│' | grep -v '^\[0m'
+
+docs-build: docs-install docs-sync-media ## Build static site into docs-site/site/
 	@echo "Building documentation..."
-	cd docs-site && uv run mkdocs build
+	@$(DOCS_UV) uv run mkdocs build $(DOCS_FILTER)
 	@echo "Built site: docs-site/site/"
 
 docs-deploy: docs-build ## Deploy to GitHub Pages (enveloper.net); push to trigger or run manually
 	@echo "Deploying to GitHub Pages (enveloper.net)..."
-	cd docs-site && uv run mkdocs gh-deploy --force
+	@$(DOCS_UV) uv run mkdocs gh-deploy --force $(DOCS_FILTER)
 	@echo "Deployed. Site: https://enveloper.net"
 
 docs-check: docs-install ## Build with --strict to validate links and config
-	cd docs-site && uv run mkdocs build --strict
+	@$(DOCS_UV) uv run mkdocs build --strict $(DOCS_FILTER)
 	@echo "Docs check passed."
