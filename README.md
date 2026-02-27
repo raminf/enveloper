@@ -22,7 +22,7 @@ enveloper import sample.env --domain dev
 enveloper list
 ```
 
-<img src="media/enveloper-keychain.png" width="80%" alt="Envelope Keychain" />
+<img src="media/quickstart-keychain.png" width="80%" alt="Envelope Keychain" />
 
 ```bash
 # Load local environment settings from keychain, then once done, get rid of them
@@ -32,18 +32,18 @@ eval "$(enveloper --domain dev export --format unix)"
 # Unexport to remove the set of env variables after a build
 eval "$(enveloper --domain dev unexport --format unix)"
 ```
-<img src="media/enveloper-export.png" width="80%" alt="Envelope Keychain" />
+<img src="media/quickstart-export.png" width="80%" alt="Envelope Keychain" />
 
 ```bash
 # Push to AWS SSM
 enveloper --service aws --domain dev push
 ```
-<img src="media/enveloper-aws.png" width="80%" alt="Envelope Keychain" />
+<img src="media/quickstart-aws.png" width="80%" alt="Envelope Keychain" />
 
 ```bash
 # Verify that they worked
 ```
-<img src="media/enveloper-aws-list.png" width="80%" alt="Envelope Keychain" />
+<img src="media/quickstart-aws-list.png" width="80%" alt="Envelope Keychain" />
 
 
 ```bash
@@ -54,7 +54,7 @@ enveloper --service aws --domain dev pull
 # Clear environment settings
 enveloper --domain dev clear
 ```
-<img src="media/enveloper-clear.png" width="80%" alt="Envelope Keychain" />
+<img src="media/quickstart-clear.png" width="80%" alt="Envelope Keychain" />
 
 
 ## Features
