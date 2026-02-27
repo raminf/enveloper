@@ -89,8 +89,9 @@ docs-serve: docs-install ## Serve documentation locally — open http://127.0.0.
 	@echo ""
 	$(DOCS_UV) uv run mkdocs serve --dev-addr=127.0.0.1:8000
 
-# Filter out Material theme's MkDocs 2.0 deprecation warning (stderr; may include ANSI codes)
-DOCS_FILTER = 2>&1 | grep -vE 'MkDocs 2.0|incompatible|Zensical|squidfunk.github.io|new static site generator|analysis of the situation|We recommend switching' | grep -v '│' | grep -v '\[0m'
+# Filter out Material theme's MkDocs 2.0 deprecation warning (content phrases + box-drawing lines)
+# Match both Unicode │ (U+2502) and ASCII | so it works in any terminal/CI
+DOCS_FILTER = 2>&1 | grep -vE 'MkDocs 2.0|incompatible|Zensical|squidfunk.github.io|static site generator|analysis of the situation|We recommend switching|as soon as possible|We.re providing|this article' | grep -vE '^[[:space:]]*[│\|][[:space:]]' | grep -vE '^[[:space:]]*\|' | grep -v '\[0m'
 
 docs-build: docs-install docs-sync-media ## Build static site into docs-site/site/
 	@echo "Building documentation..."

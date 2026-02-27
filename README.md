@@ -36,10 +36,16 @@ enveloper list
 
 eval "$(enveloper --domain dev export --format unix)"
 
-# Unexport to remove the set of env variables after a build
+# Values are loaded into local environment variables. 
+# Use in Makefile, shell scripts, etc. 
+# 'unix' format works for Linux, Mac, and Windows WSL. 
+# For Windows Powershell, use 'win' as format.
+
+# When done, you can use 'unexport' command to remove the set of env variables
 
 eval "$(enveloper --domain dev unexport --format unix)"
 ```
+
 <img src="media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" />
 
 ```bash
