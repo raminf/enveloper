@@ -64,10 +64,11 @@ def _get_store(ctx: click.Context) -> SecretStore:
     cfg = ctx.obj["config"]
     env_name = ctx.obj["env_name"]
     path = ctx.obj.get("path", ".env")
+    version = ctx.obj.get("version")
     try:
         return resolve_get_store(
             service, project, domain, cfg,
-            path=path, env_name=env_name,
+            path=path, env_name=env_name, version=version,
         )
     except ValueError as e:
         raise click.UsageError(str(e))

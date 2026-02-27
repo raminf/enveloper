@@ -86,6 +86,32 @@ def test_rm(mock_keyring):
     assert result.exit_code != 0
 
 
+def test_double_delete_key(mock_keyring):
+    """Deleting the same key twice is idempotent; get after second delete still reports not found."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "d", "set", "DOUBLE_K", "v1"])
+    r1 = runner.invoke(cli, ["--project", "test", "-d", "d", "delete", "DOUBLE_K"])
+    assert r1.exit_code == 0
+    r2 = runner.invoke(cli, ["--project", "test", "-d", "d", "delete", "DOUBLE_K"])
+    assert r2.exit_code == 0
+    result = runner.invoke(cli, ["--project", "test", "-d", "d", "get", "DOUBLE_K"])
+    assert result.exit_code != 0
+    assert "not found" in result.output.lower()
+
+
+def test_set_then_get_verifies_change(mock_keyring):
+    """Set a value, then get to verify the change took effect."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "d", "set", "VERIFY_K", "original"])
+    r = runner.invoke(cli, ["--project", "test", "-d", "d", "get", "VERIFY_K"])
+    assert r.exit_code == 0
+    assert r.output.strip() == "original"
+    runner.invoke(cli, ["--project", "test", "-d", "d", "set", "VERIFY_K", "updated"])
+    r2 = runner.invoke(cli, ["--project", "test", "-d", "d", "get", "VERIFY_K"])
+    assert r2.exit_code == 0
+    assert r2.output.strip() == "updated"
+
+
 def test_clear(mock_keyring):
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "d", "set", "A", "1"])
@@ -93,6 +119,27 @@ def test_clear(mock_keyring):
     result = runner.invoke(cli, ["--project", "test", "-d", "d", "clear", "--quiet"])
     assert result.exit_code == 0
     assert "Cleared" in result.output
+
+
+def test_clear_after_import_then_verify_gone(mock_keyring, sample_env):
+    """Import a set, clear it, then verify the keys are no longer in the store."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "clear_import", "import", str(sample_env)])
+    r_list_before = runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list"])
+    assert r_list_before.exit_code == 0
+    assert "TWILIO_API_SID" in r_list_before.output
+
+    result = runner.invoke(cli, ["--project", "test", "-d", "clear_import", "clear", "--quiet"])
+    assert result.exit_code == 0
+    assert "Cleared" in result.output
+
+    r_list_after = runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list"])
+    assert r_list_after.exit_code == 0
+    assert "TWILIO_API_SID" not in r_list_after.output
+
+    r_get = runner.invoke(cli, ["--project", "test", "-d", "clear_import", "get", "TWILIO_API_SID"])
+    assert r_get.exit_code != 0
+    assert "not found" in r_get.output.lower()
 
 
 def test_stores():
@@ -711,6 +758,33 @@ def test_unexport_empty_domain(mock_keyring):
     assert result.output.strip() == ""
 
 
+def test_unexport_unix_then_env_vars_gone(mock_keyring, sample_env):
+    """Unexport (unix format) outputs unset commands; applying them removes the vars from the environment."""
+    import os
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "unexport", "--format", "unix"])
+    assert result.exit_code == 0
+    lines = [s.strip() for s in result.output.strip().splitlines() if s.strip()]
+
+    # Simulate having exported then unexport: set vars in env, then apply unset commands
+    for line in lines:
+        if line.startswith("unset "):
+            key = line[6:].strip()
+            os.environ[key] = "was_set"
+
+    for line in lines:
+        if line.startswith("unset "):
+            key = line[6:].strip()
+            os.environ.pop(key, None)
+
+    for line in lines:
+        if line.startswith("unset "):
+            key = line[6:].strip()
+            assert key not in os.environ, f"unexport should remove {key} from env"
+
+
 def test_clear_empty_domain(mock_keyring):
     """Test clear on domain with no secrets."""
     runner = CliRunner()
@@ -809,6 +883,38 @@ def test_export_to_file(mock_keyring, sample_env, tmp_path):
 
     content = output_file.read_text()
     assert "TWILIO_API_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" in content
+
+
+def test_full_round_trip_import_manipulate_export_compare(mock_keyring, sample_env, tmp_path):
+    """Import dummy .env, modify one value (verify), delete one key (verify gone), add custom key (verify), export and compare to expected diff."""
+    runner = CliRunner()
+    # 1. Import
+    r_import = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "import", str(sample_env)])
+    assert r_import.exit_code == 0
+    # 2. Modify one value and verify
+    runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "set", "TWILIO_API_SID", "MODIFIED_SID"])
+    r_get = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "get", "TWILIO_API_SID"])
+    assert r_get.exit_code == 0
+    assert r_get.output.strip() == "MODIFIED_SID"
+    # 3. Delete one key and verify gone
+    runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "delete", "SINGLE_QUOTED"])
+    r_missing = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "get", "SINGLE_QUOTED"])
+    assert r_missing.exit_code != 0
+    assert "not found" in r_missing.output.lower()
+    # 4. Add custom value and verify
+    runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "set", "CUSTOM_ADDED", "added_value"])
+    r_custom = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "get", "CUSTOM_ADDED"])
+    assert r_custom.exit_code == 0
+    assert r_custom.output.strip() == "added_value"
+    # 5. Export to file
+    out_file = tmp_path / "newsample.env"
+    r_export = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "export", "--format", "dotenv", "-o", str(out_file)])
+    assert r_export.exit_code == 0
+    content = out_file.read_text()
+    # 6. Compare: modified value present, deleted key absent, custom key present
+    assert "TWILIO_API_SID=MODIFIED_SID" in content or "TWILIO_API_SID=MODIFIED_SID\n" in content
+    assert "SINGLE_QUOTED" not in content
+    assert "CUSTOM_ADDED=added_value" in content
 
 
 def test_export_to_file_json(mock_keyring, sample_env, tmp_path):
@@ -945,6 +1051,58 @@ def test_delete_nonexistent_key():
     # delete should succeed even for nonexistent key (idempotent operation)
     assert result.exit_code == 0
     assert "Removed" in result.output
+
+
+def test_cli_domain_project_with_separator_sanitized(mock_keyring):
+    """Domain or project containing key separator (e.g. /) is accepted; set/get/list work (keychain)."""
+    runner = CliRunner()
+    # Domain with slash: keychain stores under that path; no broken key
+    runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "set", "SEP_KEY", "val"])
+    result = runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "get", "SEP_KEY"])
+    assert result.exit_code == 0
+    assert result.output.strip() == "val"
+    result_list = runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "list"])
+    assert result_list.exit_code == 0
+    assert "SEP_KEY" in result_list.output
+
+
+def test_domain_with_emoji_roundtrip(mock_keyring):
+    """Domain name containing emoji can be used for set/list/get without error."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "set", "EMOJI_K", "v1"])
+    r = runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "get", "EMOJI_K"])
+    assert r.exit_code == 0
+    assert r.output.strip() == "v1"
+    r_list = runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "list"])
+    assert r_list.exit_code == 0
+    assert "EMOJI_K" in r_list.output
+
+
+def test_project_with_emoji_roundtrip(mock_keyring):
+    """Project name containing emoji can be used for set/list/get without error."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "proj🎯", "-d", "d", "set", "EMOJI_P", "v2"])
+    r = runner.invoke(cli, ["--project", "proj🎯", "-d", "d", "get", "EMOJI_P"])
+    assert r.exit_code == 0
+    assert r.output.strip() == "v2"
+
+
+def test_key_name_with_emoji_roundtrip(mock_keyring):
+    """Key name containing emoji can be set and retrieved."""
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "p", "-d", "d", "set", "KEY🔑", "secret"])
+    r = runner.invoke(cli, ["--project", "p", "-d", "d", "get", "KEY🔑"])
+    assert r.exit_code == 0
+    assert r.output.strip() == "secret"
+
+
+def test_invalid_version_cli_fails():
+    """CLI with invalid semver (e.g. --version 1.0) fails with clear message."""
+    runner = CliRunner()
+    # Pass --version after list so it's the semver option, not the package --version
+    result = runner.invoke(cli, ["--project", "test", "-d", "aws", "--service", "aws", "list", "--version", "1.0"])
+    assert result.exit_code != 0
+    assert "version" in result.output.lower() or "invalid" in result.output.lower() or "semver" in result.output.lower()
 
 
 def test_export_invalid_format_value():

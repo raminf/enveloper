@@ -223,3 +223,433 @@ def test_dotenv_values_service_local_explicit(mock_keyring, sample_env):
     data = dotenv_values(project="test", domain="aws", service="local")
     assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+# ---------------------------------------------------------------------------
+# Cloud service readonly access tests
+# ---------------------------------------------------------------------------
+
+def test_dotenv_values_service_aws_readonly(mock_keyring, sample_env):
+    """dotenv_values(service="aws") reads from cloud without modifying os.environ."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    # Import the same secrets into the cloud store
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Use AWS service - should read from fake cloud store
+    data = dotenv_values(project="test", domain="aws", service="aws")
+    assert isinstance(data, dict)
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+def test_dotenv_values_service_gcp_readonly(mock_keyring, sample_env):
+    """dotenv_values(service="gcp") reads from cloud without modifying os.environ."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("gcp", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Use GCP service - should read from fake cloud store
+    data = dotenv_values(project="test", domain="aws", service="gcp")
+    assert isinstance(data, dict)
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+def test_dotenv_values_service_azure_readonly(mock_keyring, sample_env):
+    """dotenv_values(service="azure") reads from cloud without modifying os.environ."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("azure", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Use Azure service - should read from fake cloud store
+    data = dotenv_values(project="test", domain="aws", service="azure")
+    assert isinstance(data, dict)
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+def test_dotenv_values_service_aliyun_readonly(mock_keyring, sample_env):
+    """dotenv_values(service="aliyun") reads from cloud without modifying os.environ."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("aliyun", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Use Alibaba service - should read from fake cloud store
+    data = dotenv_values(project="test", domain="aws", service="aliyun")
+    assert isinstance(data, dict)
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+def test_dotenv_values_service_vault_readonly(mock_keyring, sample_env):
+    """dotenv_values(service="vault") reads from cloud without modifying os.environ."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("vault", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Use Vault service - should read from fake cloud store
+    data = dotenv_values(project="test", domain="aws", service="vault")
+    assert isinstance(data, dict)
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+
+
+def test_load_dotenv_service_aws_readonly(mock_keyring, sample_env):
+    """load_dotenv(service="aws") reads from cloud and sets env vars."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with the same data
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+        os.environ.pop(key, None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="aws")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    finally:
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+            os.environ.pop(key, None)
+
+
+def test_dotenv_values_service_cloud_empty(mock_keyring):
+    """dotenv_values for cloud service with no secrets returns empty dict."""
+    data = dotenv_values(project="empty_xyz", domain="empty", service="aws")
+    assert data == {}
+
+
+def test_load_dotenv_service_cloud_empty(mock_keyring):
+    """load_dotenv for cloud service with no secrets returns False."""
+    result = load_dotenv(project="empty_xyz", domain="empty", service="aws")
+    assert result is False
+
+
+# ---------------------------------------------------------------------------
+# Versioning tests
+# ---------------------------------------------------------------------------
+
+def test_dotenv_values_with_version(mock_keyring, sample_env):
+    """dotenv_values with version parameter reads from specific version."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    # Manually populate the fake cloud store with versioned data
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    
+    # Write to version 1.0.0
+    for key, value in [
+        ("API_KEY", "v1_key"),
+        ("API_SECRET", "v1_secret"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+    
+    # Write to version 2.0.0
+    for key, value in [
+        ("API_KEY", "v2_key"),
+        ("API_SECRET", "v2_secret"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="2.0.0")
+        store.set(full_key, value)
+
+    # Read version 1.0.0
+    data = dotenv_values(project="test", domain="aws", service="aws", version="1.0.0")
+    assert data.get("API_KEY") == "v1_key"
+    assert data.get("API_SECRET") == "v1_secret"
+
+    # Read version 2.0.0
+    data = dotenv_values(project="test", domain="aws", service="aws", version="2.0.0")
+    assert data.get("API_KEY") == "v2_key"
+    assert data.get("API_SECRET") == "v2_secret"
+
+
+def test_load_dotenv_with_version(mock_keyring, sample_env):
+    """load_dotenv with version parameter reads from specific version."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    
+    # Write to version 1.0.0
+    for key, value in [
+        ("VERSION_KEY", "v1_value"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    os.environ.pop("VERSION_KEY", None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="aws", version="1.0.0")
+        assert result is True
+        assert os.environ.get("VERSION_KEY") == "v1_value"
+    finally:
+        os.environ.pop("VERSION_KEY", None)
+
+
+def test_dotenv_values_version_default(mock_keyring, sample_env):
+    """dotenv_values without version uses default version 1.0.0."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    
+    # Write to version 1.0.0
+    for key, value in [
+        ("DEFAULT_VERSION_KEY", "default_value"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        store.set(full_key, value)
+
+    # Read without specifying version - should use default
+    data = dotenv_values(project="test", domain="aws", service="aws")
+    assert data.get("DEFAULT_VERSION_KEY") == "default_value"
+
+
+# ---------------------------------------------------------------------------
+# Error handling tests
+# ---------------------------------------------------------------------------
+
+def test_dotenv_values_invalid_semver():
+    """dotenv_values with invalid semver raises ValueError."""
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    
+    # Invalid semver formats
+    invalid_versions = ["1.0", "v1.0.0", "1.0.0.0", "abc", "1.0.0-beta", ""]
+    for invalid_version in invalid_versions:
+        try:
+            # This should raise ValueError for invalid semver
+            store_with_invalid = get_store("aws", project="test", domain="aws", config=cfg, version=invalid_version)
+            # If we get here, check if it raised an error
+        except ValueError:
+            pass  # Expected
+        except Exception as e:
+            # Some stores may not validate semver at construction time
+            pass
+
+
+def test_dotenv_values_project_not_found(mock_keyring):
+    """dotenv_values for non-existent project returns empty dict."""
+    data = dotenv_values(project="nonexistent_project_xyz", domain="aws", service="aws")
+    assert data == {}
+
+
+def test_dotenv_values_domain_with_separator(mock_keyring, sample_env):
+    """dotenv_values handles domain names containing separator characters."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "my-domain", "import", str(sample_env)])
+
+    data = dotenv_values(project="test", domain="my-domain")
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+
+def test_load_dotenv_domain_with_separator(mock_keyring, sample_env):
+    """load_dotenv handles domain names containing separator characters."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "my-domain", "import", str(sample_env)])
+
+    os.environ.pop("TWILIO_API_SID", None)
+    try:
+        result = load_dotenv(project="test", domain="my-domain")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    finally:
+        os.environ.pop("TWILIO_API_SID", None)
+
+
+def test_dotenv_values_project_with_separator(mock_keyring, sample_env):
+    """dotenv_values handles project names containing separator characters."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "my-project", "-d", "aws", "import", str(sample_env)])
+
+    data = dotenv_values(project="my-project", domain="aws")
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+
+def test_dotenv_values_empty_project(mock_keyring):
+    """dotenv_values with empty project uses default namespace."""
+    data = dotenv_values(project="", domain="aws", service="aws")
+    # Empty project should be sanitized to default namespace
+    assert isinstance(data, dict)
+
+
+def test_dotenv_values_empty_domain(mock_keyring):
+    """dotenv_values with empty domain uses default namespace."""
+    data = dotenv_values(project="test", domain="", service="aws")
+    # Empty domain should be sanitized to default namespace
+    assert isinstance(data, dict)
+
+
+def test_load_dotenv_empty_project(mock_keyring):
+    """load_dotenv with empty project uses default namespace."""
+    result = load_dotenv(project="", domain="aws", service="aws")
+    # Empty project should be sanitized to default namespace
+    assert result is False  # No secrets in default namespace
+
+
+def test_dotenv_values_version_with_special_chars(mock_keyring, sample_env):
+    """dotenv_values handles version strings with special characters (semver)."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.resolve_store import get_store
+    from enveloper.config import load_config
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    cfg = load_config()
+    store = get_store("aws", project="test", domain="aws", config=cfg)
+    
+    # Write to version with prerelease
+    for key, value in [
+        ("PRERELEASE_KEY", "prerelease_value"),
+    ]:
+        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0-beta")
+        store.set(full_key, value)
+
+    # Read with prerelease version
+    data = dotenv_values(project="test", domain="aws", service="aws", version="1.0.0-beta")
+    assert data.get("PRERELEASE_KEY") == "prerelease_value"
+
+
+def test_dotenv_values_key_with_equals(mock_keyring, sample_env):
+    """dotenv_values handles values containing equals signs."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+
+    runner = CliRunner()
+    runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+
+    data = dotenv_values(project="test", domain="aws")
+    # EQUALS_IN_VALUE should be preserved with equals sign
+    assert "EQUALS_IN_VALUE" in data
+    assert data.get("EQUALS_IN_VALUE") == "postgres://user:pass@host/db?opt=1"

@@ -1,7 +1,16 @@
 # Copyright (c) 2026 Ramin Firoozye
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-"""SDK for loading keychain secrets into the environment (python-dotenv style)."""
+"""SDK for loading secrets into the environment (python-dotenv style).
+
+Supports multiple service providers (local keychain, file, and cloud stores such as
+AWS SSM, GCP Secret Manager, Azure Key Vault, Vault, Alibaba). Secrets can be
+filtered by **domain**, **project**, and **version** so you can load from a specific
+backend and scope without changing code.
+
+Use ``load_dotenv()`` to populate ``os.environ``, or ``dotenv_values()`` to get a
+dict without modifying the process environment.
+"""
 
 from __future__ import annotations
 
@@ -156,10 +165,15 @@ def load_dotenv(
 ) -> bool:
     """Load secrets into os.environ (python-dotenv compatible API).
 
-    Uses the same project/domain/service resolution as the CLI: optional
-    arguments, then ENVELOPER_PROJECT / ENVELOPER_DOMAIN / ENVELOPER_SERVICE,
-    then config (e.g. .enveloper.toml), and defaults project ``"_default_"``,
-    service ``"local"``.
+    You can load from any **service** (``"local"`` keychain, ``"file"``, or a cloud
+    store such as ``"aws"``, ``"gcp"``, ``"azure"``, ``"vault"``, ``"aliyun"``), and
+    filter by **domain**, **project**, and **version**. Only secrets for that scope
+    are returned (e.g. ``version="2.0.0"`` loads only keys under that version).
+
+    Resolution order matches the CLI: optional arguments, then
+    ENVELOPER_PROJECT / ENVELOPER_DOMAIN / ENVELOPER_SERVICE / ENVELOPER_VERSION,
+    then config (e.g. .enveloper.toml). Defaults: project and domain from config or
+    ``"_default_"``, service ``"local"``, version ``"1.0.0"``.
 
     Parameters
     ----------
@@ -174,14 +188,15 @@ def load_dotenv(
         If True, no-op for now; reserved for future warnings (e.g. missing domain).
     service : str, optional
         Backend to load from: ``"local"`` (keychain), ``"file"`` (.env file), or a
-        cloud store name (e.g. ``"aws"``). Defaults from ENVELOPER_SERVICE or
-        config, else ``"local"``.
+        cloud store name (e.g. ``"aws"``, ``"gcp"``, ``"azure"``, ``"vault"``, ``"aliyun"``).
+        Defaults from ENVELOPER_SERVICE or config, else ``"local"``.
     path : str, default ".env"
         Path to the .env file when ``service="file"``. Ignored otherwise.
     env_name : str, optional
         Environment name for resolving ``{env}`` in config (e.g. domain ssm_prefix).
     version : str, optional
-        Version (semver format) for versioned secrets. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
+        Version (semver format) for versioned secrets. Only keys under this version
+        are loaded. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
 
     Returns
     -------
@@ -196,6 +211,8 @@ def load_dotenv(
     >>> load_dotenv(project="myapp", domain="aws")
     True
     >>> load_dotenv(service="file", path=".env.local")  # load from file
+    True
+    >>> load_dotenv(service="aws", project="myapp", domain="prod", version="2.0.0")
     True
     >>> load_dotenv(override=False)  # do not overwrite existing env vars
     False
@@ -235,9 +252,9 @@ def dotenv_values(
 ) -> dict[str, str]:
     """Return secrets as a dict without modifying os.environ.
 
-    Same project/domain/service resolution as load_dotenv. Useful when you want to
-    inspect or merge secrets yourself instead of loading into the process
-    environment.
+    Supports the same **service**, **domain**, **project**, and **version** filtering
+    as ``load_dotenv``. Use this when you want to inspect or merge secrets yourself
+    instead of loading into the process environment.
 
     Parameters
     ----------
@@ -246,13 +263,16 @@ def dotenv_values(
     domain : str, optional
         Domain / subsystem scope. Defaults from ENVELOPER_DOMAIN, then ``"_default_"``.
     service : str, optional
-        Backend to load from. Defaults from ENVELOPER_SERVICE or config, else ``"local"``.
+        Backend to load from (e.g. ``"local"``, ``"file"``, ``"aws"``, ``"gcp"``,
+        ``"azure"``, ``"vault"``, ``"aliyun"``). Defaults from ENVELOPER_SERVICE or
+        config, else ``"local"``.
     path : str, default ".env"
         Path to the .env file when ``service="file"``. Ignored otherwise.
     env_name : str, optional
         Environment name for resolving ``{env}`` in config.
     version : str, optional
-        Version (semver format) for versioned secrets. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
+        Version (semver format) for versioned secrets. Only keys under this version
+        are returned. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
 
     Returns
     -------

@@ -7,6 +7,7 @@ import pytest
 
 from enveloper.config import EnveloperConfig
 from enveloper.resolve_store import make_cloud_store
+from enveloper.store import DEFAULT_PREFIX
 from enveloper.stores.aws_ssm import AwsSsmStore
 from enveloper.stores.github import GitHubStore
 from enveloper.stores.gcp_sm import GcpSmStore
@@ -26,7 +27,7 @@ def test_aws_default_prefix_includes_domain_and_project(monkeypatch: pytest.Monk
 
         @classmethod
         def build_default_prefix(cls, domain: str, project: str) -> str:
-            return f"/envr/{domain}/{project}/"
+            return f"/{DEFAULT_PREFIX}/{domain}/{project}/"
 
         def __init__(self, prefix: str, profile: str | None = None, region: str | None = None, **kwargs: object):
             captured["prefix"] = prefix
@@ -58,7 +59,7 @@ def test_aws_default_prefix_includes_domain_and_project(monkeypatch: pytest.Monk
         project="myproj",
         prefix=None,
     )
-    assert captured["prefix"] == "/envr/aws/myproj/"
+    assert captured["prefix"] == f"/{DEFAULT_PREFIX}/aws/myproj/"
 
 
 def test_aws_default_prefix_uses_default_namespace_when_missing(monkeypatch: pytest.MonkeyPatch):
@@ -70,7 +71,7 @@ def test_aws_default_prefix_uses_default_namespace_when_missing(monkeypatch: pyt
 
         @classmethod
         def build_default_prefix(cls, domain: str, project: str) -> str:
-            return f"/envr/{domain}/{project}/"
+            return f"/{DEFAULT_PREFIX}/{domain}/{project}/"
 
         def __init__(self, prefix: str, profile: str | None = None, region: str | None = None, **kwargs: object):
             captured["prefix"] = prefix
@@ -102,7 +103,7 @@ def test_aws_default_prefix_uses_default_namespace_when_missing(monkeypatch: pyt
         project="",
         prefix=None,
     )
-    assert captured["prefix"] == "/envr/_default_/_default_/"
+    assert captured["prefix"] == f"/{DEFAULT_PREFIX}/_default_/_default_/"
 
 
 def test_aws_explicit_prefix_unchanged(monkeypatch: pytest.MonkeyPatch):
@@ -151,7 +152,7 @@ def test_gcp_default_prefix_uses_double_dash_separator(monkeypatch: pytest.Monke
 
         @classmethod
         def build_default_prefix(cls, domain: str, project: str) -> str:
-            return f"envr--{domain}--{project}--"
+            return f"{DEFAULT_PREFIX}--{domain}--{project}--"
 
         def __init__(self, project_id: str, prefix: str, **kwargs: object):
             captured["prefix"] = prefix
@@ -186,7 +187,7 @@ def test_gcp_default_prefix_uses_double_dash_separator(monkeypatch: pytest.Monke
         project="myapp",
         prefix=None,
     )
-    assert captured["prefix"] == "envr--prod--myapp--"
+    assert captured["prefix"] == f"{DEFAULT_PREFIX}--prod--myapp--"
 
 
 def test_vault_default_path_includes_domain_and_project(monkeypatch: pytest.MonkeyPatch):
@@ -198,7 +199,7 @@ def test_vault_default_path_includes_domain_and_project(monkeypatch: pytest.Monk
 
         @classmethod
         def build_default_prefix(cls, domain: str, project: str) -> str:
-            return f"envr/{domain}/{project}"
+            return f"{DEFAULT_PREFIX}/{domain}/{project}"
 
         def __init__(self, path: str, mount_point: str = "secret", url: str | None = None, **kwargs: object):
             captured["path"] = path
@@ -231,7 +232,7 @@ def test_vault_default_path_includes_domain_and_project(monkeypatch: pytest.Monk
         project="svc",
         prefix=None,
     )
-    assert captured["path"] == "envr/staging/svc"
+    assert captured["path"] == f"{DEFAULT_PREFIX}/staging/svc"
 
 
 def test_github_default_prefix_uses_double_underscore(monkeypatch: pytest.MonkeyPatch):
@@ -281,7 +282,9 @@ def test_github_default_prefix_uses_double_underscore(monkeypatch: pytest.Monkey
 def test_real_store_build_default_prefix_api():
     """Real store classes implement the plugin API (default_namespace + build_default_prefix)."""
     assert AwsSsmStore.default_namespace == "_default_"
-    assert AwsSsmStore.build_default_prefix("aws", "myproj") == "/envr/aws/myproj/"
-    assert VaultStore.build_default_prefix("staging", "svc") == "envr/staging/svc"
-    assert GcpSmStore.build_default_prefix("prod", "myapp") == "envr--prod--myapp--"
+    sep = AwsSsmStore.key_separator
+    pre = AwsSsmStore.prefix
+    assert AwsSsmStore.build_default_prefix("aws", "myproj") == f"{sep}{pre}{sep}aws{sep}myproj{sep}"
+    assert VaultStore.build_default_prefix("staging", "svc") == f"{DEFAULT_PREFIX}/staging/svc"
+    assert GcpSmStore.build_default_prefix("prod", "myapp") == f"{DEFAULT_PREFIX}--prod--myapp--"
     assert GitHubStore.build_default_prefix("ci", "api") == "ENVR__ci__api__"

@@ -200,8 +200,8 @@ class SecretStore(ABC):
         try:
             name = parts[-1]
             version = parts[-2]
-            project = parts[-4]
-            domain = parts[-3]
+            project = parts[-3]
+            domain = parts[-4]
             prefix = parts[-5]
 
             # Convert version separator back to dots for storage
