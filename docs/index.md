@@ -1,6 +1,6 @@
 # enveloper
 
-![Envelope Services](media/enveloper.svg){ width="100%" }
+<img src="media/enveloper.svg" width="100%" alt="Envelope Services" />
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
 
@@ -15,31 +15,72 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 ## Quick Start
 
 ```bash
+# Sample .env file
+```
+<img src="media/quickstart-sample.png" width="50%" alt="Sample .env file" />
+
+
+```bash
 # Import an existing .env file into the keychain
-enveloper import sample.env --domain prod
+enveloper import sample.env --domain dev
 
 # List what's stored
+
 enveloper list
-
-# Export for a build
-eval "$(enveloper --domain prod export --format unix)"
-
-# Unexport to remove the set of env variables after a build
-eval "$(enveloper --domain prod unexport --format unix)"
-
-# Push to AWS SSM
-enveloper --service aws --domain prod push
-
-# Pull from AWS SSM
-enveloper --service aws --domain prod pull
 ```
+
+<img src="media/quickstart-keychain.png" width="80%" alt="Import and list values" />
+
+```bash
+# Load local environment settings from keychain
+
+eval "$(enveloper --domain dev export --format unix)"
+
+# Values are loaded into local environment variables. 
+# Use in Makefile, shell scripts, etc. 
+# 'unix' format works for Linux, Mac, and Windows WSL. 
+# For Windows Powershell, use 'win' as format.
+
+# When done, you can use 'unexport' command to remove the set of env variables
+
+eval "$(enveloper --domain dev unexport --format unix)"
+```
+
+<img src="media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" />
+
+```bash
+# Push to AWS SSM - assume AWS_EXPORT is set or default is configured 
+
+enveloper --service aws --domain dev push
+```
+<img src="media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" />
+
+```bash
+# Verify that they got pushed in AWS console for System Store > Parameters
+
+enveloper --service aws list --domain dev
+```
+<img src="media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" />
+
+
+```bash
+# Pull from AWS SSM into local keychain
+
+enveloper --service aws --domain dev pull
+
+# Clear environment settings
+enveloper --domain dev clear
+```
+<img src="media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" />
+
 
 ## Features
 
-- Backward compatible with `.env` files
-- Store values in local keychains (Mac, Linux, Windows), or cloud service secret stores (see below)
-- Versioning
-- Use in CI/CD, including Github Actions.
+- Backward compatible with `.env` files.
+- Store values in local keychains (Mac, Linux, Windows), or cloud service secret stores (see below).
+- Work with individual environment variables or sets.
+- Versioning of environment values using [Semantic Versioning](https://semver.org).
+- Use in build chains (Make, Gradle, etc.) or CI/CD, including Github Actions.
 - Support for hierarchical settings via _domain_ and _project_ sets.
 
 
@@ -47,7 +88,7 @@ enveloper --service aws --domain prod pull
 
 | Backend | Description |
 |---------|-------------|
-| **Local Keychain** | macOS Keychain, Linux Secret Service, Windows Credential Locker |
+| **Local Keychain** | MacOS Keychain, Linux Secret Service, Windows Credential Locker |
 | **File** | Plain `.env` files |
 | **AWS SSM** | AWS Systems Manager Parameter Store |
 | **GitHub** | GitHub Actions secrets |
@@ -82,4 +123,4 @@ enveloper --service aws --domain prod pull
 
 ## License
 
-[GNU AGPL v3.0 or later](license.md)
+[GNU AGPL v3.0 or later](LICENSE)

@@ -1,6 +1,6 @@
 VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
 
-.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-sync-media docs-install docs-serve docs-build docs-deploy docs-check
+.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-sync-readme docs-sync-media docs-install docs-serve docs-build docs-deploy docs-check
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -69,8 +69,13 @@ clean: ## Remove build artifacts
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 # --- Documentation (MkDocs @ https://enveloper.net) ---
-# Content: docs/ (index.md = README), theme: Material (dark + orange). CNAME in docs/ for custom domain.
+# Content: docs/ (index.md synced from README), theme: Material (dark + orange). CNAME in docs/ for custom domain.
 # MkDocs only copies from docs_dir (docs/), so sync repo root media/ into docs/media/ before build.
+
+docs-sync-readme: ## Copy README.md to docs/index.md so the site homepage stays in sync (fix doc links for docs/ dir)
+	@cp README.md docs/index.md
+	@sed -i.bak 's|](docs/|](|g' docs/index.md && rm -f docs/index.md.bak
+	@echo "Synced README.md -> docs/index.md"
 
 docs-sync-media: ## Copy repo root media images into docs/media/ so they are included in the built site
 	@mkdir -p docs/media
@@ -93,7 +98,7 @@ docs-serve: docs-install ## Serve documentation locally — open http://127.0.0.
 # Match both Unicode │ (U+2502) and ASCII | so it works in any terminal/CI
 DOCS_FILTER = 2>&1 | grep -vE 'MkDocs 2.0|incompatible|Zensical|squidfunk.github.io|static site generator|analysis of the situation|We recommend switching|as soon as possible|We.re providing|this article' | grep -vE '^[[:space:]]*[│\|][[:space:]]' | grep -vE '^[[:space:]]*\|' | grep -v '\[0m'
 
-docs-build: docs-install docs-sync-media ## Build static site into docs-site/site/
+docs-build: docs-install docs-sync-readme docs-sync-media ## Build static site into docs-site/site/
 	@echo "Building documentation..."
 	@$(DOCS_UV) uv run mkdocs build $(DOCS_FILTER)
 	@echo "Built site: docs-site/site/"
