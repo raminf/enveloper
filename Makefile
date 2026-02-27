@@ -1,6 +1,6 @@
 VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
 
-.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean
+.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-install docs-serve docs-build docs-deploy docs-check
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -67,3 +67,30 @@ clean: ## Remove build artifacts
 	rm -rf dist/ build/ *.egg-info src/*.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
+# --- Documentation (MkDocs @ https://enveloper.net) ---
+# Content: docs/ (index.md = README), theme: Material (dark + orange). CNAME in docs/ for custom domain.
+
+docs-install: ## Install MkDocs and docs-site dependencies (run once)
+	cd docs-site && uv sync
+
+docs-serve: docs-install ## Serve documentation locally — open http://127.0.0.1:8000 or http://localhost:8000 in your browser
+	@echo ""
+	@echo "  Open in your browser:  http://127.0.0.1:8000  (or http://localhost:8000)"
+	@echo "  Do not use http://0.0.0.0:8000 — that will show a blank page."
+	@echo ""
+	cd docs-site && uv run mkdocs serve --dev-addr=127.0.0.1:8000
+
+docs-build: docs-install ## Build static site into docs-site/site/
+	@echo "Building documentation..."
+	cd docs-site && uv run mkdocs build
+	@echo "Built site: docs-site/site/"
+
+docs-deploy: docs-build ## Deploy to GitHub Pages (enveloper.net); push to trigger or run manually
+	@echo "Deploying to GitHub Pages (enveloper.net)..."
+	cd docs-site && uv run mkdocs gh-deploy --force
+	@echo "Deployed. Site: https://enveloper.net"
+
+docs-check: docs-install ## Build with --strict to validate links and config
+	cd docs-site && uv run mkdocs build --strict
+	@echo "Docs check passed."

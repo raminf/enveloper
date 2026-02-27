@@ -2,7 +2,7 @@
 
 ## GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)
 
-This project is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**. See [LICENSE](../LICENSE) for the full text.
+This project is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**. See [LICENSE](https://github.com/raminf/enveloper/blob/main/LICENSE) for the full text.
 
 ### Summary
 
@@ -10,7 +10,7 @@ In short: you may use, modify, and distribute the software, but if you run a mod
 
 ### Full License Text
 
-See [LICENSE](../LICENSE) for the complete license text.
+See [LICENSE](https://github.com/raminf/enveloper/blob/main/LICENSE) for the complete license text.
 
 ## What This Means for You
 

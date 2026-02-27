@@ -1,0 +1,126 @@
+site_name: enveloper
+site_description: Manage environment secrets via your system keychain or cloud secret stores
+site_url: https://enveloper.net
+
+# Use the project docs folder and README (index.md) as content
+docs_dir: ../docs
+
+# Repository
+repo_name: raminf/enveloper
+repo_url: https://github.com/raminf/enveloper
+
+# Theme - Dark mode (slate) with orange highlights; default to dark
+theme:
+  name: material
+  default_media: "(prefers-color-scheme: dark)"
+  palette:
+    - scheme: slate
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+    - scheme: default
+      primary: orange
+      accent: orange
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+  logo: media/envelope.svg
+  favicon: media/envelope.svg
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+
+# Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/raminf/enveloper
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/enveloper/
+  version: "1.0.0"
+
+# Plugins
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+
+# Navigation
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Step-by-Step Tutorial: step-by-step-tutorial.md
+    - Technical Details: technical-details.md
+    - Installation: https://pypi.org/project/enveloper/
+  - CLI Reference:
+    - CLI Reference: cli-reference.md
+  - SDK:
+    - SDK: sdk.md
+  - Backends:
+    - Local Keychain: local-keychain.md
+    - Cloud Storage: cloud-storage.md
+    - Service Backend: service-backend.md
+  - Configuration:
+    - Project Config: project-config.md
+    - Config/Env Overrides: config-env-overrides.md
+  - Integration:
+    - CI/CD Integration: cicd-integration.md
+    - Makefile Integration: makefile-integration.md
+  - Advanced:
+    - Versioning: versioning.md
+    - JSON/YAML: json-yaml.md
+    - Security: security.md
+  - Development:
+    - Development: development.md
+    - Adding Stores: adding-stores.md
+    - Publishing: publishing.md
+  - Other:
+    - Other Projects: other-projects.md
+    - Disclosures: disclosures.md
+    - License: license.md
+
+# Extra CSS for custom styling
+extra_css:
+  - styles/extra.css
+
+# Markdown extensions
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

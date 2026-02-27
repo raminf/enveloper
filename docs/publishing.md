@@ -82,7 +82,7 @@ The repo includes a workflow that publishes **only** on version tags or when you
 
 1. Configure [trusted publishing](https://docs.pypi.org/trusted-publishers/) on PyPI and TestPyPI
 2. Create GitHub Environments `pypi` and `testpypi`
-3. See the comments in [`.github/workflows/publish.yml`](.github/workflows/publish.yml)
+3. See the comments in [`.github/workflows/publish.yml`](https://github.com/raminf/enveloper/blob/main/.github/workflows/publish.yml)
 
 ### Usage
 

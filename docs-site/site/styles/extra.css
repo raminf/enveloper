@@ -1,0 +1,103 @@
+/* Custom styles for enveloper documentation site */
+
+/* Envelope logo in header: 2–3x larger (override theme constraints) */
+.md-header {
+  min-height: 4.8rem;
+}
+.md-header__inner {
+  min-height: 4.8rem;
+}
+.md-header [data-md-component="logo"] {
+  padding: 0.2rem 0 !important;
+  margin-right: 0.4rem;
+}
+.md-header [data-md-component="logo"] img {
+  width: 4rem !important;
+  height: 4rem !important;
+  min-width: 4rem !important;
+  min-height: 4rem !important;
+  display: block;
+}
+
+/* Project name in header title: 2–3x larger */
+.md-header__title .md-header__topic:first-child .md-ellipsis {
+  font-size: 2.5rem !important;
+  font-weight: 700;
+}
+
+:root {
+  --md-primary-fg-color: #FF9800;
+  --md-primary-fg-color--light: #FFCC80;
+  --md-primary-fg-color--dark: #E65100;
+  --md-accent-fg-color: #FF9800;
+  --md-accent-fg-color--light: #FFCC80;
+  --md-accent-fg-color--dark: #E65100;
+}
+
+/* Orange highlight for links */
+.md-typeset a {
+  color: var(--md-primary-fg-color);
+}
+
+.md-typeset a:hover {
+  color: var(--md-accent-fg-color--dark);
+}
+
+/* Orange code block borders */
+.codehilite {
+  border-left: 4px solid var(--md-primary-fg-color);
+}
+
+/* Orange highlight for inline code */
+code {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--md-primary-fg-color);
+}
+
+/* Orange header accent */
+.md-header {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* Orange table header */
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color);
+  color: white;
+}
+
+/* Orange button hover */
+.md-button {
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+  color: white;
+}
+
+.md-button:hover {
+  background-color: var(--md-accent-fg-color--dark);
+  border-color: var(--md-accent-fg-color--dark);
+}
+
+/* Orange badge */
+.md-badge {
+  background-color: var(--md-primary-fg-color);
+  color: white;
+}
+
+/* Orange focus outline */
+:focus {
+  outline-color: var(--md-primary-fg-color);
+}
+
+/* Orange progress bar */
+.md-progress {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* Orange scrollbar */
+.md-sidebar__scroll::-webkit-scrollbar {
+  background-color: var(--md-primary-fg-color);
+}
+
+.md-sidebar__scroll::-webkit-scrollbar-thumb {
+  background-color: var(--md-accent-fg-color--dark);
+}

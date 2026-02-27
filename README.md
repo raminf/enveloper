@@ -16,22 +16,22 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 
 ```bash
 # Import an existing .env file into the keychain
-enveloper import sample.env --domain prod
+enveloper import sample.env --domain dev
 
 # List what's stored
 enveloper list
 
 # Export for a build
-eval "$(enveloper --domain prod export --format unix)"
+eval "$(enveloper --domain dev export --format unix)"
 
 # Unexport to remove the set of env variables after a build
-eval "$(enveloper --domain prod unexport --format unix)"
+eval "$(enveloper --domain dev unexport --format unix)"
 
 # Push to AWS SSM
-enveloper --service aws --domain prod push
+enveloper --service aws --domain dev push
 
 # Pull from AWS SSM
-enveloper --service aws --domain prod pull
+enveloper --service aws --domain dev pull
 ```
 
 ## Features
@@ -58,7 +58,7 @@ enveloper --service aws --domain prod pull
 
 ## Documentation
 
-- [Step-by-Step Tutorial](docs/step-by-step-tutorial.md) - From sample.env to keychain, builds, and AWS
+- [Step-by-Step Tutorial](docs/step-by-step-tutorial.md) - From sample.env to keychain, builds, and cloud
 - [CLI Reference](docs/cli-reference.md) - All commands and options
 - [Technical Details](docs/technical-details.md) - Architecture and internals
 - [Local Keychain](docs/local-keychain.md) - OS keychain setup and usage
