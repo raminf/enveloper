@@ -7,8 +7,8 @@ from enveloper.env_file import parse_env_file
 
 def test_parse_standard_env(sample_env):
     result = parse_env_file(sample_env)
-    assert result["AWS_PROFILE"] == "default"
     assert result["TWILIO_API_SID"] == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert result["TWILIO_AUTH_TOKEN"] == "my secret token"
 
 
 def test_parse_double_quoted(sample_env):
@@ -43,7 +43,7 @@ def test_parse_equals_in_value(sample_env):
 
 def test_comments_and_blank_lines_skipped(sample_env):
     result = parse_env_file(sample_env)
-    assert len(result) == 8
+    assert len(result) == 7
 
 
 def test_empty_file(tmp_path):

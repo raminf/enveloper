@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from enveloper.store import DEFAULT_NAMESPACE, SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_HVAC = (
     "hvac is required for the vault store. "
@@ -41,42 +41,49 @@ def _vault_path_not_found(exc: BaseException) -> bool:
         return "404" in str(exc) or "not found" in str(exc).lower()
 
 
-def _sanitize_path_segment(s: str) -> str:
-    """Path segment: no slashes or backslashes (Vault path uses /)."""
-    if not s or not s.strip():
-        return DEFAULT_NAMESPACE
-    return s.replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
-
-
 class VaultStore(SecretStore):
     """Read/write secrets as a single KV v2 secret at a given path.
 
     All keys for this store are stored as one Vault secret at ``path``;
-    the secret's ``data`` dict holds key -> value. Path can include slashes
-    (e.g. ``myapp/prod``). Uses ``VAULT_ADDR`` and ``VAULT_TOKEN`` if not
-    passed in.
+    the secret's ``data`` dict holds full composite key -> value.
+    Key format: envr/{domain}/{project}/{version}/{name}.
     """
 
+    service_name: str = "vault"
+    service_display_name: str = "HashiCorp Vault KV v2"
+    service_doc_url: str = "https://developer.hashicorp.com/vault/docs"
+
     default_namespace: str = "_default_"
+    key_separator: str = "/"
+    prefix: str = DEFAULT_PREFIX
 
     @classmethod
     def build_default_prefix(cls, domain: str, project: str) -> str:
-        """Default Vault path: enveloper/{domain}/{project} (path separator /)."""
-        d = _sanitize_path_segment(domain)
-        p = _sanitize_path_segment(project)
-        return f"enveloper/{d}/{p}"
+        """Default Vault path: envr/{domain}/{project} (path separator /)."""
+        d = cls.sanitize_key_segment(domain)
+        p = cls.sanitize_key_segment(project)
+        return f"{cls.prefix}/{d}/{p}"
 
     def __init__(
         self,
-        path: str = "enveloper",
+        path: str = "envr",
         mount_point: str = "secret",
         url: str | None = None,
         token: str | None = None,
+        domain: str = DEFAULT_NAMESPACE,
+        project: str = DEFAULT_NAMESPACE,
+        version: str = DEFAULT_VERSION,
+        prefix: str | None = None,
+        **kwargs: object,
     ) -> None:
-        self._path = path.strip("/")
+        # from_config passes prefix= (build_default_prefix result); use as path when present
+        self._path = (prefix if prefix is not None else path).strip("/")
         self._mount_point = mount_point
         self._url = url
         self._token = token
+        self._domain = domain
+        self._project = project
+        self._version = version
         self._client: Any = None
 
     @property
@@ -106,19 +113,28 @@ class VaultStore(SecretStore):
             mount_point=self._mount_point,
         )
 
+    def _resolve_key(self, key: str) -> str:
+        """Return full composite key; if key is short name, build full key with domain/project/version."""
+        if self.parse_key(key) is not None:
+            return key
+        return self.build_key(
+            name=key, project=self._project, domain=self._domain, version=self._version
+        )
+
     def get(self, key: str) -> str | None:
         data = self._read_data()
-        return data.get(key)
+        return data.get(self._resolve_key(key))
 
     def set(self, key: str, value: str) -> None:
         data = self._read_data()
-        data[key] = value
+        data[self._resolve_key(key)] = value
         self._write_data(data)
 
     def delete(self, key: str) -> None:
         data = self._read_data()
-        if key in data:
-            del data[key]
+        full_key = self._resolve_key(key)
+        if full_key in data:
+            del data[full_key]
             self._write_data(data)
 
     def list_keys(self) -> list[str]:

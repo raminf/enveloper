@@ -7,7 +7,10 @@ import os
 from enveloper.config import EnveloperConfig, load_config
 from enveloper.resolve_store import get_store
 from enveloper.stores.keychain import KeychainStore
-from enveloper.util import strip_domain_prefix
+from enveloper.util import key_to_export_name, strip_domain_prefix
+
+# Default version (semver format)
+DEFAULT_VERSION = "1.0.0"
 
 
 def _resolve_project_domain(
@@ -33,6 +36,13 @@ def _resolve_service(service: str | None) -> str:
     return os.environ.get("ENVELOPER_SERVICE") or cfg.service or "local"
 
 
+def _resolve_version(version: str | None) -> str:
+    """Resolve version from args, env, and default."""
+    if version:
+        return version
+    return os.environ.get("ENVELOPER_VERSION") or DEFAULT_VERSION
+
+
 def _should_use_ssm() -> bool:
     """Use SSM when aws extra is installed and we're in Lambda or ENVELOPER_USE_SSM is set."""
     if os.environ.get("ENVELOPER_USE_SSM"):
@@ -51,7 +61,7 @@ def _get_ssm_prefix(domain: str, cfg: EnveloperConfig) -> str | None:
     return cfg.resolve_ssm_prefix(domain, env_name)
 
 
-def _load_from_ssm(domain: str, cfg: EnveloperConfig) -> dict[str, str]:
+def _load_from_ssm(domain: str, cfg: EnveloperConfig, version: str | None = None) -> dict[str, str]:
     """Load secrets from SSM when boto3 is available. Returns empty dict if not used or on error."""
     if not _should_use_ssm():
         return {}
@@ -69,13 +79,15 @@ def _load_from_ssm(domain: str, cfg: EnveloperConfig) -> dict[str, str]:
             prefix=prefix,
             profile=cfg.aws_profile if not os.environ.get("AWS_LAMBDA_FUNCTION_NAME") else None,
             region=cfg.aws_region or os.environ.get("AWS_REGION"),
+            version=version or "1.0.0",
         )
         keys = store.list_keys()
         result: dict[str, str] = {}
         for key in keys:
             value = store.get(key)
             if value is not None:
-                result[key] = value
+                out_key = key_to_export_name(store, key)
+                result[out_key] = value
         return result
     except Exception:
         return {}
@@ -88,19 +100,21 @@ def _collect_secrets(
     service: str = "local",
     path: str = ".env",
     env_name: str | None = None,
+    version: str | None = None,
 ) -> dict[str, str]:
     """Build merged secrets from the given service, or (when service=local) SSM then keychain then optionally os.environ."""
     cfg = load_config()
     merged: dict[str, str] = {}
+    version_str = _resolve_version(version)
 
     if service != "local":
         # Single store: file or cloud
-        store = get_store(service, project, domain, cfg, path=path, env_name=env_name)
-        strip_prefix = service not in ("file",)  # strip domain/project when loading from cloud
+        store = get_store(service, project, domain, cfg, path=path, env_name=env_name, version=version_str)
+        strip_prefix = service not in ("file",)  # strip prefix/version when loading from cloud
         for key in store.list_keys():
             value = store.get(key)
             if value is not None:
-                out_key = strip_domain_prefix(key) if strip_prefix else key
+                out_key = key_to_export_name(store, key) if strip_prefix else key
                 merged[out_key] = value
         if include_os_environ:
             for k, v in os.environ.items():
@@ -109,10 +123,10 @@ def _collect_secrets(
         return merged
 
     # service == "local": SSM (if Lambda/ENVELOPER_USE_SSM) then keychain then optionally os.environ
-    ssm_values = _load_from_ssm(domain, cfg)
+    ssm_values = _load_from_ssm(domain, cfg, version=version_str)
     merged.update(ssm_values)
 
-    store = KeychainStore(project=project, domain=domain)
+    store = KeychainStore(project=project, domain=domain, version=version_str)
     for key in store.list_keys():
         if key not in merged:
             value = store.get(key)
@@ -135,6 +149,7 @@ def load_dotenv(
     service: str | None = None,
     path: str = ".env",
     env_name: str | None = None,
+    version: str | None = None,
 ) -> bool:
     """Load secrets into os.environ (python-dotenv compatible API).
 
@@ -162,6 +177,8 @@ def load_dotenv(
         Path to the .env file when ``service="file"``. Ignored otherwise.
     env_name : str, optional
         Environment name for resolving ``{env}`` in config (e.g. domain ssm_prefix).
+    version : str, optional
+        Version (semver format) for versioned secrets. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
 
     Returns
     -------
@@ -190,7 +207,7 @@ def load_dotenv(
     merged = _collect_secrets(
         resolved_project, resolved_domain,
         include_os_environ=False,
-        service=resolved_service, path=path, env_name=env_name,
+        service=resolved_service, path=path, env_name=env_name, version=version,
     )
     if not merged:
         if verbose:
@@ -211,6 +228,7 @@ def dotenv_values(
     service: str | None = None,
     path: str = ".env",
     env_name: str | None = None,
+    version: str | None = None,
 ) -> dict[str, str]:
     """Return secrets as a dict without modifying os.environ.
 
@@ -230,6 +248,8 @@ def dotenv_values(
         Path to the .env file when ``service="file"``. Ignored otherwise.
     env_name : str, optional
         Environment name for resolving ``{env}`` in config.
+    version : str, optional
+        Version (semver format) for versioned secrets. Defaults from ENVELOPER_VERSION or ``"1.0.0"``.
 
     Returns
     -------
@@ -244,5 +264,5 @@ def dotenv_values(
     return _collect_secrets(
         resolved_project, resolved_domain,
         include_os_environ=include_env,
-        service=resolved_service, path=path, env_name=env_name,
+        service=resolved_service, path=path, env_name=env_name, version=version,
     )

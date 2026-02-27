@@ -3,15 +3,28 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Iterator
 
-if TYPE_CHECKING:
-    from enveloper.store import SecretStore
+from enveloper.store import SecretStore
+from enveloper.stores.file_store import FileStore
+from enveloper.stores.keychain import KeychainStore
 
 if sys.version_info >= (3, 12):
     from importlib.metadata import entry_points
 else:
     from importlib.metadata import entry_points
+
+
+def get_service_entries() -> Iterator[tuple[str, type[SecretStore]]]:
+    """Yield (entry_name, store_class) in display order for ``enveloper service``.
+
+    Order: keychain (local), file, then all other registered stores alphabetically.
+    """
+    yield "keychain", KeychainStore
+    yield "file", FileStore
+    for name in sorted(list_store_names()):
+        if name != "keychain":
+            yield name, get_store_class(name)
 
 
 def get_store_class(name: str) -> type[SecretStore]:

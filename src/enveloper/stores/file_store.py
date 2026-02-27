@@ -23,6 +23,12 @@ def _format_env_value(value: str) -> str:
 class FileStore(SecretStore):
     """Read/write secrets as key-value pairs in a single .env file."""
 
+    service_name: str = "file"
+    service_display_name: str = "Plain .env file"
+    service_doc_url: str = "https://github.com/motdotla/dotenv"
+
+    key_separator: str = "/"
+
     def __init__(self, path: str | Path = ".env") -> None:
         self._path = Path(path)
 

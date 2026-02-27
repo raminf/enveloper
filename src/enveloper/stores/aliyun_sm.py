@@ -13,7 +13,7 @@ import re
 import time
 from typing import Any
 
-from enveloper.store import DEFAULT_NAMESPACE, SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_ALIBABA = (
     "alibabacloud_kms20160120 is required for the aliyun store. "
@@ -66,35 +66,45 @@ def _get_client(
 class AliyunSmStore(SecretStore):
     """Read/write secrets as Alibaba Cloud KMS generic secrets.
 
-    Each key is stored as a separate secret; secret name = prefix + sanitized key.
-    Uses ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET, or
-    [enveloper.aliyun] access_key_id / access_key_secret in config.
+    Each key is stored as a separate secret; secret name = sanitized full composite key.
+    Key format: envr--{domain}--{project}--{version}--{name}.
     """
 
+    service_name: str = "aliyun"
+    service_display_name: str = "Alibaba Cloud KMS Secrets Manager"
+    service_doc_url: str = "https://www.alibabacloud.com/help/en/kms/key-management-service/getting-started/getting-started-with-secrets-manager"
+
     default_namespace: str = "_default_"
+    key_separator: str = "--"
+    prefix: str = DEFAULT_PREFIX
 
     @classmethod
     def build_default_prefix(cls, domain: str, project: str) -> str:
-        """Default prefix: enveloper--{domain}--{project}-- (separator --)."""
-        d = _sanitize_prefix_segment_aliyun(domain)
-        p = _sanitize_prefix_segment_aliyun(project)
-        return f"enveloper--{d}--{p}--"
+        """Default prefix: envr--{domain}--{project}-- (separator --)."""
+        d = cls.sanitize_key_segment(domain)
+        p = cls.sanitize_key_segment(project)
+        return f"{cls.prefix}--{d}--{p}--"
 
     def __init__(
         self,
-        prefix: str = "enveloper-",
+        prefix: str = "envr--",
         region_id: str = "cn-hangzhou",
         access_key_id: str | None = None,
         access_key_secret: str | None = None,
         endpoint: str | None = None,
+        domain: str = DEFAULT_NAMESPACE,
+        project: str = DEFAULT_NAMESPACE,
+        version: str = DEFAULT_VERSION,
+        **kwargs: object,
     ) -> None:
-        self._prefix = prefix.strip("_").rstrip("-")
-        if self._prefix:
-            self._prefix = self._prefix + "-"
+        self._path_prefix = prefix
         self._region_id = region_id
         self._access_key_id = access_key_id
         self._access_key_secret = access_key_secret
         self._endpoint = endpoint
+        self._domain = domain
+        self._project = project
+        self._version = version
         self._client: Any = None
 
     @property
@@ -108,8 +118,17 @@ class AliyunSmStore(SecretStore):
             )
         return self._client
 
+    def _resolve_key(self, key: str) -> str:
+        """Return full composite key; if key is short name, build full key with domain/project/version."""
+        if self.parse_key(key) is not None:
+            return key
+        return self.build_key(
+            name=key, project=self._project, domain=self._domain, version=self._version
+        )
+
     def _secret_name(self, key: str) -> str:
-        return self._prefix + _sanitize_secret_name(key)
+        """Aliyun secret name = sanitized full composite key."""
+        return _sanitize_secret_name(self._resolve_key(key))
 
     def get(self, key: str) -> str | None:
         try:
@@ -161,9 +180,11 @@ class AliyunSmStore(SecretStore):
                 raise
 
     def list_keys(self) -> list[str]:
+        """Return keys (sanitized full composite) so get(key) works."""
         from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
 
         keys: list[str] = []
+        filter_prefix = _sanitize_secret_name(self._path_prefix.rstrip("-"))
         page = 1
         while True:
             req = models.ListSecretsRequest(page_number=page, page_size=100)
@@ -172,9 +193,10 @@ class AliyunSmStore(SecretStore):
                 break
             for secret in resp.body.secret_list:
                 name = getattr(secret, "secret_name", "") or ""
-                if name.startswith(self._prefix):
-                    key_suffix = name[len(self._prefix) :]
-                    keys.append(key_suffix)
+                if filter_prefix and name.startswith(filter_prefix):
+                    keys.append(name)
+                elif not filter_prefix and name.startswith("envr"):
+                    keys.append(name)
             if len(resp.body.secret_list) < 100:
                 break
             page += 1

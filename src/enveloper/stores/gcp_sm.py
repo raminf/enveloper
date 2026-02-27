@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from enveloper.store import DEFAULT_NAMESPACE, SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_GCP = (
     "google-cloud-secret-manager is required for the gcp store. "
@@ -33,38 +33,42 @@ def _get_client() -> Any:
     return secretmanager.SecretManagerServiceClient()
 
 
-def _sanitize_prefix_segment(s: str) -> str:
-    """Segment for prefix with '--' separator: no '--' inside (GCP allows [a-zA-Z0-9_-])."""
-    if not s or not s.strip():
-        return DEFAULT_NAMESPACE
-    return s.replace("--", "_").replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
-
-
 class GcpSmStore(SecretStore):
     """Read/write secrets as Google Cloud Secret Manager secrets.
 
-    Each key is stored as a separate secret; secret ID = prefix + sanitized key.
-    Uses Application Default Credentials (ADC) or GOOGLE_APPLICATION_CREDENTIALS.
+    Each key is stored as a separate secret; secret ID = sanitized full composite key.
+    Key format: envr--{domain}--{project}--{version}--{name}.
     """
 
+    service_name: str = "gcp"
+    service_display_name: str = "Google Cloud Secret Manager"
+    service_doc_url: str = "https://cloud.google.com/secret-manager/docs"
+
     default_namespace: str = "_default_"
+    key_separator: str = "--"
+    prefix: str = DEFAULT_PREFIX
 
     @classmethod
     def build_default_prefix(cls, domain: str, project: str) -> str:
-        """Default prefix: enveloper--{domain}--{project}-- (separator --)."""
-        d = _sanitize_prefix_segment(domain)
-        p = _sanitize_prefix_segment(project)
-        return f"enveloper--{d}--{p}--"
+        """Default prefix: envr--{domain}--{project}-- (separator --)."""
+        d = cls.sanitize_key_segment(domain)
+        p = cls.sanitize_key_segment(project)
+        return f"{cls.prefix}--{d}--{p}--"
 
     def __init__(
         self,
         project_id: str,
-        prefix: str = "enveloper-",
+        prefix: str = "envr--",
+        domain: str = DEFAULT_NAMESPACE,
+        project: str = DEFAULT_NAMESPACE,
+        version: str = DEFAULT_VERSION,
+        **kwargs: object,
     ) -> None:
         self._project_id = project_id
-        self._prefix = prefix.strip("_").rstrip("-")
-        if self._prefix:
-            self._prefix = self._prefix + "-"
+        self._path_prefix = prefix
+        self._domain = domain
+        self._project = project
+        self._version = version
         self._client: Any = None
 
     @property
@@ -73,8 +77,21 @@ class GcpSmStore(SecretStore):
             self._client = _get_client()
         return self._client
 
+    def _resolve_key(self, key: str) -> str:
+        """Return full composite key; if key is short name, build full key with domain/project/version."""
+        if self.parse_key(key) is not None:
+            return key
+        return self.build_key(
+            name=key, project=self._project, domain=self._domain, version=self._version
+        )
+
     def _secret_id(self, key: str) -> str:
-        return self._prefix + _sanitize_secret_id(key)
+        """GCP secret ID = sanitized full composite key (or key as-is if already from list)."""
+        full = self._resolve_key(key)
+        # If key was from list_keys it may be already sanitized (underscores, no --)
+        if full == key and "--" not in key and key.startswith("envr"):
+            return key
+        return _sanitize_secret_id(full)
 
     def _secret_name(self, secret_id: str) -> str:
         return f"projects/{self._project_id}/secrets/{secret_id}"
@@ -133,16 +150,18 @@ class GcpSmStore(SecretStore):
                 raise
 
     def list_keys(self) -> list[str]:
-        prefix_full = f"projects/{self._project_id}/secrets/{self._prefix}"
+        """Return keys (sanitized full composite or secret_id) so get(key) works."""
+        prefix_full = f"projects/{self._project_id}/secrets/"
+        filter_prefix = _sanitize_secret_id(self._path_prefix.rstrip("-"))
         keys: list[str] = []
         for secret in self.client.list_secrets(
             request={"parent": f"projects/{self._project_id}"}
         ):
             name = getattr(secret, "name", "") or ""
             if name.startswith(prefix_full):
-                # name is projects/PID/secrets/SECRET_ID
                 secret_id = name.split("/")[-1]
-                if secret_id.startswith(self._prefix):
-                    key = secret_id[len(self._prefix) :]
-                    keys.append(key)
+                if filter_prefix and secret_id.startswith(filter_prefix):
+                    keys.append(secret_id)
+                elif not filter_prefix and secret_id.startswith("envr"):
+                    keys.append(secret_id)
         return sorted(set(keys))

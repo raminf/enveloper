@@ -24,7 +24,7 @@ def test_load_dotenv_loads_from_keychain(mock_keyring, sample_env):
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
 
     # Clear any existing so we can assert they were set by load_dotenv
-    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
         os.environ.pop(key, None)
 
     try:
@@ -32,9 +32,8 @@ def test_load_dotenv_loads_from_keychain(mock_keyring, sample_env):
         assert result is True
         assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
-        assert os.environ.get("AWS_PROFILE") == "default"
     finally:
-        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
             os.environ.pop(key, None)
 
 
@@ -54,8 +53,7 @@ def test_load_dotenv_override_false(mock_keyring, sample_env):
         assert os.environ["TWILIO_API_SID"] == "already_set"
     finally:
         os.environ.pop("TWILIO_API_SID", None)
-        for key in ("TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
-            os.environ.pop(key, None)
+        os.environ.pop("TWILIO_AUTH_TOKEN", None)
 
 
 def test_load_dotenv_override_true(mock_keyring, sample_env):
@@ -73,7 +71,7 @@ def test_load_dotenv_override_true(mock_keyring, sample_env):
         assert result is True
         assert os.environ["TWILIO_API_SID"] == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     finally:
-        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
             os.environ.pop(key, None)
 
 
@@ -98,7 +96,7 @@ def test_dotenv_values_returns_dict(mock_keyring, sample_env):
     assert before == after  # unchanged
     assert isinstance(data, dict)
     assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    assert data.get("AWS_PROFILE") == "default"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
 
 
 def test_dotenv_values_empty(mock_keyring):
@@ -118,14 +116,14 @@ def test_load_dotenv_resolves_from_env(mock_keyring, sample_env, monkeypatch):
 
     monkeypatch.setenv("ENVELOPER_PROJECT", "sdk_project")
     monkeypatch.setenv("ENVELOPER_DOMAIN", "sdk_domain")
-    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
         os.environ.pop(key, None)
     try:
         result = load_dotenv()  # no project/domain
         assert result is True
         assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     finally:
-        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
             os.environ.pop(key, None)
 
 
@@ -139,14 +137,14 @@ def test_load_dotenv_default_domain_when_unspecified(mock_keyring, sample_env, m
     runner.invoke(cli, ["--project", "test", "import", str(sample_env)])  # no -d -> domain "_default_"
     monkeypatch.delenv("ENVELOPER_DOMAIN", raising=False)
     monkeypatch.delenv("ENVELOPER_PROJECT", raising=False)
-    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
         os.environ.pop(key, None)
     try:
         result = load_dotenv(project="test")  # domain not passed
         assert result is True
         assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     finally:
-        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
             os.environ.pop(key, None)
 
 
@@ -162,14 +160,14 @@ def test_load_dotenv_service_local_explicit(mock_keyring, sample_env):
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
-    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
         os.environ.pop(key, None)
     try:
         result = load_dotenv(project="test", domain="aws", service="local")
         assert result is True
         assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     finally:
-        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN", "AWS_PROFILE"):
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
             os.environ.pop(key, None)
 
 
@@ -224,4 +222,4 @@ def test_dotenv_values_service_local_explicit(mock_keyring, sample_env):
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
     data = dotenv_values(project="test", domain="aws", service="local")
     assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-    assert data.get("AWS_PROFILE") == "default"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"

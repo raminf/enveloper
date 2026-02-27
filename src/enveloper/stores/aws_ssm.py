@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from enveloper.store import DEFAULT_NAMESPACE, SecretStore
+from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MISSING_BOTO3 = (
     "boto3 is required for the aws store. "
@@ -30,35 +30,38 @@ def _get_client(profile: str | None = None, region: str | None = None) -> Any:
     return session.client("ssm")
 
 
-def _sanitize_path_segment(s: str) -> str:
-    """Path segment: no slashes or backslashes (SSM path uses /)."""
-    if not s or not s.strip():
-        return DEFAULT_NAMESPACE
-    return s.replace("/", "_").replace("\\", "_").strip() or DEFAULT_NAMESPACE
-
-
 class AwsSsmStore(SecretStore):
     """Read/write secrets as SSM parameters under a path prefix.
 
-    Parameters are stored as ``{prefix}{key}`` using ``SecureString`` type
-    by default.
+    Parameters are stored as ``/envr/{domain}/{project}/{version}/{key}`` using ``SecureString``
+    type by default. The leading ``/`` is added by the store (service-specific separator).
     """
 
+    service_name: str = "aws"
+    service_display_name: str = "AWS Systems Manager Parameter Store"
+    service_doc_url: str = "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html"
+
     default_namespace: str = "_default_"
+    key_separator: str = "/"
+    prefix: str = DEFAULT_PREFIX
 
     @classmethod
     def build_default_prefix(cls, domain: str, project: str) -> str:
-        """Default SSM path: /enveloper/{domain}/{project}/ (path separator /)."""
-        d = _sanitize_path_segment(domain)
-        p = _sanitize_path_segment(project)
-        return f"/enveloper/{d}/{p}/"
+        """Default SSM path: /envr/{domain}/{project}/ (path separator /). Service prepends /."""
+        d = cls.sanitize_key_segment(domain)
+        p = cls.sanitize_key_segment(project)
+        return f"/{cls.prefix}/{d}/{p}/"
 
     def __init__(
         self,
-        prefix: str = "/enveloper/",
+        prefix: str = "/envr/",
         profile: str | None = None,
         region: str | None = None,
         secure: bool = True,
+        version: str = DEFAULT_VERSION,
+        domain: str = DEFAULT_NAMESPACE,
+        project: str = DEFAULT_NAMESPACE,
+        **kwargs: object,
     ) -> None:
         if not prefix.endswith("/"):
             prefix += "/"
@@ -66,6 +69,12 @@ class AwsSsmStore(SecretStore):
         self._profile = profile
         self._region = region
         self._type = "SecureString" if secure else "String"
+        self._version = version
+        self._domain = domain
+        self._project = project
+        # Validate version format
+        if not is_valid_semver(version):
+            raise ValueError(f"Invalid version format: {version}. Must be valid semver (e.g., 1.0.0)")
         self._client: Any = None
 
     @property
@@ -74,33 +83,49 @@ class AwsSsmStore(SecretStore):
             self._client = _get_client(self._profile, self._region)
         return self._client
 
+    def _resolve_key(self, key: str) -> str:
+        """Return full composite key; if key is short name, build full key with domain/project/version."""
+        if self.parse_key(key) is not None:
+            return key
+        return self.build_key(
+            name=key, project=self._project, domain=self._domain, version=self._version
+        )
+
     def _param_name(self, key: str) -> str:
-        return f"{self._prefix}{key}"
+        full_key = self._resolve_key(key)
+        # SSM parameter names start with / ; prepend if not present
+        if full_key.startswith(self.key_separator):
+            return full_key
+        return self.key_separator + full_key
 
     def get(self, key: str) -> str | None:
+        param_name = self._param_name(key)
         try:
             resp = self.client.get_parameter(
-                Name=self._param_name(key), WithDecryption=True
+                Name=param_name, WithDecryption=True
             )
             return resp["Parameter"]["Value"]
         except self.client.exceptions.ParameterNotFound:
             return None
 
     def set(self, key: str, value: str) -> None:
+        param_name = self._param_name(key)
         self.client.put_parameter(
-            Name=self._param_name(key),
+            Name=param_name,
             Value=value,
             Type=self._type,
             Overwrite=True,
         )
 
     def delete(self, key: str) -> None:
+        param_name = self._param_name(key)
         try:
-            self.client.delete_parameter(Name=self._param_name(key))
+            self.client.delete_parameter(Name=param_name)
         except self.client.exceptions.ParameterNotFound:
             pass
 
     def list_keys(self) -> list[str]:
+        """Return full composite keys (e.g. /envr/domain/proj/1.0.0/API_KEY) so get(key) works."""
         keys: list[str] = []
         paginator = self.client.get_paginator("describe_parameters")
         for page in paginator.paginate(
@@ -111,5 +136,6 @@ class AwsSsmStore(SecretStore):
             for param in page.get("Parameters", []):
                 name: str = param["Name"]
                 if name.startswith(self._prefix):
-                    keys.append(name[len(self._prefix) :])
-        return sorted(keys)
+                    # Return full parameter name as the key (get() expects this)
+                    keys.append(name)
+        return sorted(set(keys))

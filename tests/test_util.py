@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enveloper.util import strip_domain_prefix
+from enveloper.util import key_to_export_name, strip_domain_prefix
 
 
 def test_strip_domain_prefix_no_slash():
@@ -26,3 +26,20 @@ def test_strip_domain_prefix_multiple_segments():
 def test_strip_domain_prefix_empty_after_slash():
     """Edge case: key ends with slash."""
     assert strip_domain_prefix("prod/") == ""
+
+
+def test_key_to_export_name_parsed():
+    """key_to_export_name returns name when store parses key (prefix/version stripped)."""
+    from enveloper.stores.aws_ssm import AwsSsmStore
+    store = AwsSsmStore(prefix="/envr/dom/proj/", domain="dom", project="proj")
+    full_key = "/envr/dom/proj/1.0.0/API_KEY"
+    assert store.parse_key(full_key) is not None
+    assert key_to_export_name(store, full_key) == "API_KEY"
+
+
+def test_key_to_export_name_fallback():
+    """key_to_export_name returns last segment when parse fails."""
+    from enveloper.stores.file_store import FileStore
+    store = FileStore(path=".env")
+    assert key_to_export_name(store, "plain_key") == "plain_key"
+    assert key_to_export_name(store, "a/b/c") == "c"

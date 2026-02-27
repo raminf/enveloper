@@ -117,6 +117,25 @@ def test_service():
     assert "Documentation" in result.output or "https://" in result.output
 
 
+def test_service_uses_store_metadata():
+    """Service command shows short names and descriptions from each store class (not hard-coded)."""
+    from enveloper.stores.file_store import FileStore
+    from enveloper.stores.aws_ssm import AwsSsmStore
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["service"])
+    assert result.exit_code == 0
+    # From FileStore
+    assert FileStore.service_display_name in result.output
+    assert FileStore.service_name in result.output
+    # From KeychainStore (one of the platform rows)
+    assert "macOS Keychain" in result.output
+    # From at least one cloud store (AWS or GitHub etc.)
+    assert AwsSsmStore.service_display_name in result.output or "GitHub Actions" in result.output
+    # Documentation column is present (Rich renders links as "Doc Link" text)
+    assert "Doc Link" in result.output or "Documentation" in result.output
+
+
 def test_service_file_list_get_set(tmp_path):
     """List, get, and set with --service file and --path."""
     env_file = tmp_path / "my.env"

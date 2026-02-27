@@ -102,7 +102,7 @@ module = "enveloper.resolve_store"
 disable_error_code = ["call-arg"]
 
 [[tool.mypy.overrides]]
-module = "enveloper.cli"
+module = ["enveloper.cli", "enveloper.cli.*"]
 disable_error_code = ["attr-defined"]
 
 [tool.pytest.ini_options]

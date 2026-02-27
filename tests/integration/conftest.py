@@ -6,6 +6,10 @@ and pass the corresponding marker, e.g.:
   ENVELOPER_TEST_GCP=1 ENVELOPER_TEST_GCP_PROJECT=my-project pytest -m integration_gcp tests/integration/
   ENVELOPER_TEST_AZURE=1 ENVELOPER_TEST_AZURE_VAULT_URL=https://my.vault.azure.net/ pytest -m integration_azure tests/integration/
   ENVELOPER_TEST_AWS=1 pytest -m integration_aws tests/integration/
+
+Unit tests (tests/test_*.py) use autouse mocks for both the keychain and cloud
+stores, so they never touch real backends. Integration tests (marked integration_*)
+use real backends and are disabled by default.
 """
 
 from __future__ import annotations

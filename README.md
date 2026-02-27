@@ -2,7 +2,7 @@
 
 <img src="media/enveloper.svg" width="100%" alt="Envelope Services" />
 
-Manage `.env` secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
+Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
 
 `envelopers` is a cross-platform, cross-cloud way to manage secrets. Support for:
 
@@ -11,7 +11,7 @@ Manage `.env` secrets via your system keychain or cloud secret stores. Don't lea
   - Linux Secret Service
   - Windows Credential Locker
 - **File** (`file`): plain `.env` files — use `--service file` and optional `--path` (default `.env`)
-- **Sync with cloud backends:**
+- **Sync with multiple cloud backends:**
   - **AWS SSM** Parameter Store (`aws`)
   - **GitHub** Actions secrets (`github`)
   - **HashiCorp Vault** KV v2 (`vault`)
@@ -19,18 +19,18 @@ Manage `.env` secrets via your system keychain or cloud secret stores. Don't lea
   - **Azure** Key Vault (`azure`)
   - **Alibaba Cloud** KMS Secrets Manager (`aliyun`)
 
-Through the **`enveloper`** CLI, you can easily inject secrets into your shell instance (useful for local build operations), as well as Github actions, Docker instances, or CI/CD builders.
+Through the **`enveloper`** CLI, you can easily inject secrets into your shell environment (useful for local build operations), as well as remotely to Github actions, Docker instances, or CI/CD builders.
 
 **Import/Export** conversion supports the following formats:
 
-- **dotenv** (default for export): `KEY=value` lines, no `export` keyword — use to recreate a local `.env` file; works on Windows too.
-- **unix**: `export KEY=value` for sourcing in Unix shells, e.g. `eval "$(enveloper export -d aws --format unix)"`.
-- **win**: PowerShell format `$env:KEY = 'value'`; load with `enveloper export -d aws --format win | Invoke-Expression` (or `iex`).
+- **dotenv** (default for export): plain `KEY=value` format compatible with local `.env` files.
+- **unix**: compatible with Linux and Mac terminals. Generates `export KEY=value` for sourcing.
+- **win**: PowerShell format `$env:KEY = 'value'`. Load with `enveloper export -d aws --format win | Invoke-Expression` (or `iex`).
 - Convert to **JSON** and **YAML** files.
 
 The design supports hierarchical ordering of secrets into _domains_ and _projects_.
 
-The optional Python **SDK** is compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` files, you can have it load values from your local secure keychain or cloud service secret manager (SDK is currently only compatible with _AWS SSM Parameters_ and _Lambdas_). 
+The optional Python **SDK** is compatible with [python-dotenv](https://pypi.org/project/python-dotenv/) (`load_dotenv` / `dotenv_values`) but instead of relying on local `.env` files, you can have it load values from your local secure keychain or cloud service secret manager (cloud SDK is currently only compatible with _AWS SSM Parameters_ and _Lambdas_). 
 
 Having secrets stored on the cloud also means there is a single source of truth that can be shared between projects or team-members. New developers can be provided with managed access to credentials and obtain a local copy, stored in secure keychain to speed up local builds.
 
@@ -87,6 +87,51 @@ enveloper --service github --domain {domain-name} push
 # Same pattern for other stores: --service vault, gcp, azure, aliyun
 # List all service providers: enveloper service
 ```
+
+## Versioning
+
+Secrets can be versioned using semver format (e.g., `1.0.0`, `2.1.3`). This allows you to maintain multiple versions of secrets for different environments or deployments.
+
+### Using Version with CLI
+
+```bash
+# Set a secret with a specific version
+enveloper set MY_KEY value -d {domain} -v 1.0.0
+
+# Get a secret with a specific version
+enveloper get MY_KEY -d {domain} -v 1.0.0
+
+# List secrets with version information
+enveloper list -d {domain} -v 1.0.0
+
+# Import with a specific version
+enveloper import .env -d {domain} -v 2.0.0
+```
+
+### Version Environment Variable
+
+Set `ENVELOPER_VERSION` to use a default version:
+
+```bash
+export ENVELOPER_VERSION=1.0.0
+enveloper list -d {domain}  # Uses version 1.0.0
+```
+
+### Version in SDK
+
+```python
+from enveloper import load_dotenv, dotenv_values
+
+# Load secrets with a specific version
+load_dotenv(project="myapp", domain="prod", version="1.0.0")
+env = dotenv_values(project="myapp", domain="prod", version="2.0.0")
+```
+
+### Version Format
+
+Versions must follow [semver](https://semver.org/) format: `MAJOR.MINOR.PATCH` (e.g., `1.0.0`, `0.2.5`, `2.1.3`).
+
+**Note:** Cloud stores may use different separators internally (e.g., GitHub uses `_` instead of `.` for version compatibility).
 
 ## Import and export
 
@@ -456,8 +501,15 @@ Uses `twine` and `~/.pypirc`. It uses PyPi tokens (2FA required):
 - [PyPI](https://pypi.org/manage/account/token/)
 - [TestPyPI](https://test.pypi.org/manage/account/token/)
 
-- To test deployment, run `make publish-test`. This bumps patch version, then uploads to TestPyPI. 
-- To publish to PyPi, run `make publish` (PyPI)
+### Using Make
+
+- `make publish-test` - Bumps patch version, then uploads to TestPyPI (uses `~/.pypirc`).
+- `make publish` - Publishes to PyPI (uses `~/.pypirc`).
+
+### Manual publishing
+
+- To test deployment manually, run `uv build && uv run twine upload -r testpypi dist/*`. 
+- To publish to PyPI manually, run `uv build && uv run twine upload dist/*`.
 
 Example `~/.pypirc`:
 
