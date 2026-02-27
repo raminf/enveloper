@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """``enveloper init`` -- configure the OS keychain for frictionless access."""
 
 from __future__ import annotations

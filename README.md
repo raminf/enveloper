@@ -4,6 +4,8 @@
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
 
+**License:** [GNU AGPL v3.0 or later](LICENSE) (see [License](#license) below).
+
 `envelopers` is a cross-platform, cross-cloud way to manage secrets. Support for:
 
 - **Local keychain** (default): 
@@ -531,4 +533,10 @@ Please make sure you change the name of the project otherwise it will conflict w
 
 ## License
 
-MIT. Please feel free to star and fork. PRs most welcome.
+This project is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full text.
+
+In short: you may use, modify, and distribute the software, but if you run a modified version as a network service, you must offer the corresponding source to users under the same license. Derivative works must be released under the AGPL.
+
+Please feel free to star and fork.
+
+PRs most welcome.

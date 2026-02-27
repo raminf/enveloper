@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """Resolve the secret store for a given service (local, file, or cloud). Used by CLI and SDK."""
 
 from __future__ import annotations

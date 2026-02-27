@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """Enveloper CLI -- manage .env secrets via system keychain + cloud stores.
 
 The CLI is split into per-command modules under this package.  The ``cli``

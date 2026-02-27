@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """VaultStore -- push/pull secrets to HashiCorp Vault KV v2.
 
 Requires ``hvac`` (install with ``pip install enveloper[vault]``).

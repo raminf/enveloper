@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """``enveloper import`` -- import a file into the local keychain."""
 
 from __future__ import annotations

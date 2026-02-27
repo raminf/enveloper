@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """Store plugin registry -- discovers backends via ``enveloper.stores`` entry-point group."""
 
 from __future__ import annotations

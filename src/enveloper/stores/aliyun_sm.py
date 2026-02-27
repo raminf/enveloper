@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """AliyunSmStore -- push/pull secrets to Alibaba Cloud KMS Secrets Manager.
 
 See: https://www.alibabacloud.com/help/en/kms/key-management-service/getting-started/getting-started-with-secrets-manager

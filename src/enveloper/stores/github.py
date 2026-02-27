@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """GitHubStore -- push secrets to GitHub Actions Secrets via the ``gh`` CLI.
 
 This is a **push-only** store: GitHub Secrets are write-only by design

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """KeychainStore -- local secret storage via the ``keyring`` library.
 
 Cross-platform: macOS Keychain, Linux SecretService (GNOME Keyring / KDE

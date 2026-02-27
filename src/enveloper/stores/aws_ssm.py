@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """AwsSsmStore -- push/pull secrets to AWS Systems Manager Parameter Store.
 
 Requires ``boto3`` (install with ``pip install enveloper[aws]``).

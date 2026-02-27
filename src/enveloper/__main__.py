@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """Entry point for the enveloper CLI (run via ``enveloper``, ``envr``, or ``python -m enveloper``)."""
 
 from __future__ import annotations

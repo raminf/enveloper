@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """AzureKvStore -- push/pull secrets to Azure Key Vault (Secrets).
 
 Requires ``azure-keyvault-secrets`` and ``azure-identity``

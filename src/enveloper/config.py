@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Ramin Firoozye
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """.enveloper.toml configuration loading.
 
 Searches upward from cwd for ``.enveloper.toml`` and merges with CLI flags.
