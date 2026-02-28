@@ -1,5 +1,13 @@
 # enveloper
 
+[![CI](https://github.com/raminf/enveloper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/raminf/enveloper/actions/workflows/ci.yml)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](https://spdx.org/licenses/AGPL-3.0-or-later.html)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Ruff](https://img.shields.io/badge/ruff-checked-yellow.svg)](https://github.com/astral-sh/ruff)
+[![mypy](https://img.shields.io/badge/mypy-checked-blue.svg)](https://mypy-lang.org/)
+[![PyPI version](https://img.shields.io/pypi/v/enveloper.svg)](https://pypi.org/project/enveloper/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/enveloper.svg)](https://pypi.org/project/enveloper/)
+
 <img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" />
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
