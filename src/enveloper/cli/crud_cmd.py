@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import click
 
-from enveloper.cli import _get_store, cli, common_options, console, KeychainStore
+from enveloper.cli import KeychainStore, _get_store, cli, common_options, console
 
 
 @cli.command()

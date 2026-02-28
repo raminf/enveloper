@@ -234,8 +234,8 @@ def test_dotenv_values_service_aws_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -263,8 +263,8 @@ def test_dotenv_values_service_gcp_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -291,8 +291,8 @@ def test_dotenv_values_service_azure_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -319,8 +319,8 @@ def test_dotenv_values_service_aliyun_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -347,8 +347,8 @@ def test_dotenv_values_service_vault_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -375,8 +375,8 @@ def test_load_dotenv_service_aws_readonly(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -424,8 +424,8 @@ def test_dotenv_values_with_version(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
@@ -433,7 +433,7 @@ def test_dotenv_values_with_version(mock_keyring, sample_env):
     # Manually populate the fake cloud store with versioned data
     cfg = load_config()
     store = get_store("aws", project="test", domain="aws", config=cfg)
-    
+
     # Write to version 1.0.0
     for key, value in [
         ("API_KEY", "v1_key"),
@@ -441,7 +441,7 @@ def test_dotenv_values_with_version(mock_keyring, sample_env):
     ]:
         full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
         store.set(full_key, value)
-    
+
     # Write to version 2.0.0
     for key, value in [
         ("API_KEY", "v2_key"),
@@ -466,15 +466,15 @@ def test_load_dotenv_with_version(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
 
     cfg = load_config()
     store = get_store("aws", project="test", domain="aws", config=cfg)
-    
+
     # Write to version 1.0.0
     for key, value in [
         ("VERSION_KEY", "v1_value"),
@@ -496,15 +496,15 @@ def test_dotenv_values_version_default(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
 
     cfg = load_config()
     store = get_store("aws", project="test", domain="aws", config=cfg)
-    
+
     # Write to version 1.0.0
     for key, value in [
         ("DEFAULT_VERSION_KEY", "default_value"),
@@ -523,22 +523,19 @@ def test_dotenv_values_version_default(mock_keyring, sample_env):
 
 def test_dotenv_values_invalid_semver():
     """dotenv_values with invalid semver raises ValueError."""
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     cfg = load_config()
-    store = get_store("aws", project="test", domain="aws", config=cfg)
-    
+
     # Invalid semver formats
     invalid_versions = ["1.0", "v1.0.0", "1.0.0.0", "abc", "1.0.0-beta", ""]
     for invalid_version in invalid_versions:
         try:
-            # This should raise ValueError for invalid semver
-            store_with_invalid = get_store("aws", project="test", domain="aws", config=cfg, version=invalid_version)
-            # If we get here, check if it raised an error
+            get_store("aws", project="test", domain="aws", config=cfg, version=invalid_version)
         except ValueError:
             pass  # Expected
-        except Exception as e:
+        except Exception:
             # Some stores may not validate semver at construction time
             pass
 
@@ -619,15 +616,15 @@ def test_dotenv_values_version_with_special_chars(mock_keyring, sample_env):
     from click.testing import CliRunner
 
     from enveloper.cli import cli
-    from enveloper.resolve_store import get_store
     from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
 
     runner = CliRunner()
     runner.invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
 
     cfg = load_config()
     store = get_store("aws", project="test", domain="aws", config=cfg)
-    
+
     # Write to version with prerelease
     for key, value in [
         ("PRERELEASE_KEY", "prerelease_value"),

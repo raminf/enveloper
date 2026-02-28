@@ -15,9 +15,7 @@ import json
 import shutil
 import subprocess
 
-import re
-
-from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
+from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MISSING_GH = (
     "The 'gh' CLI is required for the github store. "

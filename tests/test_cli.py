@@ -166,8 +166,8 @@ def test_service():
 
 def test_service_uses_store_metadata():
     """Service command shows short names and descriptions from each store class (not hard-coded)."""
-    from enveloper.stores.file_store import FileStore
     from enveloper.stores.aws_ssm import AwsSsmStore
+    from enveloper.stores.file_store import FileStore
 
     runner = CliRunner()
     result = runner.invoke(cli, ["service"])
@@ -886,7 +886,7 @@ def test_export_to_file(mock_keyring, sample_env, tmp_path):
 
 
 def test_full_round_trip_import_manipulate_export_compare(mock_keyring, sample_env, tmp_path):
-    """Import dummy .env, modify one value (verify), delete one key (verify gone), add custom key (verify), export and compare to expected diff."""
+    """Import .env, modify/delete/add keys, export and compare to expected diff."""
     runner = CliRunner()
     # 1. Import
     r_import = runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "import", str(sample_env)])

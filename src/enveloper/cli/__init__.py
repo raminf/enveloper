@@ -11,34 +11,38 @@ etc.) live here so every command module can import them.
 from __future__ import annotations
 
 import functools
+import importlib.util
 import os
 from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
 from rich.style import Style
-from rich.table import Table
 from rich.text import Text
 
 from enveloper import __version__
 from enveloper.config import load_config
 from enveloper.resolve_store import get_store as resolve_get_store
 from enveloper.resolve_store import make_cloud_store as resolve_make_cloud_store
-from enveloper.store import DEFAULT_VERSION, SecretStore
-from enveloper.stores import list_store_names
+from enveloper.store import SecretStore
+from enveloper.stores import get_service_entries
 from enveloper.stores.github import GitHubStore
 from enveloper.stores.keychain import KeychainStore
-from enveloper.stores import get_service_entries
-from enveloper.util import key_to_export_name, strip_domain_prefix
+from enveloper.util import key_to_export_name
+
+__all__ = [
+    "HAS_YAML",
+    "KeychainStore",
+    "SecretStore",
+    "GitHubStore",
+    "get_service_entries",
+    "key_to_export_name",
+]
 
 if TYPE_CHECKING:
     pass
 
-try:
-    import yaml
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
+HAS_YAML = importlib.util.find_spec("yaml") is not None
 
 console = Console(stderr=True)
 
@@ -201,13 +205,13 @@ def cli(
 # ---------------------------------------------------------------------------
 
 from enveloper.cli import (  # noqa: E402, F401
-    init_cmd,
-    import_cmd,
-    export_cmd,
-    crud_cmd,
-    list_cmd,
     clear_cmd,
-    service_cmd,
-    push_pull_cmd,
+    crud_cmd,
+    export_cmd,
     generate_cmd,
+    import_cmd,
+    init_cmd,
+    list_cmd,
+    push_pull_cmd,
+    service_cmd,
 )

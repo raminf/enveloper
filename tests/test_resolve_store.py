@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import os
+
 import pytest
 
 from enveloper.config import EnveloperConfig
 from enveloper.resolve_store import make_cloud_store
 from enveloper.store import DEFAULT_PREFIX
 from enveloper.stores.aws_ssm import AwsSsmStore
-from enveloper.stores.github import GitHubStore
 from enveloper.stores.gcp_sm import GcpSmStore
+from enveloper.stores.github import GitHubStore
 from enveloper.stores.vault import VaultStore
 
 
@@ -171,7 +172,11 @@ def test_gcp_default_prefix_uses_double_dash_separator(monkeypatch: pytest.Monke
             if prefix is None:
                 prefix = cls.build_default_prefix(domain, project)
             # Get project_id from config or env
-            project_id = kwargs.get("project_id") or getattr(config, "gcp_project", "") or os.environ.get("GOOGLE_CLOUD_PROJECT", "enveloper")
+            project_id = (
+                kwargs.get("project_id")
+                or getattr(config, "gcp_project", "")
+                or os.environ.get("GOOGLE_CLOUD_PROJECT", "enveloper")
+            )
             return cls(project_id=project_id, prefix=prefix)
 
     monkeypatch.setattr(

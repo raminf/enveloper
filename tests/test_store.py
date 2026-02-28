@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-from enveloper.store import DEFAULT_VERSION, SecretStore
 from enveloper.stores.aws_ssm import AwsSsmStore
 
 

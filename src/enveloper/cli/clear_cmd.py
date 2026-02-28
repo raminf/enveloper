@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import click
 
-from enveloper.cli import _get_keychain, _get_store, cli, common_options, console, KeychainStore
+from enveloper.cli import KeychainStore, _get_keychain, _get_store, cli, common_options, console
 
 
 @cli.command()
@@ -33,7 +33,7 @@ def clear(ctx: click.Context, quiet: bool) -> None:
         for d in domains_to_clear:
             store = _get_keychain(project, d)
             store.clear()
-        console.print(f"[green]Cleared all secrets for service 'local' (all domains)[/green]")
+        console.print("[green]Cleared all secrets for service 'local' (all domains)[/green]")
     else:
         store = _get_store(ctx)
         store.clear()

@@ -9,6 +9,8 @@ import click
 from rich.table import Table
 
 from enveloper.cli import (
+    KeychainStore,
+    SecretStore,
     _get_keychain,
     _get_store,
     _mask,
@@ -16,8 +18,6 @@ from enveloper.cli import (
     common_options,
     console,
     key_to_export_name,
-    KeychainStore,
-    SecretStore,
 )
 
 
@@ -28,7 +28,6 @@ def list_keys(ctx: click.Context) -> None:
     project = ctx.obj["project"]
     domain = ctx.obj["domain"]
     service = ctx.obj["service"]
-    version = ctx.obj.get("version")
     store: SecretStore
 
     if service == "local" and domain is None:

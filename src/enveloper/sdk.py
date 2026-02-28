@@ -19,7 +19,7 @@ import os
 from enveloper.config import EnveloperConfig, load_config
 from enveloper.resolve_store import get_store
 from enveloper.stores.keychain import KeychainStore
-from enveloper.util import key_to_export_name, strip_domain_prefix
+from enveloper.util import key_to_export_name
 
 # Default version (semver format)
 DEFAULT_VERSION = "1.0.0"

@@ -20,7 +20,11 @@ DEFAULT_VERSION: str = "1.0.0"
 DEFAULT_PREFIX: str = "envr"
 
 # Regex pattern for valid semver version
-_SEMVER_PATTERN = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
+_SEMVER_PATTERN = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+    r"(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+)
 
 
 def is_valid_semver(version: str) -> bool:
@@ -177,7 +181,10 @@ class SecretStore(ABC):
         sep = self.version_separator
         version_safe = version.replace(".", sep)
         prefix = self._get_prefix()
-        return f"{prefix}{self.key_separator}{domain_safe}{self.key_separator}{project_safe}{self.key_separator}{version_safe}{self.key_separator}{name_safe}"
+        return (
+            f"{prefix}{self.key_separator}{domain_safe}{self.key_separator}"
+            f"{project_safe}{self.key_separator}{version_safe}{self.key_separator}{name_safe}"
+        )
 
     def parse_key(self, key: str) -> dict[str, str] | None:
         """Parse a key and return its components.
@@ -273,3 +280,4 @@ class SecretStore(ABC):
 
         # Create store with resolved prefix, domain, project, and any additional kwargs
         return cls(prefix=prefix, domain=domain, project=project, **kwargs)
+

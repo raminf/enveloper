@@ -1,6 +1,6 @@
 # enveloper
 
-<img src="media/enveloper.svg" width="100%" alt="Envelope Services" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" />
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
 
@@ -17,7 +17,7 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 ```bash
 # Sample .env file
 ```
-<img src="media/quickstart-sample.png" width="50%" alt="Sample .env file" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="50%" alt="Sample .env file" />
 
 
 ```bash
@@ -29,7 +29,7 @@ enveloper import sample.env --domain dev
 enveloper list
 ```
 
-<img src="media/quickstart-keychain.png" width="80%" alt="Import and list values" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-keychain.png" width="80%" alt="Import and list values" />
 
 ```bash
 # Load local environment settings from keychain
@@ -46,21 +46,21 @@ eval "$(enveloper --domain dev export --format unix)"
 eval "$(enveloper --domain dev unexport --format unix)"
 ```
 
-<img src="media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" />
 
 ```bash
 # Push to AWS SSM - assume AWS_EXPORT is set or default is configured 
 
 enveloper --service aws --domain dev push
 ```
-<img src="media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" />
 
 ```bash
 # Verify that they got pushed in AWS console for System Store > Parameters
 
 enveloper --service aws list --domain dev
 ```
-<img src="media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" />
 
 
 ```bash
@@ -71,7 +71,7 @@ enveloper --service aws --domain dev pull
 # Clear environment settings
 enveloper --domain dev clear
 ```
-<img src="media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" />
 
 
 ## Features

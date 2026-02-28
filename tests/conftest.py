@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from enveloper.store import DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
+from enveloper.store import DEFAULT_VERSION, SecretStore, is_valid_semver
 
 
 class _FakeCloudStore(SecretStore):
@@ -36,7 +36,7 @@ class _FakeCloudStore(SecretStore):
         _FakeCloudStore._shared_data[self._store_id].pop(key, None)
 
     def list_keys(self) -> list[str]:
-        """Return keys in this store; when keys are composite (prefix/domain/project/version/name), filter by this store's version."""
+        """Return keys; when composite (prefix/domain/project/version/name), filter by this store's version."""
         all_keys = sorted(_FakeCloudStore._shared_data[self._store_id].keys())
         # If keys look like composite keys (contain key_separator and parse), filter by version
         result: list[str] = []
@@ -58,7 +58,10 @@ class _FakeCloudStore(SecretStore):
         sep = self.version_separator
         version_safe = version.replace(".", sep)
         prefix = self._get_prefix()
-        return f"{prefix}{self.key_separator}{domain_safe}{self.key_separator}{project_safe}{self.key_separator}{version_safe}{self.key_separator}{name_safe}"
+        return (
+            f"{prefix}{self.key_separator}{domain_safe}{self.key_separator}"
+            f"{project_safe}{self.key_separator}{version_safe}{self.key_separator}{name_safe}"
+        )
 
     def key_to_export_name(self, key: str) -> str:
         """Return the key name for export (strip prefix, domain, project, version)."""

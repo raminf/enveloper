@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_VERSION
@@ -106,3 +105,4 @@ def get_store(
         prefix=None, profile=None, region=None, repo=None,
         version=version,
     )
+
