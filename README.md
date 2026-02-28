@@ -6,7 +6,6 @@
 [![Ruff](https://img.shields.io/badge/ruff-checked-yellow.svg)](https://github.com/astral-sh/ruff)
 [![mypy](https://img.shields.io/badge/mypy-checked-blue.svg)](https://mypy-lang.org/)
 [![PyPI version](https://img.shields.io/pypi/v/enveloper.svg)](https://pypi.org/project/enveloper/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/enveloper.svg)](https://pypi.org/project/enveloper/)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" />
 
