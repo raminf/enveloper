@@ -1,6 +1,6 @@
 VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
 
-.PHONY: help install dev test test-cov lint typecheck check format build publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-sync-readme docs-sync-media docs-install docs-serve docs-build docs-deploy docs-check
+.PHONY: help install dev test test-cov lint typecheck check format build publish-check publish publish-test bump-patch bump-minor bump-major release release-pypi release-test clean docs-sync-readme docs-sync-media docs-install docs-serve docs-build docs-deploy docs-check
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -25,15 +25,17 @@ typecheck: ## Run mypy type-checker (package + tests)
 
 check: lint typecheck test ## Run lint, typecheck, and tests (CI gate)
 
+publish-check: check ## Run lint, typecheck, and tests; required before publish or publish-test (fail = no push)
+
 build: ## Build sdist and wheel
 	uv build
 
-publish-test: bump-patch ## Bump patch version, then publish to TestPyPI (uses ~/.pypirc).
+publish-test: publish-check bump-patch ## Run publish-check, bump patch, then publish to TestPyPI (uses ~/.pypirc).
 	rm -rf dist
 	uv build
 	uv run twine upload -r testpypi dist/*
 
-publish: build ## Publish to PyPI (uses ~/.pypirc [pypi])
+publish: publish-check build ## Run publish-check, build, then publish to PyPI (uses ~/.pypirc [pypi])
 	uv run twine upload dist/*
 
 bump-patch: ## Bump patch version (0.1.0 -> 0.1.1)

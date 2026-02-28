@@ -35,8 +35,8 @@ def clear(ctx: click.Context, quiet: bool) -> None:
             store.clear()
         console.print("[green]Cleared all secrets for service 'local' (all domains)[/green]")
     else:
-        store = _get_store(ctx)
-        store.clear()
+        store_to_clear = _get_store(ctx)
+        store_to_clear.clear()
         if service == "local":
             domain = ctx.obj["domain_resolved"]
             console.print(f"[green]Cleared all secrets for service 'local' (domain '{domain}')[/green]")

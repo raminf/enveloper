@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from typing import cast
 
 import pytest
 
@@ -46,7 +47,11 @@ def test_aws_default_prefix_includes_domain_and_project(monkeypatch: pytest.Monk
             """Create store from config using build_default_prefix if no prefix provided."""
             if prefix is None:
                 prefix = cls.build_default_prefix(domain, project)
-            return cls(prefix=prefix, profile=kwargs.get("profile"), region=kwargs.get("region"))
+            return cls(
+                prefix=prefix,
+                profile=cast(str | None, kwargs.get("profile")),
+                region=cast(str | None, kwargs.get("region")),
+            )
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",
@@ -90,7 +95,11 @@ def test_aws_default_prefix_uses_default_namespace_when_missing(monkeypatch: pyt
             """Create store from config using build_default_prefix if no prefix provided."""
             if prefix is None:
                 prefix = cls.build_default_prefix(domain, project)
-            return cls(prefix=prefix, profile=kwargs.get("profile"), region=kwargs.get("region"))
+            return cls(
+                prefix=prefix,
+                profile=cast(str | None, kwargs.get("profile")),
+                region=cast(str | None, kwargs.get("region")),
+            )
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",
@@ -112,6 +121,10 @@ def test_aws_explicit_prefix_unchanged(monkeypatch: pytest.MonkeyPatch):
     captured: dict = {}
 
     class FakeAwsStore:
+        @classmethod
+        def build_default_prefix(cls, domain: str, project: str) -> str:
+            return f"/{DEFAULT_PREFIX}/{domain}/{project}/"
+
         def __init__(self, prefix: str, profile: str | None = None, region: str | None = None, **kwargs: object):
             captured["prefix"] = prefix
 
@@ -127,7 +140,12 @@ def test_aws_explicit_prefix_unchanged(monkeypatch: pytest.MonkeyPatch):
         ) -> "FakeAwsStore":
             """Create store from config using provided prefix."""
             # Don't pass prefix again since it's already a positional arg
-            return cls(prefix=prefix, profile=kwargs.get("profile"), region=kwargs.get("region"))
+            prefix_str = prefix or cls.build_default_prefix(domain, project)
+            return cls(
+                prefix=prefix_str,
+                profile=cast(str | None, kwargs.get("profile")),
+                region=cast(str | None, kwargs.get("region")),
+            )
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",
@@ -177,7 +195,7 @@ def test_gcp_default_prefix_uses_double_dash_separator(monkeypatch: pytest.Monke
                 or getattr(config, "gcp_project", "")
                 or os.environ.get("GOOGLE_CLOUD_PROJECT", "enveloper")
             )
-            return cls(project_id=project_id, prefix=prefix)
+            return cls(project_id=cast(str, project_id), prefix=prefix)
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",
@@ -223,7 +241,11 @@ def test_vault_default_path_includes_domain_and_project(monkeypatch: pytest.Monk
             if prefix is None:
                 prefix = cls.build_default_prefix(domain, project)
             # Use path instead of prefix for vault
-            return cls(path=prefix, mount_point=kwargs.get("mount_point", "secret"), url=kwargs.get("url"))
+            return cls(
+                path=prefix,
+                mount_point=cast(str, kwargs.get("mount_point", "secret")),
+                url=cast(str | None, kwargs.get("url")),
+            )
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",
@@ -267,7 +289,7 @@ def test_github_default_prefix_uses_double_underscore(monkeypatch: pytest.Monkey
             """Create store from config using build_default_prefix if no prefix provided."""
             if prefix is None:
                 prefix = cls.build_default_prefix(domain, project)
-            return cls(prefix=prefix, repo=kwargs.get("repo"))
+            return cls(prefix=prefix, repo=cast(str | None, kwargs.get("repo")))
 
     monkeypatch.setattr(
         "enveloper.resolve_store.get_store_class",

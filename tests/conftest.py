@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Union, cast
 
 import pytest
 
@@ -145,12 +145,15 @@ def _auto_mock_cloud_store(request: pytest.FixtureRequest, monkeypatch: pytest.M
         region: str | None = None,
         repo: str | None = None,
         version: str | None = None,
-    ) -> _FakeCloudStore:
+    ) -> Union[_FakeCloudStore, SecretStore]:
         if store_name not in _REAL_CLOUD_STORES:
-            return real_make_cloud_store(
-                store_name, cfg, domain, env_name,
-                project=project, prefix=prefix, profile=profile, region=region,
-                repo=repo, version=version,
+            return cast(
+                Union[_FakeCloudStore, SecretStore],
+                real_make_cloud_store(
+                    store_name, cfg, domain, env_name,
+                    project=project, prefix=prefix, profile=profile, region=region,
+                    repo=repo, version=version,
+                ),
             )
         version_str = version or DEFAULT_VERSION
         if not is_valid_semver(version_str):

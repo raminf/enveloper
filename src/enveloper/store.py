@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from typing import ClassVar
+from typing import TypeVar
 
 # Default namespace used when project/domain are not provided (reserved name).
 # Cloud store plugins may override via class attribute ``default_namespace``.
@@ -30,6 +30,9 @@ _SEMVER_PATTERN = re.compile(
 def is_valid_semver(version: str) -> bool:
     """Check if a version string is valid semver format."""
     return bool(_SEMVER_PATTERN.match(version))
+
+
+SecretStoreT = TypeVar("SecretStoreT", bound="SecretStore")
 
 
 class SecretStore(ABC):
@@ -77,22 +80,33 @@ class SecretStore(ABC):
     """
 
     # Optional: cloud stores set this to their preferred default when project/domain missing.
-    default_namespace: ClassVar[str] = DEFAULT_NAMESPACE
+    default_namespace: str = DEFAULT_NAMESPACE
 
     # Version separator: "." for most stores, "_" for stores that don't support dots
-    version_separator: ClassVar[str] = "."
+    version_separator: str = "."
 
     # Key separator: "/" for AWS, "--" for GCP/Azure, "__" for GitHub
     # This is used to separate path segments in keys
-    key_separator: ClassVar[str] = "/"
+    key_separator: str = "/"
 
     # Prefix for cloud stores (default: "envr")
-    prefix: ClassVar[str] = DEFAULT_PREFIX
+    prefix: str = DEFAULT_PREFIX
 
     # Service listing (enveloper service): short name, display name, doc link
-    service_name: ClassVar[str] = ""
-    service_display_name: ClassVar[str] = ""
-    service_doc_url: ClassVar[str] = ""
+    service_name: str = ""
+    service_display_name: str = ""
+    service_doc_url: str = ""
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        """Subclasses override with their own constructor signatures."""
+        pass
+
+    @classmethod
+    def build_default_prefix(cls, domain: str, project: str) -> str:
+        """Default prefix/path for this store. Override in subclasses."""
+        d = cls.sanitize_key_segment(domain)
+        p = cls.sanitize_key_segment(project)
+        return f"{cls.prefix}{cls.key_separator}{d}{cls.key_separator}{p}{cls.key_separator}"
 
     @classmethod
     def get_service_rows(cls) -> list[tuple[str, str, str]]:
@@ -240,14 +254,14 @@ class SecretStore(ABC):
 
     @classmethod
     def from_config(
-        cls,
+        cls: type[SecretStoreT],
         domain: str,
         project: str,
         config: object,
         prefix: str | None = None,
         env_name: str | None = None,
         **kwargs: object,
-    ) -> SecretStore:
+    ) -> SecretStoreT:
         """Create a store instance from configuration.
 
         This is a default implementation that subclasses can override to customize

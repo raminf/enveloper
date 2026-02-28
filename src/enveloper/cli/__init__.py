@@ -13,7 +13,7 @@ from __future__ import annotations
 import functools
 import importlib.util
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 import click
 from rich.console import Console
@@ -89,7 +89,7 @@ def _make_cloud_store(
     profile: str | None = None,
     region: str | None = None,
     repo: str | None = None,
-) -> object:
+) -> SecretStore:
     """Instantiate a cloud store with resolved options."""
     from enveloper.config import EnveloperConfig
 
@@ -131,9 +131,12 @@ def _merge_common(
         ctx.obj["version"] = version
 
 
-def common_options(f: object) -> object:
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def common_options(f: F) -> F:
     """Add --project, --domain, --service, --version to a command."""
-    @functools.wraps(f)
+    @functools.wraps(f)  # type: ignore[arg-type]
     @click.option(
         "--service", "-s", default=None,
         help="Backend: local, file (.env), or cloud. Default: ENVELOPER_SERVICE or config, else local.",
@@ -148,33 +151,22 @@ def common_options(f: object) -> object:
         domain: str | None,
         service: str | None,
         version: str | None,
-        *args: object,
-        **kwargs: object,
-    ) -> object:
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         _merge_common(ctx, project, domain, service)
         if version is not None:
             ctx.obj["version"] = version
         return f(ctx, *args, **kwargs)
-    return wrapper
+    return cast(F, wrapper)
 
 
 # ---------------------------------------------------------------------------
 # Top-level click group
 # ---------------------------------------------------------------------------
 
-@click.group()
-@click.option("--project", "-p", default=None, help="Project namespace (default: from config or ENVELOPER_PROJECT env var).")
-@click.option("--domain", "-d", default=None, help="Domain / subsystem scope (default: from ENVELOPER_DOMAIN env var).")
-@click.option(
-    "--service", "-s", default=None,
-    help="Backend: local, file (.env), or cloud. Default: ENVELOPER_SERVICE or config, else local.",
-)
-@click.option("--path", default=None, help="Path to .env file when --service file (default: .env).")
-@click.option("--env", "-e", "env_name", default=None, help="Environment name (resolves {env}).")
-@click.option("--verbose", "-v", is_flag=True, help="Verbose output.")
-@click.version_option(__version__)
-@click.pass_context
-def cli(
+
+def _cli_callback(
     ctx: click.Context,
     project: str | None,
     domain: str | None,
@@ -198,6 +190,37 @@ def cli(
     ctx.obj["path"] = path if path is not None else ".env"
     ctx.obj["env_name"] = env_name
     ctx.obj["verbose"] = verbose
+
+
+cli = cast(
+    click.Group,
+    click.group()(
+        click.option(
+            "--project", "-p", default=None,
+            help="Project namespace (default: from config or ENVELOPER_PROJECT env var).",
+        )(
+            click.option(
+                "--domain", "-d", default=None,
+                help="Domain / subsystem scope (default: from ENVELOPER_DOMAIN env var).",
+            )(
+                click.option(
+                    "--service", "-s", default=None,
+                    help="Backend: local, file (.env), or cloud. Default: ENVELOPER_SERVICE or config, else local.",
+                )(
+                    click.option("--path", default=None, help="Path to .env file when --service file (default: .env).")(
+                        click.option("--env", "-e", "env_name", default=None, help="Environment name (resolves {env}).")(
+                            click.option("--verbose", "-v", is_flag=True, help="Verbose output.")(
+                                click.version_option(__version__)(
+                                    click.pass_context(_cli_callback)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    ),
+)
 
 
 # ---------------------------------------------------------------------------
