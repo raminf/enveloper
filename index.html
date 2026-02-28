@@ -1751,7 +1751,7 @@
 
 
 <h1 id="enveloper">enveloper<a class="headerlink" href="#enveloper" title="Permanent link">&para;</a></h1>
-<p><img src="media/enveloper.svg" width="100%" alt="Envelope Services" /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" /></p>
 <p>Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed <code>.env</code> files laying about your filesystem.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="w">            </span><span class="c1"># CLI only</span>
@@ -1761,7 +1761,7 @@
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Sample .env file</span>
 </code></pre></div>
-<img src="media/quickstart-sample.png" width="50%" alt="Sample .env file" /></p>
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="50%" alt="Sample .env file" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Import an existing .env file into the keychain</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>enveloper<span class="w"> </span>import<span class="w"> </span>sample.env<span class="w"> </span>--domain<span class="w"> </span>dev
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -1769,7 +1769,7 @@
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>enveloper<span class="w"> </span>list
 </code></pre></div>
-<p><img src="media/quickstart-keychain.png" width="80%" alt="Import and list values" /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-keychain.png" width="80%" alt="Import and list values" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Load local environment settings from keychain</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
@@ -1783,17 +1783,17 @@
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>unexport<span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
 </code></pre></div>
-<p><img src="media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" /></p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Push to AWS SSM - assume AWS_EXPORT is set or default is configured </span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>enveloper<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>push
 </code></pre></div>
-<img src="media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" /></p>
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" /></p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Verify that they got pushed in AWS console for System Store &gt; Parameters</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>enveloper<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>list<span class="w"> </span>--domain<span class="w"> </span>dev
 </code></pre></div>
-<img src="media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" /></p>
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" /></p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Pull from AWS SSM into local keychain</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>enveloper<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>pull
@@ -1801,7 +1801,7 @@
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Clear environment settings</span>
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>clear
 </code></pre></div>
-<img src="media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" /></p>
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" /></p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Backward compatible with <code>.env</code> files.</li>
