@@ -1,4 +1,5 @@
-"""Full integration flow: clear -> import sample.env -> verify -> export -> push aws -> set -> re-export -> push -> unexport -> clear.
+"""Full integration flow: clear -> import sample.env -> verify -> export -> push aws ->
+set -> re-export -> push -> unexport -> clear.
 
 Runs the shared script tests/integration_full_flow.sh (in enveloper-rs) with the Python CLI (enveloper).
 Use LOCAL_STORE=file and LOCAL_PATH=/tmp/foo.env to avoid keychain. Set ENVELOPER_TEST_AWS=1 for AWS steps.

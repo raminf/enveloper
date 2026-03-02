@@ -831,7 +831,10 @@ def test_full_round_trip_import_manipulate_export_compare(cli_runner, mock_keyri
     assert r_custom.output.strip() == "added_value"
     # 5. Export to file
     out_file = tmp_path / "newsample.env"
-    r_export = cli_runner.invoke(cli, ["--project", "test", "-d", "roundtrip", "export", "--format", "dotenv", "-o", str(out_file)])
+    r_export = cli_runner.invoke(
+        cli,
+        ["--project", "test", "-d", "roundtrip", "export", "--format", "dotenv", "-o", str(out_file)],
+    )
     assert r_export.exit_code == 0
     content = out_file.read_text()
     # 6. Compare: modified value present, deleted key absent, custom key present
