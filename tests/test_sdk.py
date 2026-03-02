@@ -248,7 +248,7 @@ def test_dotenv_values_service_aws_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Use AWS service - should read from fake cloud store
@@ -276,7 +276,7 @@ def test_dotenv_values_service_gcp_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Use GCP service - should read from fake cloud store
@@ -304,7 +304,7 @@ def test_dotenv_values_service_azure_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Use Azure service - should read from fake cloud store
@@ -332,7 +332,7 @@ def test_dotenv_values_service_aliyun_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Use Alibaba service - should read from fake cloud store
@@ -360,7 +360,7 @@ def test_dotenv_values_service_vault_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Use Vault service - should read from fake cloud store
@@ -388,7 +388,7 @@ def test_load_dotenv_service_aws_readonly(mock_keyring, sample_env):
         ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
         ("TWILIO_AUTH_TOKEN", "my secret token"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
@@ -439,7 +439,7 @@ def test_dotenv_values_with_version(mock_keyring, sample_env):
         ("API_KEY", "v1_key"),
         ("API_SECRET", "v1_secret"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Write to version 2.0.0
@@ -447,7 +447,7 @@ def test_dotenv_values_with_version(mock_keyring, sample_env):
         ("API_KEY", "v2_key"),
         ("API_SECRET", "v2_secret"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="2.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="2.0.0")
         store.set(full_key, value)
 
     # Read version 1.0.0
@@ -479,7 +479,7 @@ def test_load_dotenv_with_version(mock_keyring, sample_env):
     for key, value in [
         ("VERSION_KEY", "v1_value"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     os.environ.pop("VERSION_KEY", None)
@@ -509,7 +509,7 @@ def test_dotenv_values_version_default(mock_keyring, sample_env):
     for key, value in [
         ("DEFAULT_VERSION_KEY", "default_value"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
         store.set(full_key, value)
 
     # Read without specifying version - should use default
@@ -629,7 +629,7 @@ def test_dotenv_values_version_with_special_chars(mock_keyring, sample_env):
     for key, value in [
         ("PRERELEASE_KEY", "prerelease_value"),
     ]:
-        full_key = store.build_key(name=key, project="test", domain="aws", version="1.0.0-beta")
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0-beta")
         store.set(full_key, value)
 
     # Read with prerelease version

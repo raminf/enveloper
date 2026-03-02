@@ -73,7 +73,7 @@ def list_keys(self) -> list[str]: ...
 | Method | Description |
 |--------|-------------|
 | `clear()` | Deletes every key from `list_keys()` |
-| `build_key(name, project, domain, version)` | Builds composite key string |
+| `build_key(name, domain, project, version)` | Builds composite key string (domain before project) |
 | `parse_key(key)` | Splits composite key into segments |
 | `key_to_export_name(key)` | Extracts name from composite key |
 | `sanitize_key_segment(value)` | Replaces separator with `_` |

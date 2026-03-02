@@ -176,21 +176,21 @@ class SecretStore(ABC):
         sanitized = sanitized.replace("\\", "_")
         return sanitized.strip() or cls.default_namespace
 
-    def build_key(self, name: str, project: str, domain: str, version: str = DEFAULT_VERSION) -> str:
-        """Build a key with project, domain, version, and name components.
+    def build_key(self, name: str, domain: str, project: str, version: str = DEFAULT_VERSION) -> str:
+        """Build a key with prefix, domain, project, version, and name components.
 
         The key format is: {prefix}{key_separator}{domain}{key_separator}{project}{key_separator}{version}{key_separator}{name}
 
-        The version separator is determined by the store class (default ".").
-        The key separator is used to separate path segments.
+        Domain always comes before project. The version separator is determined by the
+        store class (default "."). The key separator is used to separate path segments.
 
         This method sanitizes name, domain, and project to ensure the key_separator
         character is not present in any of them.
         """
         # Sanitize all segments to prevent key_separator in names
         name_safe = self.sanitize_key_segment(name)
-        project_safe = self.sanitize_key_segment(project)
         domain_safe = self.sanitize_key_segment(domain)
+        project_safe = self.sanitize_key_segment(project)
 
         sep = self.version_separator
         version_safe = version.replace(".", sep)

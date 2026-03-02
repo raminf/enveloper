@@ -60,7 +60,7 @@ def list_keys(self) -> list[str]: ...
 | Method                 | What it does                                                                       |
 |------------------------|------------------------------------------------------------------------------------|
 | `clear()`              | Deletes every key from `list_keys()`. Override for bulk-delete.                    |
-| `build_key(name, project, domain, version)` | Builds the composite key string using the class attributes above. |
+| `build_key(name, domain, project, version)` | Builds the composite key string (domain before project) using the class attributes above. |
 | `parse_key(key)`       | Splits a composite key back into `{prefix, domain, project, version, name}`.       |
 | `key_to_export_name(key)` | Extracts just the `name` from a composite key (for `.env` export).              |
 | `sanitize_key_segment(value)` | Replaces the `key_separator` character in a segment with `_`.               |
@@ -166,8 +166,8 @@ class MyBackendStore(SecretStore):
         if self.parse_key(key) is not None:
             return key
         return self.build_key(
-            name=key, project=self._project,
-            domain=self._domain, version=self._version,
+            name=key, domain=self._domain,
+            project=self._project, version=self._version,
         )
 
     def get(self, key: str) -> str | None:

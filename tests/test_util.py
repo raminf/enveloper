@@ -38,7 +38,7 @@ def test_key_to_export_name_parsed():
         project="proj",
     )
     full_key = store.key_separator + store.build_key(
-        name="API_KEY", project="proj", domain="dom", version="1.0.0"
+        name="API_KEY", domain="dom", project="proj", version="1.0.0"
     )
     assert store.parse_key(full_key) is not None
     assert key_to_export_name(store, full_key) == "API_KEY"

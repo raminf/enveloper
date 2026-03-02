@@ -74,7 +74,7 @@ def push(
                 if ctx.obj["verbose"]:
                     console.print(f"  {name}")
             else:
-                target_key = target.build_key(name=name, project=project, domain=domain, version=source_version)
+                target_key = target.build_key(name=name, domain=domain, project=project, version=source_version)
                 target.set(target_key, val)
                 if ctx.obj["verbose"]:
                     console.print(f"  {target_key}")

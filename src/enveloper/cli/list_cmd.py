@@ -37,8 +37,8 @@ def list_keys(ctx: click.Context) -> None:
             console.print("[yellow]No secrets stored.[/yellow]")
             return
         table = Table(title=f"Secrets for project '{project}'")
-        table.add_column("Project", style="cyan")
         table.add_column("Domain", style="cyan")
+        table.add_column("Project", style="cyan")
         table.add_column("Version", style="cyan")
         table.add_column("Key", style="white")
         table.add_column("Value (masked)", style="dim")
@@ -53,7 +53,7 @@ def list_keys(ctx: click.Context) -> None:
             for key in sorted(keys):
                 val = store.get(key)
                 masked = _mask(val) if val else "(empty)"
-                table.add_row(project, d, store._version, key, masked)
+                table.add_row(d, project, store._version, key, masked)
                 has_secrets = True
         if not has_secrets:
             console.print("[yellow]No secrets stored.[/yellow]")

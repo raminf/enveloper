@@ -84,7 +84,7 @@ class GitHubStore(SecretStore):
         if self.parse_key(key) is not None:
             return key
         return self.build_key(
-            name=key, project=self._project, domain=self._domain, version=self._version
+            name=key, domain=self._domain, project=self._project, version=self._version
         )
 
     def _prefixed(self, key: str) -> str:

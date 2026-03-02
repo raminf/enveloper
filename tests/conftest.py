@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+from types import SimpleNamespace
 from typing import Any, Union, cast
 
 import pytest
 
 from enveloper.store import DEFAULT_VERSION, SecretStore, is_valid_semver
+
+# Configurable CLI binary for testing: set ENVELOPER_CLI_BIN to run tests against an external
+# executable (e.g. "renveloper" for Rust CLI). When unset, tests use the in-process Python CLI.
+# Change back to "enveloper" when the Rust binary is renamed.
+ENVELOPER_CLI_BIN = os.environ.get("ENVELOPER_CLI_BIN", "").strip() or None
 
 
 class _FakeCloudStore(SecretStore):
@@ -48,12 +56,12 @@ class _FakeCloudStore(SecretStore):
                 result.append(key)
         return result
 
-    def build_key(self, name: str, project: str, domain: str, version: str = DEFAULT_VERSION) -> str:
-        """Build a key using the store's separator and prefix."""
+    def build_key(self, name: str, domain: str, project: str, version: str = DEFAULT_VERSION) -> str:
+        """Build a key using the store's separator and prefix (domain before project)."""
         # Sanitize all segments to prevent key_separator in names
         name_safe = self.sanitize_key_segment(name)
-        project_safe = self.sanitize_key_segment(project)
         domain_safe = self.sanitize_key_segment(domain)
+        project_safe = self.sanitize_key_segment(project)
 
         sep = self.version_separator
         version_safe = version.replace(".", sep)
@@ -239,6 +247,45 @@ def mock_keyring(monkeypatch: pytest.MonkeyPatch) -> dict[tuple[str, str], str]:
     monkeypatch.setattr("keyring.delete_password", _delete)
 
     return store
+
+
+class _SubprocessCliRunner:
+    """Runner that invokes an external CLI binary (e.g. renveloper) via subprocess.
+
+    Same interface as click.testing.CliRunner for invoke(): returns an object with
+    .exit_code and .output so tests can run unchanged against either Python or Rust CLI.
+    """
+
+    def __init__(self, bin_name: str) -> None:
+        self._bin = bin_name
+
+    def invoke(self, _cli: Any, args: list[str], **kwargs: Any) -> SimpleNamespace:
+        """Run binary with args; _cli is ignored (for API compatibility with CliRunner)."""
+        cmd = [self._bin] + args
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        # Combine stdout and stderr so assertions on result.output find messages from either
+        out = proc.stdout or ""
+        if proc.stderr:
+            out = (out + "\n" + proc.stderr).strip() if out else proc.stderr
+        return SimpleNamespace(exit_code=proc.returncode, output=out, exception=None)
+
+
+@pytest.fixture()
+def cli_runner():
+    """CLI runner: uses ENVELOPER_CLI_BIN if set, otherwise in-process Python CLI.
+
+    Set ENVELOPER_CLI_BIN=renveloper (or path to binary) to run the same tests against
+    the Rust CLI. Omit or leave empty to use the Python CLI.
+    """
+    if ENVELOPER_CLI_BIN:
+        return _SubprocessCliRunner(ENVELOPER_CLI_BIN)
+    from click.testing import CliRunner
+    return CliRunner()
 
 
 @pytest.fixture()
