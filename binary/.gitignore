@@ -1,0 +1,64 @@
+# Build artifacts
+build/
+dist/
+releases/
+*.egg-info/
+src/*.egg-info/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+.venv*/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+
+# Certificates (keep the directory, but not the actual files)
+certs/*.p12
+certs/*.pfx
+certs/*-password.txt
+
+# Distribution files
+*.zip
+*.pkg
+*.dmg
+*.msi
+*.deb
+*.rpm
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# PyInstaller specific
+*.spec
+*.dist/
+*.build/
+
+# Homebrew formula (generated, not committed)
+*.rb
