@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "enveloper-binary"
+version = "0.1.0"
+description = "Build system for enveloper standalone executables"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "AGPL-3.0-or-later"
+authors = [{ name = "Ramin Firoozye" }]
+
+dependencies = [
+    "cx-freeze>=7.0",
+    # Runtime deps so cx_Freeze's ModuleFinder can include them in the frozen bundle
+    "keyring>=25.0",
+    "click>=8.1",
+    "rich>=13.0",
+    "pyyaml>=6.0.3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.uv]
+index-url = "https://pypi.org/simple"

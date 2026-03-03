@@ -1,11 +1,25 @@
 # Binary Build System for enveloper
 
-This directory contains the build system for creating standalone executables of the enveloper CLI using PyInstaller.
+This directory contains the build system for creating standalone executables of the enveloper CLI using **cx_Freeze**.
+
+## Why cx_Freeze?
+
+cx_Freeze provides significantly faster startup times compared to PyInstaller:
+
+| Feature | PyInstaller | cx_Freeze |
+|---------|-------------|-----------|
+| Startup Time | Slow (bootloader overhead) | Fast (no extraction needed) |
+| Binary Size | Smaller (compressed) | Larger (all files included) |
+| Complexity | Medium | Low |
+| Reliability | Medium | High |
+
+cx_Freeze creates a directory with the executable and all dependencies, avoiding the slow extraction process that PyInstaller's `--onefile` mode requires.
 
 ## Features
 
 - **Cross-platform support**: Builds for macOS, Linux, and Windows
 - **Multiple architectures**: x86_64 and arm64 for all platforms
+- **Fast startup**: No bootloader overhead, instant execution
 - **Native installers**: pkg for macOS, deb/rpm for Linux, msi for Windows
 - **Code signing**: Support for macOS and Windows code signing
 - **GitHub Releases**: Automatic upload to GitHub Releases
@@ -15,8 +29,8 @@ This directory contains the build system for creating standalone executables of 
 
 ### Required Tools
 
-- **Python 3.12+** (for building)
-- **PyInstaller** (automatically installed if missing)
+- **Python 3.10+** (for building)
+- **cx_Freeze** (automatically installed if missing)
 - **GitHub CLI** (`gh`) for uploading releases
 - **zip** for creating archives
 - **codesign** (macOS) for code signing
@@ -34,8 +48,8 @@ This directory contains the build system for creating standalone executables of 
 ### On macOS
 
 ```bash
-# Install PyInstaller
-pip3 install pyinstaller
+# Install cx_Freeze
+pip3 install cx-freeze
 
 # Install GitHub CLI
 brew install gh
@@ -47,8 +61,8 @@ xcode-select --install
 ### On Linux
 
 ```bash
-# Install PyInstaller
-pip3 install pyinstaller
+# Install cx_Freeze
+pip3 install cx-freeze
 
 # Install GitHub CLI
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -64,9 +78,9 @@ sudo apt install zip pkg-config
 ### On Windows
 
 ```powershell
-# Install Python 3.12+
-# Install PyInstaller
-pip install pyinstaller
+# Install Python 3.10+
+# Install cx_Freeze
+pip install cx-freeze
 
 # Install GitHub CLI
 winget install --id GitHub.cli
@@ -106,6 +120,25 @@ make build-mac-x86
 # macOS arm64
 make build-mac-arm
 ```
+
+### macOS DMG installer (double-click install)
+
+A single DMG file lets users double-click to install the CLI to `/usr/local/enveloper` with a symlink at `/usr/local/bin/enveloper` so it is runnable from the terminal.
+
+```bash
+# Build Mac binaries and then create .pkg + .dmg for each architecture
+make build-mac-dmg
+
+# Or: build only arm64 and create the DMG
+make build-mac-arm-dmg
+```
+
+Output (for arm64) is:
+
+- **`dist/enveloper-<version>-macos-arm64.dmg`** — double-click to open; run the contained `.pkg` to install.
+- **`dist/enveloper-<version>-macos-arm64.pkg`** — same installer, without the DMG wrapper.
+
+After installing, `enveloper` is available in the terminal (ensure `/usr/local/bin` is on your PATH).
 
 ### Test binaries
 
@@ -206,6 +239,8 @@ export GITHUB_TOKEN=your_github_token
 | `build-win` | Build for Windows (x86_64 + arm64) |
 | `build-mac-x86` | Build for macOS x86_64 only |
 | `build-mac-arm` | Build for macOS arm64 only |
+| `build-mac-dmg` | Build macOS .pkg and .dmg installers (after build-mac) |
+| `build-mac-arm-dmg` | Build macOS arm64 and create .dmg installer |
 | `build-linux-x86` | Build for Linux x86_64 only |
 | `build-linux-arm` | Build for Linux arm64 only |
 | `build-win-x86` | Build for Windows x86_64 only |
@@ -236,8 +271,9 @@ binary/
 ├── sign.py               # Code signing script
 ├── upload.py             # Upload script
 ├── homebrew.py           # Homebrew formula generator
+├── setup_cxfreeze.py     # cx_Freeze setup script
 ├── icon/
-│   └── envelope.svg      # Icon file
+│   └── envelope.svg      # Icon (copied from ../media/envelope.svg by make init)
 ├── certs/                # Code signing certificates (gitignored)
 │   ├── mac.p12
 │   ├── mac-cert-password.txt
@@ -259,10 +295,10 @@ binary/
 
 ## Troubleshooting
 
-### PyInstaller not found
+### cx_Freeze not found
 
 ```bash
-pip3 install pyinstaller
+pip3 install cx-freeze
 ```
 
 ### GitHub CLI not found
@@ -285,7 +321,7 @@ brew install gh
 
 ```bash
 # Install required packages
-pip3 install pyinstaller click rich pyyaml
+pip3 install cx-freeze click rich pyyaml
 
 # On Linux
 sudo apt install python3-pip python3-venv

@@ -2,7 +2,7 @@
 # Copyright (c) 2026 Ramin Firoozye
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-"""Build script for creating standalone executables using PyInstaller."""
+"""Build script for creating standalone executables using cx_Freeze."""
 
 from __future__ import annotations
 
@@ -13,7 +13,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
+# Ensure binary directory is on path so config is found (e.g. when run as python binary/build.py)
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
+# Parent (enveloper-py) for optional imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import (
@@ -29,7 +31,7 @@ from config import (
 
 
 def get_arch_for_platform(platform: str, arch: str) -> str:
-    """Convert architecture name to PyInstaller-compatible name."""
+    """Convert architecture name to cx_Freeze-compatible name."""
     arch_map = {
         "mac": {"x86_64": "x86_64", "arm64": "arm64"},
         "linux": {"x86_64": "x86_64", "arm64": "aarch64", "aarch64": "aarch64"},
@@ -38,11 +40,11 @@ def get_arch_for_platform(platform: str, arch: str) -> str:
     return arch_map.get(platform, {}).get(arch, arch)
 
 
-def check_pyinstaller() -> bool:
-    """Check if PyInstaller is installed."""
+def check_cx_freeze() -> bool:
+    """Check if cx_Freeze is installed."""
     try:
         subprocess.run(
-            [sys.executable, "-m", "PyInstaller", "--version"],
+            [sys.executable, "-m", "cx_Freeze", "--version"],
             check=True,
             capture_output=True,
         )
@@ -51,86 +53,47 @@ def check_pyinstaller() -> bool:
         return False
 
 
-def install_pyinstaller() -> None:
-    """Install PyInstaller."""
-    print("Installing PyInstaller...")
+def install_cx_freeze() -> None:
+    """Install cx_Freeze using uv."""
+    print("Installing cx_Freeze using uv...")
+    binary_dir = Path(__file__).parent.resolve()
+    
     subprocess.run(
-        [sys.executable, "-m", "pip", "install", "pyinstaller"],
+        ["uv", "pip", "install", "cx-freeze"],
+        cwd=str(binary_dir),
         check=True,
     )
-
-
-def get_python_executable(version: str) -> Path:
-    """Get the Python executable for the specified version."""
-    # Try pyenv first
-    pyenv_path = Path.home() / ".pyenv" / "versions" / version / "bin" / "python"
-    if pyenv_path.exists():
-        return pyenv_path
-
-    # Try system python3.x
-    python_path = Path(f"/usr/local/bin/python{version}")
-    if python_path.exists():
-        return python_path
-
-    python_path = Path(f"/opt/homebrew/bin/python{version}")
-    if python_path.exists():
-        return python_path
-
-    # Fall back to current python
-    return Path(sys.executable)
 
 
 def build_macos(
     arch: str,
     version: str = VERSION,
     icon_path: Path = ICON_PATH,
-    onefile: bool = True,
-    console: bool = True,
 ) -> Path:
-    """Build macOS executable."""
+    """Build macOS executable using cx_Freeze."""
     print(f"Building macOS {arch} executable...")
     
     arch_name = get_arch_for_platform("mac", arch)
     output_dir = DIST_DIR / f"{PROJECT_NAME}-{version}-macos-{arch}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build options
+    # cx_Freeze setup script
+    setup_script = BASE_DIR / "setup_cxfreeze.py"
+    
     build_args = [
         sys.executable,
-        "-m",
-        "PyInstaller",
-        "--name",
-        PROJECT_NAME,
-        "--distpath",
-        str(output_dir),
-        "--workpath",
-        str(BUILD_DIR / f"macos-{arch}"),
-        "--specpath",
-        str(BUILD_DIR),
+        str(setup_script),
+        "build_exe",
+        f"--build-exe={output_dir}",
     ]
 
-    if icon_path.exists():
-        build_args.extend(["--icon", str(icon_path)])
-
-    if onefile:
-        build_args.append("--onefile")
-    else:
-        build_args.append("--onedir")
-
-    if not console:
-        build_args.append("--windowed")
-
-    # Add entry point
-    build_args.append(str(BASE_DIR.parent / "src" / "enveloper" / "__main__.py"))
-
-    # Run PyInstaller
     subprocess.run(build_args, check=True)
 
     # Create zip archive
     zip_path = output_dir.parent / f"{PROJECT_NAME}-{version}-macos-{arch}.zip"
     subprocess.run(
-        ["zip", "-r", str(zip_path), PROJECT_NAME],
-        cwd=output_dir,
+        ["zip", "-r", str(zip_path), output_dir.name],
+        cwd=output_dir.parent,
         check=True,
     )
 
@@ -141,53 +104,31 @@ def build_linux(
     arch: str,
     version: str = VERSION,
     icon_path: Path = ICON_PATH,
-    onefile: bool = True,
-    console: bool = True,
 ) -> Path:
-    """Build Linux executable."""
+    """Build Linux executable using cx_Freeze."""
     print(f"Building Linux {arch} executable...")
 
     arch_name = get_arch_for_platform("linux", arch)
     output_dir = DIST_DIR / f"{PROJECT_NAME}-{version}-linux-{arch}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build options
+    # cx_Freeze setup script
+    setup_script = BASE_DIR / "setup_cxfreeze.py"
+    
     build_args = [
         sys.executable,
-        "-m",
-        "PyInstaller",
-        "--name",
-        PROJECT_NAME,
-        "--distpath",
-        str(output_dir),
-        "--workpath",
-        str(BUILD_DIR / f"linux-{arch}"),
-        "--specpath",
-        str(BUILD_DIR),
+        str(setup_script),
+        "build_exe",
+        f"--build-exe={output_dir}",
     ]
 
-    if icon_path.exists():
-        build_args.extend(["--icon", str(icon_path)])
-
-    if onefile:
-        build_args.append("--onefile")
-    else:
-        build_args.append("--onedir")
-
-    if not console:
-        build_args.append("--windowed")
-
-    # Add entry point
-    build_args.append(str(BASE_DIR.parent / "src" / "enveloper" / "__main__.py"))
-
-    # Run PyInstaller
     subprocess.run(build_args, check=True)
 
     # Create zip archive
     zip_path = output_dir.parent / f"{PROJECT_NAME}-{version}-linux-{arch}.zip"
     subprocess.run(
-        ["zip", "-r", str(zip_path), PROJECT_NAME],
-        cwd=output_dir,
+        ["zip", "-r", str(zip_path), output_dir.name],
+        cwd=output_dir.parent,
         check=True,
     )
 
@@ -198,53 +139,34 @@ def build_windows(
     arch: str,
     version: str = VERSION,
     icon_path: Path = ICON_PATH,
-    onefile: bool = True,
-    console: bool = True,
 ) -> Path:
-    """Build Windows executable."""
+    """Build Windows executable using cx_Freeze."""
     print(f"Building Windows {arch} executable...")
 
     arch_name = get_arch_for_platform("win", arch)
     output_dir = DIST_DIR / f"{PROJECT_NAME}-{version}-windows-{arch}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build options
+    # cx_Freeze setup script
+    setup_script = BASE_DIR / "setup_cxfreeze.py"
+    
     build_args = [
         sys.executable,
-        "-m",
-        "PyInstaller",
-        "--name",
-        PROJECT_NAME,
-        "--distpath",
-        str(output_dir),
-        "--workpath",
-        str(BUILD_DIR / f"windows-{arch}"),
-        "--specpath",
-        str(BUILD_DIR),
+        str(setup_script),
+        "build_exe",
+        f"--build-exe={output_dir}",
     ]
 
-    if icon_path.exists():
-        build_args.extend(["--icon", str(icon_path)])
-
-    if onefile:
-        build_args.append("--onefile")
-    else:
-        build_args.append("--onedir")
-
-    if not console:
-        build_args.append("--windowed")
-
-    # Add entry point
-    build_args.append(str(BASE_DIR.parent / "src" / "enveloper" / "__main__.py"))
-
-    # Run PyInstaller
     subprocess.run(build_args, check=True)
 
     return output_dir
 
 
-def build_all(platforms: list[str] | None = None) -> list[Path]:
-    """Build for all specified platforms."""
+def build_all(
+    platforms: list[str] | None = None,
+    arch_filter: str | None = None,
+) -> list[Path]:
+    """Build for all specified platforms and architectures."""
     if platforms is None:
         platforms = list(PLATFORMS.keys())
 
@@ -252,7 +174,14 @@ def build_all(platforms: list[str] | None = None) -> list[Path]:
 
     for platform in platforms:
         config = PLATFORMS[platform]
-        for arch in config["architectures"]:
+        archs = config["architectures"]
+        if arch_filter is not None:
+            # Normalize aarch64 <-> arm64 for linux
+            if platform == "linux" and arch_filter == "arm64":
+                archs = [a for a in archs if a in ("arm64", "aarch64")]
+            else:
+                archs = [a for a in archs if a == arch_filter]
+        for arch in archs:
             if platform == "mac":
                 built_files.append(build_macos(arch))
             elif platform == "linux":
@@ -293,39 +222,17 @@ def main() -> None:
         help="Icon file path",
     )
     parser.add_argument(
-        "--onefile",
+        "--dmg",
         action="store_true",
-        default=True,
-        help="Build as single file (default)",
-    )
-    parser.add_argument(
-        "--onedir",
-        action="store_true",
-        default=False,
-        help="Build as directory",
-    )
-    parser.add_argument(
-        "--console",
-        action="store_true",
-        default=True,
-        help="Build with console (default)",
-    )
-    parser.add_argument(
-        "--windowed",
-        action="store_true",
-        default=False,
-        help="Build without console",
+        help="(macOS only) Also build .pkg and .dmg installer for double-click install to /usr/local",
     )
 
     args = parser.parse_args()
 
-    # Check/install PyInstaller
-    if not check_pyinstaller():
-        install_pyinstaller()
+    # Check/install cx_Freeze
+    if not check_cx_freeze():
+        install_cx_freeze()
 
-    # Set build options
-    onefile = not args.onedir
-    console = not args.windowed
     icon_path = Path(args.icon)
 
     if args.platform == "all":
@@ -333,8 +240,21 @@ def main() -> None:
     else:
         platforms = [args.platform]
 
-    print(f"Building for platforms: {platforms}")
-    built_files = build_all(platforms)
+    print(f"Building for platforms: {platforms}" + (f", arch: {args.arch}" if args.arch else ""))
+    built_files = build_all(platforms, arch_filter=args.arch)
+
+    # Optionally build macOS .pkg and .dmg installers for double-click install to /usr/local
+    if args.dmg and "mac" in platforms:
+        from mac_installer import build_pkg_and_dmg
+        version = getattr(args, "version", VERSION)
+        archs = PLATFORMS["mac"]["architectures"]
+        if args.arch:
+            archs = [a for a in archs if a == args.arch]
+        for arch in archs:
+            bundle_dir = DIST_DIR / f"{PROJECT_NAME}-{version}-macos-{arch}"
+            if bundle_dir.exists():
+                _, dmg_path = build_pkg_and_dmg(bundle_dir, version=version, arch=arch)
+                built_files.append(dmg_path)
 
     print("\nBuild complete!")
     for f in built_files:
