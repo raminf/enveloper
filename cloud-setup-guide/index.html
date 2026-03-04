@@ -1257,6 +1257,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#hashicorp-vault-local-docker-or-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HashiCorp Vault (local Docker or server)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HashiCorp Vault (local Docker or server)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-local-vault-in-docker-no-cloud-good-for-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option A: Local Vault in Docker (no cloud, good for tests)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-real-vault-self-hosted-or-hcp-vault-dedicated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option B: Real Vault (self-hosted or HCP Vault Dedicated)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#quick-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2164,6 +2203,46 @@ Enough for push/pull and list. Does <strong>not</strong> include purge; if you r
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>aws
 </code></pre></div>
 <hr />
+<h2 id="hashicorp-vault-local-docker-or-server">HashiCorp Vault (local Docker or server)<a class="headerlink" href="#hashicorp-vault-local-docker-or-server" title="Permanent link">&para;</a></h2>
+<p>The <strong><code>vault</code></strong> store works with <strong>any</strong> Vault that exposes the KV v2 API: local Vault in Docker (for development/testing) or a real deployment (self-hosted or HCP Vault Dedicated). You use the same <code>--service vault</code> and config; only <code>VAULT_ADDR</code> and <code>VAULT_TOKEN</code> change.</p>
+<h3 id="option-a-local-vault-in-docker-no-cloud-good-for-tests">Option A: Local Vault in Docker (no cloud, good for tests)<a class="headerlink" href="#option-a-local-vault-in-docker-no-cloud-good-for-tests" title="Permanent link">&para;</a></h3>
+<p>No cloud account. Run Vault in dev mode locally:</p>
+<p><strong>1. Start Vault</strong></p>
+<p>From the repo (or wherever you put the compose file):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.vault.yml<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+<p>The Vault <strong>web UI</strong> is available at <strong>http://127.0.0.1:8200/ui</strong> — sign in with token <code>root</code>.</p>
+<p><strong>2. KV v2 at <code>secret/</code></strong></p>
+<p>Recent Vault dev servers (1.15+) mount KV v2 at <code>secret/</code> by default, so nothing else is needed. If you use an older image and get errors about versioning, enable KV v2 once:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.vault.yml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vault<span class="w"> </span>vault<span class="w"> </span>secrets<span class="w"> </span>disable<span class="w"> </span>secret
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.vault.yml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vault<span class="w"> </span>vault<span class="w"> </span>secrets<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>-path<span class="o">=</span>secret<span class="w"> </span>kv-v2
+</code></pre></div>
+<p><strong>3. Set env vars and config</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VAULT_ADDR</span><span class="o">=</span>http://127.0.0.1:8200
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VAULT_TOKEN</span><span class="o">=</span>root
+</code></pre></div>
+<p>Or in <code>.enveloper.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">[enveloper.vault]</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8200&quot;</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="n">mount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;secret&quot;</span>
+</code></pre></div>
+<p>The token must be set via <strong><code>VAULT_TOKEN</code></strong> (or your shell); avoid putting the root token in the config file.</p>
+<p><strong>4. Install vault extra and test</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>vault<span class="o">]</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="c1"># or: uv sync --extra vault</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>vault
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>vault
+</code></pre></div>
+<p><strong>Stop:</strong> <code>docker compose -f docker-compose.vault.yml down</code></p>
+<h3 id="option-b-real-vault-self-hosted-or-hcp-vault-dedicated">Option B: Real Vault (self-hosted or HCP Vault Dedicated)<a class="headerlink" href="#option-b-real-vault-self-hosted-or-hcp-vault-dedicated" title="Permanent link">&para;</a></h3>
+<p>Use your server or HCP Vault Dedicated URL and a token with read/write on the KV v2 mount:</p>
+<ul>
+<li><strong>VAULT_ADDR</strong> – e.g. <code>https://vault.example.com</code> or your HCP cluster address  </li>
+<li><strong>VAULT_TOKEN</strong> – token with policy allowing <code>secret/*</code> (or the mount you use)  </li>
+<li><strong>Config:</strong> <code>[enveloper.vault]</code> with <code>url</code> and <code>mount</code> as needed  </li>
+</ul>
+<p>Same <code>enveloper push --service vault</code> / <code>pull --service vault</code>; only the address and token differ.</p>
+<hr />
 <h2 id="quick-reference">Quick reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2193,9 +2272,15 @@ Enough for push/pull and list. Does <strong>not</strong> include purge; if you r
 <td><code>aws configure</code> or env vars</td>
 <td><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a></td>
 </tr>
+<tr>
+<td><strong>Vault</strong> (local or server)</td>
+<td><code>[enveloper.vault]</code> <code>url</code>, <code>mount</code> or <code>VAULT_ADDR</code>, <code>VAULT_TOKEN</code></td>
+<td>Root or policy token (local dev: <code>root</code>)</td>
+<td><a href="https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2">Vault KV v2</a></td>
+</tr>
 </tbody>
 </table>
-<p>For Vault, Aliyun, and GitHub, see <a href="../cloud-storage/">Cloud Storage</a> and <a href="../project-config/">Project Config</a>.</p>
+<p>For Aliyun and GitHub, see <a href="../cloud-storage/">Cloud Storage</a> and <a href="../project-config/">Project Config</a>.</p>
 
 
 
