@@ -1131,6 +1131,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="File Location">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sample-config-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample config files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1933,14 +1950,29 @@
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>The <code>.enveloper.toml</code> file allows you to define default values for project, domain, service, and cloud backend settings. This eliminates the need to pass these values on the command line every time.</p>
 <h2 id="file-location">File Location<a class="headerlink" href="#file-location" title="Permanent link">&para;</a></h2>
-<p>Config is loaded by <strong>searching upward from the current working directory</strong> for a file named <code>.enveloper.toml</code>. Place it in your project root (or any parent directory):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>myproject/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── .enveloper.toml
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── src/
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── tests/
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── README.md
+<p>Config is loaded in this order:</p>
+<ol>
+<li><strong><code>~/.enveloper/.enveloper.toml</code></strong> — If the directory <code>~/.enveloper</code> exists and contains <code>.enveloper.toml</code>, that file is used (good for a single global config).</li>
+<li><strong>Current directory and parents</strong> — Otherwise, enveloper searches <strong>upward from the current working directory</strong> for <code>.enveloper.toml</code> (e.g. in your project root).</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a># Option A: global config
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>~/.enveloper/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>└── .enveloper.toml
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a># Option B: per-project config
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>myproject/
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── .enveloper.toml
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── src/
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└── README.md
 </code></pre></div>
-<p>When you run <code>enveloper</code> from <code>myproject/</code> or any subdirectory (e.g. <code>myproject/src/</code>), the same <code>.enveloper.toml</code> is used. If no file is found, defaults apply and you can still use environment variables or CLI flags.</p>
+<p>When you run <code>enveloper</code> from <code>myproject/</code> or any subdirectory, the resolved config is used. If no file is found, defaults apply and you can still use environment variables or CLI flags.</p>
+<h3 id="sample-config-files">Sample config files<a class="headerlink" href="#sample-config-files" title="Permanent link">&para;</a></h3>
+<p>The repo includes sample configs (copy and edit as needed):</p>
+<ul>
+<li><strong><code>sample.enveloper.toml</code></strong> — Full example with all service sections (AWS, GCP, Azure, Vault, GitHub, Aliyun).</li>
+<li><strong><code>sample.enveloper.minimal.toml</code></strong> — Minimal (local keychain only).</li>
+</ul>
+<p>Copy to <code>~/.enveloper/.enveloper.toml</code> or to your project root as <code>.enveloper.toml</code>.</p>
 <h2 id="basic-structure">Basic Structure<a class="headerlink" href="#basic-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[enveloper]</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myproject&quot;</span>

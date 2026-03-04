@@ -2188,12 +2188,14 @@
 - Key rotation policies</p>
 <p><strong>Configuration:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[enveloper.azure]</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">vault_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://my-vault.vault.azure.net/&quot;</span><span class="w">  </span><span class="c1"># or set AZURE_VAULT_URL</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">vault_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://my-vault.vault.azure.net/&quot;</span><span class="w">  </span><span class="c1"># or set ENVELOPER_AZURE_VAULT_URL</span>
 </code></pre></div></p>
 <p><strong>Authentication:</strong>
 - DefaultAzureCredential
 - Service principal
 - Managed identity</p>
+<p><strong>RBAC for clear:</strong><br />
+<code>enveloper clear</code> permanently removes secrets (purge) so names can be reused immediately. That requires the <strong>Key Vault Administrator</strong> role (or a custom role with <code>secrets/purge</code>). <strong>Key Vault Secrets Officer</strong> is enough for push/pull/list but does not include purge. See <a href="../cloud-setup-guide/#azure-key-vault">Cloud Setup Guide</a> for assignment commands.</p>
 <p><strong>Usage:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Push to Key Vault</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>azure<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
