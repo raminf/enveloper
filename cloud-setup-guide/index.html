@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://enveloper.net/service-backend/">
+        <link rel="canonical" href="https://enveloper.net/cloud-setup-guide/">
       
       
-        <link rel="prev" href="../cloud-setup-guide/">
+        <link rel="prev" href="../cloud-storage/">
       
       
-        <link rel="next" href="../project-config/">
+        <link rel="next" href="../service-backend/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Service Backend - enveloper</title>
+        <title>Cloud Setup Guide (Azure, GCP, AWS) - enveloper</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#service-backend" class="md-skip">
+        <a href="#cloud-setup-guide-azure-gcp-and-aws" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Service Backend
+              Cloud Setup Guide (Azure, GCP, AWS)
             
           </span>
         </div>
@@ -934,34 +934,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../cloud-setup-guide/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Cloud Setup Guide (Azure, GCP, AWS)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -981,7 +953,7 @@
   <span class="md-ellipsis">
     
   
-    Service Backend
+    Cloud Setup Guide (Azure, GCP, AWS)
   
 
     
@@ -999,7 +971,7 @@
   <span class="md-ellipsis">
     
   
-    Service Backend
+    Cloud Setup Guide (Azure, GCP, AWS)
   
 
     
@@ -1025,10 +997,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#where-to-put-config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Where to put config
       
     </span>
   </a>
@@ -1036,145 +1008,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Available Services
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#service-selection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service Selection
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Service Selection">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#environment-variable" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environment Variable
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#config-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config File
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#service-specific-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service-Specific Configuration
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Service-Specific Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#local-keychain" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Keychain
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#file-service" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        File Service
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aws-ssm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        AWS SSM
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#github" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GitHub
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#hashicorp-vault" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        HashiCorp Vault
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#google-cloud" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Google Cloud
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#azure-key-vault" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1183,41 +1016,14 @@
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#alibaba-cloud" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alibaba Cloud
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#service-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service Commands
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Service Commands">
+    <nav class="md-nav" aria-label="Azure Key Vault">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#list-services" class="md-nav__link">
+  <a href="#1-install-the-azure-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List Services
+        1. Install the Azure extra
       
     </span>
   </a>
@@ -1225,10 +1031,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pushpull" class="md-nav__link">
+  <a href="#2-create-a-key-vault" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Push/Pull
+        2. Create a Key Vault
       
     </span>
   </a>
@@ -1236,10 +1042,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#clear-service" class="md-nav__link">
+  <a href="#3-credentials-azure-cli" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Clear Service
+        3. Credentials (Azure CLI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-permissions-rbac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Permissions (RBAC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Test
       
     </span>
   </a>
@@ -1252,44 +1091,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#service-backend-selection-matrix" class="md-nav__link">
+  <a href="#google-cloud-secret-manager" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Backend Selection Matrix
+        Google Cloud Secret Manager
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#service-priority" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Service Priority
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Troubleshooting
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
+    <nav class="md-nav" aria-label="Google Cloud Secret Manager">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#service-not-found" class="md-nav__link">
+  <a href="#1-install-the-gcp-extra" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Service Not Found
+        1. Install the GCP extra
       
     </span>
   </a>
@@ -1297,10 +1114,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#permission-denied" class="md-nav__link">
+  <a href="#2-create-select-a-gcp-project" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Permission Denied
+        2. Create / select a GCP project
       
     </span>
   </a>
@@ -1308,10 +1125,54 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#connection-issues" class="md-nav__link">
+  <a href="#3-enable-secret-manager-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connection Issues
+        3. Enable Secret Manager API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Test
       
     </span>
   </a>
@@ -1320,6 +1181,89 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aws-systems-manager-parameter-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AWS Systems Manager Parameter Store
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AWS Systems Manager Parameter Store">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-the-aws-extra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install the AWS extra
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick reference
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1327,6 +1271,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Service Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2018,274 +1990,212 @@
   
 
 
-<h1 id="service-backend">Service Backend<a class="headerlink" href="#service-backend" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The service backend determines where secrets are stored and retrieved from. <code>enveloper</code> supports multiple backends including local keychain, file storage, and various cloud services.</p>
-<h2 id="available-services">Available Services<a class="headerlink" href="#available-services" title="Permanent link">&para;</a></h2>
+<h1 id="cloud-setup-guide-azure-gcp-and-aws">Cloud Setup Guide: Azure, GCP, and AWS<a class="headerlink" href="#cloud-setup-guide-azure-gcp-and-aws" title="Permanent link">&para;</a></h1>
+<p>Step-by-step setup for using enveloper with <strong>Azure Key Vault</strong>, <strong>Google Cloud Secret Manager</strong>, and <strong>AWS Systems Manager Parameter Store</strong>. Covers credentials, IAM/RBAC, <code>.enveloper.toml</code>, and testing.</p>
+<hr />
+<h2 id="where-to-put-config">Where to put config<a class="headerlink" href="#where-to-put-config" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Config file:</strong> If <code>~/.enveloper</code> exists, enveloper loads <code>~/.enveloper/.enveloper.toml</code>. Otherwise it searches <strong>upward from the current working directory</strong> for <code>.enveloper.toml</code>. See <a href="../project-config/">Project Config</a> for the full format.</li>
+<li><strong>Samples:</strong> Copy <code>sample.enveloper.toml</code> or <code>sample.enveloper.minimal.toml</code> from the repo to <code>~/.enveloper/.enveloper.toml</code> or your project root as <code>.enveloper.toml</code>.</li>
+<li><strong>Environment variables:</strong> You can skip the config file and set service-specific env vars (e.g. <code>ENVELOPER_AZURE_VAULT_URL</code>, <code>ENVELOPER_GCP_PROJECT</code>) instead.</li>
+</ul>
+<hr />
+<h2 id="azure-key-vault">Azure Key Vault<a class="headerlink" href="#azure-key-vault" title="Permanent link">&para;</a></h2>
+<h3 id="1-install-the-azure-extra">1. Install the Azure extra<a class="headerlink" href="#1-install-the-azure-extra" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>azure<span class="o">]</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or with uv</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>azure
+</code></pre></div>
+<h3 id="2-create-a-key-vault">2. Create a Key Vault<a class="headerlink" href="#2-create-a-key-vault" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>az<span class="w"> </span>login
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>az<span class="w"> </span>keyvault<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>YOUR-VAULT-NAME<span class="w"> </span>--resource-group<span class="w"> </span>YOUR-RG
+</code></pre></div>
+<p>Use a unique vault name (e.g. <code>myapp-enveloper-prod</code>). The vault URL will be <code>https://YOUR-VAULT-NAME.vault.azure.net/</code>.</p>
+<h3 id="3-credentials-azure-cli">3. Credentials (Azure CLI)<a class="headerlink" href="#3-credentials-azure-cli" title="Permanent link">&para;</a></h3>
+<p>enveloper uses <strong>DefaultAzureCredential</strong>, which includes Azure CLI. Log in:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>az<span class="w"> </span>login
+</code></pre></div>
+<p>No extra env vars are required for local use. For CI or service principals, set <code>AZURE_CLIENT_ID</code>, <code>AZURE_TENANT_ID</code>, and <code>AZURE_CLIENT_SECRET</code>, or use a managed identity.</p>
+<h3 id="4-permissions-rbac">4. Permissions (RBAC)<a class="headerlink" href="#4-permissions-rbac" title="Permanent link">&para;</a></h3>
+<p>If the vault was created with <strong>RBAC</strong> (<code>--enable-rbac-authorization</code>), do <strong>not</strong> use <code>az keyvault set-policy</code>. Assign a role instead.</p>
+<p><strong>Option A: Key Vault Administrator (recommended)</strong><br />
+Use this if you want to run <strong><code>enveloper clear</code></strong> (and optionally <strong><code>enveloper clear --all</code></strong>). Clear permanently removes secrets (purge) so you can push the same names again immediately. The <strong>Key Vault Administrator</strong> role includes <code>secrets/purge</code> and all other secret operations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>az<span class="w"> </span>role<span class="w"> </span>assignment<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>--role<span class="w"> </span><span class="s2">&quot;Key Vault Administrator&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--assignee<span class="w"> </span><span class="k">$(</span>az<span class="w"> </span>ad<span class="w"> </span>signed-in-user<span class="w"> </span>show<span class="w"> </span>--query<span class="w"> </span>id<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--scope<span class="w"> </span><span class="k">$(</span>az<span class="w"> </span>keyvault<span class="w"> </span>show<span class="w"> </span>-n<span class="w"> </span>YOUR-VAULT-NAME<span class="w"> </span>-g<span class="w"> </span>YOUR-RG<span class="w"> </span>--query<span class="w"> </span>id<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+</code></pre></div>
+<p><strong>Option B: Key Vault Secrets Officer</strong><br />
+Enough for push/pull and list. Does <strong>not</strong> include purge; if you run <code>enveloper clear</code>, secrets are soft-deleted only and you may get conflicts reusing the same names until they are purged or recovered.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>az<span class="w"> </span>role<span class="w"> </span>assignment<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--role<span class="w"> </span><span class="s2">&quot;Key Vault Secrets Officer&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--assignee<span class="w"> </span><span class="k">$(</span>az<span class="w"> </span>ad<span class="w"> </span>signed-in-user<span class="w"> </span>show<span class="w"> </span>--query<span class="w"> </span>id<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--scope<span class="w"> </span><span class="k">$(</span>az<span class="w"> </span>keyvault<span class="w"> </span>show<span class="w"> </span>-n<span class="w"> </span>YOUR-VAULT-NAME<span class="w"> </span>-g<span class="w"> </span>YOUR-RG<span class="w"> </span>--query<span class="w"> </span>id<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+</code></pre></div>
+<p>For read-only (list/get only), use <strong>Key Vault Secrets User</strong>. Wait 1–2 minutes for RBAC to propagate.</p>
+<h3 id="5-config">5. Config<a class="headerlink" href="#5-config" title="Permanent link">&para;</a></h3>
+<p><strong>.enveloper.toml:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[enveloper]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myapp&quot;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">[enveloper.azure]</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">vault_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://YOUR-VAULT-NAME.vault.azure.net/&quot;</span>
+</code></pre></div>
+<p>Or use the env var (no config file):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENVELOPER_AZURE_VAULT_URL</span><span class="o">=</span><span class="s2">&quot;https://YOUR-VAULT-NAME.vault.azure.net/&quot;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># or just the vault name:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENVELOPER_AZURE_VAULT_URL</span><span class="o">=</span><span class="s2">&quot;YOUR-VAULT-NAME&quot;</span>
+</code></pre></div>
+<h3 id="6-test">6. Test<a class="headerlink" href="#6-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># List (empty at first)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>azure
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Push from local keychain to Azure</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>azure
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># List again to verify</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>azure
+</code></pre></div>
+<hr />
+<h2 id="google-cloud-secret-manager">Google Cloud Secret Manager<a class="headerlink" href="#google-cloud-secret-manager" title="Permanent link">&para;</a></h2>
+<h3 id="1-install-the-gcp-extra">1. Install the GCP extra<a class="headerlink" href="#1-install-the-gcp-extra" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>gcp<span class="o">]</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># or with uv</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>gcp
+</code></pre></div>
+<h3 id="2-create-select-a-gcp-project">2. Create / select a GCP project<a class="headerlink" href="#2-create-select-a-gcp-project" title="Permanent link">&para;</a></h3>
+<p>Use an existing project or create one in the <a href="https://console.cloud.google.com/">Google Cloud Console</a>. Note the <strong>project ID</strong> (e.g. <code>my-app-123456</code>), not the display name.</p>
+<h3 id="3-enable-secret-manager-api">3. Enable Secret Manager API<a class="headerlink" href="#3-enable-secret-manager-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>gcloud<span class="w"> </span>services<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>secretmanager.googleapis.com<span class="w"> </span>--project<span class="o">=</span>YOUR-PROJECT-ID
+</code></pre></div>
+<h3 id="4-credentials">4. Credentials<a class="headerlink" href="#4-credentials" title="Permanent link">&para;</a></h3>
+<p>enveloper uses <strong>Application Default Credentials</strong>. For local use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>gcloud<span class="w"> </span>auth<span class="w"> </span>application-default<span class="w"> </span>login
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>gcloud<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>project<span class="w"> </span>YOUR-PROJECT-ID
+</code></pre></div>
+<p>For CI, use a service account key or Workload Identity.</p>
+<h3 id="5-permissions">5. Permissions<a class="headerlink" href="#5-permissions" title="Permanent link">&para;</a></h3>
+<p>Your user or service account needs <strong>Secret Manager Admin</strong> (or at least <strong>Secret Manager Secret Accessor</strong> for read and <strong>Secret Manager Admin</strong> for write):</p>
+<ul>
+<li>In Console: IAM &amp; Admin → IAM → Add principal → role “Secret Manager Admin”.</li>
+<li>Or with gcloud (replace <code>YOUR-EMAIL</code> and <code>YOUR-PROJECT-ID</code>):</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>gcloud<span class="w"> </span>projects<span class="w"> </span>add-iam-policy-binding<span class="w"> </span>YOUR-PROJECT-ID<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--member<span class="o">=</span><span class="s2">&quot;user:YOUR-EMAIL&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--role<span class="o">=</span><span class="s2">&quot;roles/secretmanager.admin&quot;</span>
+</code></pre></div>
+<h3 id="6-config">6. Config<a class="headerlink" href="#6-config" title="Permanent link">&para;</a></h3>
+<p><strong>.enveloper.toml:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">[enveloper]</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myapp&quot;</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">[enveloper.gcp]</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;YOUR-PROJECT-ID&quot;</span>
+</code></pre></div>
+<p>You can use the <strong>project ID</strong> or the <strong>Project name</strong> (display name); enveloper resolves the display name to the project ID. Or set an env var:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENVELOPER_GCP_PROJECT</span><span class="o">=</span><span class="s2">&quot;YOUR-PROJECT-ID&quot;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># or</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GOOGLE_CLOUD_PROJECT</span><span class="o">=</span><span class="s2">&quot;YOUR-PROJECT-ID&quot;</span>
+</code></pre></div>
+<p>If unset, enveloper uses <code>gcloud config get-value project</code>.</p>
+<h3 id="7-test">7. Test<a class="headerlink" href="#7-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>gcp
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>gcp
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>gcp
+</code></pre></div>
+<hr />
+<h2 id="aws-systems-manager-parameter-store">AWS Systems Manager Parameter Store<a class="headerlink" href="#aws-systems-manager-parameter-store" title="Permanent link">&para;</a></h2>
+<h3 id="1-install-the-aws-extra">1. Install the AWS extra<a class="headerlink" href="#1-install-the-aws-extra" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>aws<span class="o">]</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1"># or with uv</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>aws
+</code></pre></div>
+<h3 id="2-credentials">2. Credentials<a class="headerlink" href="#2-credentials" title="Permanent link">&para;</a></h3>
+<p>Use the AWS CLI or env vars:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>aws<span class="w"> </span>configure
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># or</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AWS_ACCESS_KEY_ID</span><span class="o">=</span>...
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AWS_SECRET_ACCESS_KEY</span><span class="o">=</span>...
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AWS_DEFAULT_REGION</span><span class="o">=</span>us-east-1
+</code></pre></div>
+<h3 id="3-permissions">3. Permissions<a class="headerlink" href="#3-permissions" title="Permanent link">&para;</a></h3>
+<p>The IAM user or role needs at least:</p>
+<ul>
+<li><code>ssm:GetParameter</code>, <code>ssm:GetParameters</code></li>
+<li><code>ssm:PutParameter</code></li>
+<li><code>ssm:DeleteParameter</code></li>
+<li><code>ssm:GetParametersByPath</code> (for list)</li>
+</ul>
+<p>Example minimal policy (restrict <code>Resource</code> as needed):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">{</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">      </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">      </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">        </span><span class="s2">&quot;ssm:GetParameter&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">        </span><span class="s2">&quot;ssm:GetParameters&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">        </span><span class="s2">&quot;ssm:PutParameter&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">        </span><span class="s2">&quot;ssm:DeleteParameter&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">        </span><span class="s2">&quot;ssm:GetParametersByPath&quot;</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">      </span><span class="p">],</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">      </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;*&quot;</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="p">}</span>
+</code></pre></div>
+<p>For encrypted parameters, add <code>kms:Decrypt</code> (and optionally <code>kms:Encrypt</code>) on the KMS key used by SSM.</p>
+<h3 id="4-config">4. Config<a class="headerlink" href="#4-config" title="Permanent link">&para;</a></h3>
+<p><strong>.enveloper.toml:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">[enveloper]</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;myapp&quot;</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">[enveloper.aws]</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="n">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;default&quot;</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
+</code></pre></div>
+<p>Omit <code>profile</code>/<code>region</code> to use <code>AWS_PROFILE</code> and <code>AWS_DEFAULT_REGION</code>.</p>
+<h3 id="5-test">5. Test<a class="headerlink" href="#5-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>aws
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>aws
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>keys<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>myapp<span class="w"> </span>--service<span class="w"> </span>aws
+</code></pre></div>
+<hr />
+<h2 id="quick-reference">Quick reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Store Class</th>
-<th>Read/Write</th>
-<th>Description</th>
+<th>Cloud</th>
+<th>Config / env</th>
+<th>Credentials</th>
+<th>Docs</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>local</code></td>
-<td><code>KeychainStore</code></td>
-<td>Read/Write</td>
-<td>OS keychain (macOS, Linux, Windows)</td>
+<td><strong>Azure</strong></td>
+<td><code>[enveloper.azure]</code> <code>vault_url</code> or <code>ENVELOPER_AZURE_VAULT_URL</code></td>
+<td><code>az login</code> or service principal</td>
+<td><a href="https://learn.microsoft.com/en-us/azure/key-vault/">Azure Key Vault</a></td>
 </tr>
 <tr>
-<td><code>file</code></td>
-<td><code>FileStore</code></td>
-<td>Read/Write</td>
-<td>Plain <code>.env</code> file</td>
+<td><strong>GCP</strong></td>
+<td><code>[enveloper.gcp]</code> <code>project</code> or <code>ENVELOPER_GCP_PROJECT</code> / <code>GOOGLE_CLOUD_PROJECT</code></td>
+<td><code>gcloud auth application-default login</code></td>
+<td><a href="https://cloud.google.com/secret-manager/docs">Secret Manager</a></td>
 </tr>
 <tr>
-<td><code>aws</code></td>
-<td><code>AWSSSMStore</code></td>
-<td>Push/Pull</td>
-<td>AWS SSM Parameter Store</td>
-</tr>
-<tr>
-<td><code>github</code></td>
-<td><code>GitHubStore</code></td>
-<td>Push only</td>
-<td>GitHub Actions secrets</td>
-</tr>
-<tr>
-<td><code>vault</code></td>
-<td><code>VaultStore</code></td>
-<td>Push/Pull</td>
-<td>HashiCorp Vault KV v2</td>
-</tr>
-<tr>
-<td><code>gcp</code></td>
-<td><code>GCPSMStore</code></td>
-<td>Push/Pull</td>
-<td>Google Cloud Secret Manager</td>
-</tr>
-<tr>
-<td><code>azure</code></td>
-<td><code>AzureKVStore</code></td>
-<td>Push/Pull</td>
-<td>Azure Key Vault</td>
-</tr>
-<tr>
-<td><code>aliyun</code></td>
-<td><code>AliyunSMStore</code></td>
-<td>Push/Pull</td>
-<td>Alibaba Cloud KMS</td>
+<td><strong>AWS</strong></td>
+<td><code>[enveloper.aws]</code> <code>profile</code>, <code>region</code> or <code>AWS_PROFILE</code>, <code>AWS_DEFAULT_REGION</code></td>
+<td><code>aws configure</code> or env vars</td>
+<td><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a></td>
 </tr>
 </tbody>
 </table>
-<h2 id="service-selection">Service Selection<a class="headerlink" href="#service-selection" title="Permanent link">&para;</a></h2>
-<h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Use local keychain (default)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span><span class="nb">local</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Use file storage</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Use AWS SSM</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span>aws
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Use GitHub</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span>github
-</code></pre></div>
-<h3 id="environment-variable">Environment Variable<a class="headerlink" href="#environment-variable" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENVELOPER_SERVICE</span><span class="o">=</span>aws
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>enveloper<span class="w"> </span>list<span class="w">  </span><span class="c1"># Uses AWS</span>
-</code></pre></div>
-<h3 id="config-file">Config File<a class="headerlink" href="#config-file" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[enveloper]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aws&quot;</span>
-</code></pre></div>
-<h2 id="service-specific-configuration">Service-Specific Configuration<a class="headerlink" href="#service-specific-configuration" title="Permanent link">&para;</a></h2>
-<h3 id="local-keychain">Local Keychain<a class="headerlink" href="#local-keychain" title="Permanent link">&para;</a></h3>
-<p>No additional configuration required. Uses OS-native keychain storage.</p>
-<h3 id="file-service">File Service<a class="headerlink" href="#file-service" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Specify file path</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env.local
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Export to file</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>enveloper<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--service<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env.backup
-</code></pre></div>
-<h3 id="aws-ssm">AWS SSM<a class="headerlink" href="#aws-ssm" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[enveloper.aws]</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;default&quot;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-west-2&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Push to SSM</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>/myapp/prod/
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Pull from SSM</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>/myapp/prod/
-</code></pre></div>
-<h3 id="github">GitHub<a class="headerlink" href="#github" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Push to GitHub Actions</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>github<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--repo<span class="w"> </span>owner/repo
-</code></pre></div>
-<h3 id="hashicorp-vault">HashiCorp Vault<a class="headerlink" href="#hashicorp-vault" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[enveloper.vault]</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8200&quot;</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">mount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;secret&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Push to Vault</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>vault<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp/prod
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Pull from Vault</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>vault<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp/prod
-</code></pre></div>
-<h3 id="google-cloud">Google Cloud<a class="headerlink" href="#google-cloud" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">[enveloper.gcp]</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my-gcp-project&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Push to Secret Manager</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>gcp<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Pull from Secret Manager</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>gcp<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-</code></pre></div>
-<h3 id="azure-key-vault">Azure Key Vault<a class="headerlink" href="#azure-key-vault" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">[enveloper.azure]</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">vault_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://my-vault.vault.azure.net/&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Push to Key Vault</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>azure<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Pull from Key Vault</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>azure<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-</code></pre></div>
-<h3 id="alibaba-cloud">Alibaba Cloud<a class="headerlink" href="#alibaba-cloud" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">[enveloper.aliyun]</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">region_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cn-hangzhou&quot;</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">access_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="n">access_key_secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Push to KMS</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aliyun<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Pull from KMS</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>aliyun<span class="w"> </span>-d<span class="w"> </span>prod<span class="w"> </span>--prefix<span class="w"> </span>myapp-prod
-</code></pre></div>
-<h2 id="service-commands">Service Commands<a class="headerlink" href="#service-commands" title="Permanent link">&para;</a></h2>
-<h3 id="list-services">List Services<a class="headerlink" href="#list-services" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># List all available services</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>enveloper<span class="w"> </span>service
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># List store plugins</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>enveloper<span class="w"> </span>stores
-</code></pre></div>
-<h3 id="pushpull">Push/Pull<a class="headerlink" href="#pushpull" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Push from local to cloud</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>-d<span class="w"> </span>prod
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Pull from cloud to local</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>-d<span class="w"> </span>prod
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Push from file to cloud</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>--from<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># Pull from cloud to file</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>--to<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env
-</code></pre></div>
-<h3 id="clear-service">Clear Service<a class="headerlink" href="#clear-service" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Clear local keychain</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>enveloper<span class="w"> </span>clear<span class="w"> </span>--service<span class="w"> </span><span class="nb">local</span><span class="w"> </span>-d<span class="w"> </span>prod
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Clear file</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>enveloper<span class="w"> </span>clear<span class="w"> </span>--service<span class="w"> </span>file<span class="w"> </span>--path<span class="w"> </span>.env
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Clear cloud store</span>
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>enveloper<span class="w"> </span>clear<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>-d<span class="w"> </span>prod
-</code></pre></div>
-<h2 id="service-backend-selection-matrix">Service Backend Selection Matrix<a class="headerlink" href="#service-backend-selection-matrix" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Use Case</th>
-<th>Recommended Service</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Local development</td>
-<td><code>local</code> (keychain)</td>
-</tr>
-<tr>
-<td>CI/CD with .env files</td>
-<td><code>file</code></td>
-</tr>
-<tr>
-<td>AWS infrastructure</td>
-<td><code>aws</code> (SSM)</td>
-</tr>
-<tr>
-<td>GitHub Actions</td>
-<td><code>github</code></td>
-</tr>
-<tr>
-<td>Multi-cloud</td>
-<td><code>vault</code></td>
-</tr>
-<tr>
-<td>GCP infrastructure</td>
-<td><code>gcp</code></td>
-</tr>
-<tr>
-<td>Azure infrastructure</td>
-<td><code>azure</code></td>
-</tr>
-<tr>
-<td>Alibaba infrastructure</td>
-<td><code>aliyun</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="service-priority">Service Priority<a class="headerlink" href="#service-priority" title="Permanent link">&para;</a></h2>
-<p>When no service is specified, <code>enveloper</code> uses <code>local</code> as the default. You can change this default:</p>
-<ol>
-<li>
-<p><strong>Config file</strong> (<code>.enveloper.toml</code>):
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">[enveloper]</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aws&quot;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p><strong>Environment variable</strong>:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ENVELOPER_SERVICE</span><span class="o">=</span>aws
-</code></pre></div></p>
-</li>
-<li>
-<p><strong>CLI argument</strong> (highest priority):
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>enveloper<span class="w"> </span>list<span class="w"> </span>--service<span class="w"> </span>aws
-</code></pre></div></p>
-</li>
-</ol>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="service-not-found">Service Not Found<a class="headerlink" href="#service-not-found" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Check available services</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>enveloper<span class="w"> </span>service
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Verify service name</span>
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>enveloper<span class="w"> </span>--service<span class="w"> </span>aws<span class="w"> </span>list
-</code></pre></div>
-<h3 id="permission-denied">Permission Denied<a class="headerlink" href="#permission-denied" title="Permanent link">&para;</a></h3>
-<p>Check service-specific credentials:
-- <strong>AWS</strong>: <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>
-- <strong>GCP</strong>: <code>GOOGLE_CLOUD_PROJECT</code>, Application Default Credentials
-- <strong>Azure</strong>: <code>AZURE_VAULT_URL</code>, DefaultAzureCredential
-- <strong>Vault</strong>: <code>VAULT_ADDR</code>, <code>VAULT_TOKEN</code></p>
-<h3 id="connection-issues">Connection Issues<a class="headerlink" href="#connection-issues" title="Permanent link">&para;</a></h3>
-<p>```bash</p>
-<h1 id="test-connection">Test connection<a class="headerlink" href="#test-connection" title="Permanent link">&para;</a></h1>
-<p>enveloper service</p>
-<h1 id="check-network-connectivity">Check network connectivity<a class="headerlink" href="#check-network-connectivity" title="Permanent link">&para;</a></h1>
-<p>ping <service-endpoint></p>
+<p>For Vault, Aliyun, and GitHub, see <a href="../cloud-storage/">Cloud Storage</a> and <a href="../project-config/">Project Config</a>.</p>
 
 
 
