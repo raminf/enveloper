@@ -130,11 +130,11 @@ enveloper clear --domain dev --project Enveloper --service aws
 | **Local Keychain** | MacOS Keychain, Linux Secret Service, Windows Credential Locker |
 | **File** | Plain `.env` files |
 | **AWS SSM** | AWS Systems Manager Parameter Store |
-| **GitHub** | GitHub Actions secrets |
 | **Vault** | HashiCorp Vault KV v2 |
 | **GCP** | Google Cloud Secret Manager |
 | **Azure** | Azure Key Vault |
-| **Alibaba** | Alibaba Cloud KMS Secrets Manager |
+| **Alibaba** | Alibaba Cloud KMS Secrets Manager (untested) |
+| **GitHub** | GitHub Actions secrets (coming soon) |
 
 ## Documentation
 

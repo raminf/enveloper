@@ -66,7 +66,7 @@ enveloper --domain dev --project Enveloper push --service aws
 
 In the console, we can verify that the values are stored (in the case of AWS, in the SSM Parameter Store)
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/aws-cosole-push.png" width="80%" alt="AWS Service Console" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Service Console" />
 
 ```bash
 # Verify that they got pushed in AWS console for System Store > Parameters
@@ -130,11 +130,11 @@ enveloper clear --domain dev --project Enveloper --service aws
 | **Local Keychain** | MacOS Keychain, Linux Secret Service, Windows Credential Locker |
 | **File** | Plain `.env` files |
 | **AWS SSM** | AWS Systems Manager Parameter Store |
-| **GitHub** | GitHub Actions secrets |
 | **Vault** | HashiCorp Vault KV v2 |
 | **GCP** | Google Cloud Secret Manager |
 | **Azure** | Azure Key Vault |
-| **Alibaba** | Alibaba Cloud KMS Secrets Manager |
+| **Alibaba** | Alibaba Cloud KMS Secrets Manager (untested) |
+| **GitHub** | GitHub Actions secrets (coming soon) |
 
 ## Documentation
 
