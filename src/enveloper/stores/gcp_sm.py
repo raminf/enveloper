@@ -68,7 +68,7 @@ def _gcloud_resolve_name(display_name: str) -> str | None:
 def _resolve_name_via_api(display_name: str) -> str | None:
     """Resolve a GCP project display name to project_id via Resource Manager API."""
     try:
-        from google.cloud import resourcemanager_v3  # type: ignore[import-untyped]
+        from google.cloud import resourcemanager_v3  # type: ignore[import-untyped,attr-defined]
         client = resourcemanager_v3.ProjectsClient()
         for proj in client.search_projects(query=f"displayName={display_name}"):
             if proj.display_name == display_name:
@@ -76,7 +76,7 @@ def _resolve_name_via_api(display_name: str) -> str | None:
     except Exception:
         pass
     try:
-        from google.cloud import resourcemanager  # type: ignore[import-untyped]
+        from google.cloud import resourcemanager  # type: ignore[import-untyped,attr-defined]
         client = resourcemanager.ProjectsClient()
         for proj in client.list_projects():
             if proj.display_name == display_name or proj.project_id == display_name:
@@ -148,7 +148,6 @@ def _sanitize_secret_id(key: str) -> str:
 def _get_client() -> Any:
     try:
         from google.cloud import secretmanager  # type: ignore[import-untyped]
-        from google.api_core.exceptions import NotFound  # type: ignore[import-untyped]
     except ModuleNotFoundError:
         raise RuntimeError(_MISSING_GCP) from None
     return secretmanager.SecretManagerServiceClient()
@@ -199,7 +198,7 @@ class GcpSmStore(SecretStore):
                 "GCP project_id cannot be '_default_'. Please provide a valid GCP project ID "
                 "(e.g., 'my-project' or 'projects/my-project')."
             )
-        
+
         if not _GCP_PROJECT_ID_RE.match(project_id) and not _GCP_PROJECT_NUMBER_RE.match(project_id):
             raise ValueError(
                 f"Invalid GCP project_id '{project_id}'. "
@@ -208,7 +207,7 @@ class GcpSmStore(SecretStore):
                 "You can also use a numeric project number, or set a display name "
                 "in .enveloper.toml which will be resolved automatically."
             )
-        
+
         self._project_id = project_id
         self._path_prefix = prefix
         self._domain = domain
@@ -346,19 +345,22 @@ class GcpSmStore(SecretStore):
 
     def list_keys(self) -> list[str]:
         """Return keys (sanitized full composite or secret_id) so get(key) works."""
-        prefix_full = f"projects/{self._project_id}/secrets/"
         filter_prefix = _sanitize_secret_id(self._path_prefix.rstrip("-"))
         keys: list[str] = []
         for secret in self.client.list_secrets(
             request={"parent": f"projects/{self._project_id}"}
         ):
+            # GCP returns resource names using the numeric project number
+            # (e.g. projects/123456/secrets/...) which may differ from the
+            # project ID string, so extract secret_id by splitting on "/".
             name = getattr(secret, "name", "") or ""
-            if name.startswith(prefix_full):
-                secret_id = name.split("/")[-1]
-                if filter_prefix and secret_id.startswith(filter_prefix):
-                    keys.append(secret_id)
-                elif not filter_prefix and secret_id.startswith("envr"):
-                    keys.append(secret_id)
+            secret_id = name.rsplit("/", 1)[-1] if "/" in name else name
+            if not secret_id:
+                continue
+            if filter_prefix and secret_id.startswith(filter_prefix):
+                keys.append(secret_id)
+            elif not filter_prefix and secret_id.startswith("envr"):
+                keys.append(secret_id)
         return sorted(set(keys))
 
     @classmethod
@@ -372,19 +374,20 @@ class GcpSmStore(SecretStore):
         **kwargs: object,
     ) -> "GcpSmStore":
         """Create a GCP store from configuration, resolving project names to IDs.
-        
+
         If the project is a human-friendly name (not a valid project ID),
         this method attempts to resolve it to a project ID using the GCP API.
         """
         # Get project_id from kwargs if provided, otherwise use project
         project_id = kwargs.get("project_id", project)
-        
+        project_id_str = project if project_id is None else str(project_id)
+
         # Resolve project name to project ID if needed
-        resolved_project_id = cls.resolve_project_name(project_id)
-        
+        resolved_project_id = cls.resolve_project_name(project_id_str)
+
         # Update kwargs with resolved project_id
         kwargs["project_id"] = resolved_project_id
-        
+
         # Call parent from_config to create the store
         return super().from_config(
             domain=domain,

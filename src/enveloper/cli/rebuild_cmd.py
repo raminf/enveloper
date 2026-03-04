@@ -25,7 +25,8 @@ def rebuild(ctx: click.Context) -> None:
         return
 
     store = _get_broad_store(ctx)
-    result = store.rebuild_registry()
+    with console.status(f"Rebuilding registry on [bold]{service}[/bold]…", spinner="circle"):
+        result = store.rebuild_registry()
 
     if not result:
         console.print(f"[yellow]No enveloper secrets found for service '{service}'.[/yellow]")

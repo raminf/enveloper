@@ -3,7 +3,8 @@
 
 """.enveloper.toml configuration loading.
 
-Searches upward from cwd for ``.enveloper.toml`` and merges with CLI flags.
+If ``~/.enveloper`` exists, loads ``~/.enveloper/.enveloper.toml``.
+Otherwise searches upward from cwd for ``.enveloper.toml``.
 """
 
 from __future__ import annotations
@@ -54,8 +55,18 @@ class EnveloperConfig:
         return prefix
 
 
+def _user_enveloper_dir() -> Path:
+    """Return ~/.enveloper (expanded)."""
+    return Path.home() / ".enveloper"
+
+
 def find_config_file(start: Path | None = None) -> Path | None:
-    """Walk upward from *start* (default cwd) looking for ``.enveloper.toml``."""
+    """Find config file: ~/.enveloper/.enveloper.toml if ~/.enveloper exists, else walk upward from cwd."""
+    user_dir = _user_enveloper_dir()
+    if user_dir.is_dir():
+        candidate = user_dir / ".enveloper.toml"
+        if candidate.is_file():
+            return candidate
     cur = (start or Path.cwd()).resolve()
     while True:
         candidate = cur / ".enveloper.toml"

@@ -64,20 +64,21 @@ def push(
     domain = ctx.obj["domain_resolved"]
 
     count = 0
-    for key in keys:
-        val = source.get(key)
-        if val is not None:
-            name = key_to_export_name(source, key)
-            if isinstance(target, GitHubStore):
-                target.set_with_tracking(name, val)
-                if ctx.obj["verbose"]:
-                    console.print(f"  {name}")
-            else:
-                target_key = target.build_key(name=name, domain=domain, project=project, version=source_version)
-                target.set_with_tracking(target_key, val)
-                if ctx.obj["verbose"]:
-                    console.print(f"  {target_key}")
-            count += 1
+    with console.status(f"Pushing to [bold]{cloud_store}[/bold]…", spinner="circle"):
+        for key in keys:
+            val = source.get(key)
+            if val is not None:
+                name = key_to_export_name(source, key)
+                if isinstance(target, GitHubStore):
+                    target.set_with_tracking(name, val)
+                    if ctx.obj["verbose"]:
+                        console.print(f"  {name}")
+                else:
+                    target_key = target.build_key(name=name, domain=domain, project=project, version=source_version)
+                    target.set_with_tracking(target_key, val)
+                    if ctx.obj["verbose"]:
+                        console.print(f"  {target_key}")
+                count += 1
 
     console.print(f"[green]Pushed {count} secret(s) to {cloud_store}[/green]")
 
@@ -121,13 +122,14 @@ def pull(
     finally:
         ctx.obj["service"] = orig_service
     count = 0
-    for key in keys:
-        val = source.get(key)
-        if val is not None:
-            local_key = key_to_export_name(source, key)
-            target.set_with_tracking(local_key, val)
-            count += 1
-            if ctx.obj["verbose"]:
-                console.print(f"  {local_key}")
+    with console.status(f"Pulling from [bold]{cloud_store}[/bold]…", spinner="circle"):
+        for key in keys:
+            val = source.get(key)
+            if val is not None:
+                local_key = key_to_export_name(source, key)
+                target.set_with_tracking(local_key, val)
+                count += 1
+                if ctx.obj["verbose"]:
+                    console.print(f"  {local_key}")
 
     console.print(f"[green]Pulled {count} secret(s) from {cloud_store}[/green]")

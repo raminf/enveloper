@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_VERSION
@@ -64,6 +65,7 @@ def make_cloud_store(
         # GCP project_id is the Google Cloud project, NOT the enveloper --project namespace.
         # The configured value may be a project ID *or* a human-friendly display name
         # (the "Project name" shown in the GCP console). resolve_gcp_project_id handles both.
+        gcp_project_id: str | None
         if cfg.gcp_project:
             gcp_project_id = resolve_gcp_project_id(cfg.gcp_project)
         else:
@@ -79,8 +81,16 @@ def make_cloud_store(
             )
         kwargs["project_id"] = gcp_project_id
     elif store_name == "azure":
-        if cfg.azure_vault_url is not None:
-            kwargs["vault_url"] = cfg.azure_vault_url
+        vault_url = cfg.azure_vault_url or os.environ.get("ENVELOPER_AZURE_VAULT_URL", "").strip()
+        if vault_url:
+            kwargs["vault_url"] = vault_url
+        else:
+            raise ValueError(
+                "Azure Key Vault URL is required but could not be determined.\n"
+                "Set one of:\n"
+                "  - ENVELOPER_AZURE_VAULT_URL env var (e.g. https://my-vault.vault.azure.net/)\n"
+                "  - [enveloper.azure] vault_url = \"...\" in .enveloper.toml"
+            )
     elif store_name == "aliyun":
         if cfg.aliyun_region_id is not None:
             kwargs["region_id"] = cfg.aliyun_region_id

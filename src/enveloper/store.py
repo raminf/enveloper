@@ -144,11 +144,13 @@ class SecretStore(ABC):
     # Metadata registry (domain/project tracking via compressed keys)
     # ------------------------------------------------------------------
 
-    _META_DOMAINS_KEY = "_envr_meta_domains_"
+    def _get_meta_domains_key(self) -> str:
+        """Return the metadata key for the list of domains. Override in subclasses for service-specific naming."""
+        return "_envr_meta_domains_"
 
-    @classmethod
-    def _meta_projects_key(cls, domain: str) -> str:
-        safe = cls.sanitize_key_segment(domain)
+    def _get_meta_projects_key(self, domain: str) -> str:
+        """Return the metadata key for the list of projects in a domain. Override in subclasses for service-specific naming."""
+        safe = self.sanitize_key_segment(domain)
         return f"_envr_meta_dom_{safe}_projects_"
 
     @staticmethod
@@ -184,39 +186,41 @@ class SecretStore(ABC):
         self._raw_set(meta_key, self._compress(json.dumps(sorted(set(items)))))
 
     def register_domain(self, domain: str) -> None:
-        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        meta_key = self._get_meta_domains_key()
+        domains = self._read_meta_list(meta_key)
         if domain not in domains:
             domains.append(domain)
-            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+            self._write_meta_list(meta_key, domains)
 
     def unregister_domain(self, domain: str) -> None:
-        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        meta_key = self._get_meta_domains_key()
+        domains = self._read_meta_list(meta_key)
         if domain not in domains:
             return
         domains = [d for d in domains if d != domain]
         if domains:
-            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+            self._write_meta_list(meta_key, domains)
         else:
-            self._raw_delete(self._META_DOMAINS_KEY)
-        self._raw_delete(self._meta_projects_key(domain))
+            self._raw_delete(meta_key)
+        self._raw_delete(self._get_meta_projects_key(domain))
 
     def register_project(self, domain: str, project: str) -> None:
-        key = self._meta_projects_key(domain)
+        key = self._get_meta_projects_key(domain)
         projects = self._read_meta_list(key)
         if project not in projects:
             projects.append(project)
             self._write_meta_list(key, projects)
 
     def unregister_project(self, domain: str, project: str) -> None:
-        key = self._meta_projects_key(domain)
-        projects = self._read_meta_list(key)
+        meta_key = self._get_meta_projects_key(domain)
+        projects = self._read_meta_list(meta_key)
         if project not in projects:
             return
         projects = [p for p in projects if p != project]
         if projects:
-            self._write_meta_list(key, projects)
+            self._write_meta_list(meta_key, projects)
         else:
-            self._raw_delete(key)
+            self._raw_delete(meta_key)
             self.unregister_domain(domain)
 
     def set_with_tracking(self, key: str, value: str) -> None:
@@ -244,7 +248,8 @@ class SecretStore(ABC):
 
     def list_domains(self) -> list[str]:
         """Return domain names. Reads metadata registry first, falls back to key scan."""
-        cached = self._read_meta_list(self._META_DOMAINS_KEY)
+        meta_key = self._get_meta_domains_key()
+        cached = self._read_meta_list(meta_key)
         if cached:
             return sorted(cached)
         domains = set()
@@ -254,12 +259,13 @@ class SecretStore(ABC):
                 domains.add(parsed["domain"])
         result = sorted(domains)
         if result:
-            self._write_meta_list(self._META_DOMAINS_KEY, result)
+            self._write_meta_list(meta_key, result)
         return result
 
     def list_projects(self, domain: str) -> list[str]:
         """Return project names for a domain. Reads metadata first, falls back to key scan."""
-        cached = self._read_meta_list(self._meta_projects_key(domain))
+        meta_key = self._get_meta_projects_key(domain)
+        cached = self._read_meta_list(meta_key)
         if cached:
             return sorted(cached)
         projects = set()
@@ -269,7 +275,7 @@ class SecretStore(ABC):
                 projects.add(parsed["project"])
         result = sorted(projects)
         if result:
-            self._write_meta_list(self._meta_projects_key(domain), result)
+            self._write_meta_list(meta_key, result)
         return result
 
     def rebuild_registry(self) -> dict[str, list[str]]:
@@ -289,25 +295,27 @@ class SecretStore(ABC):
                         domain_projects[d].add(p)
         result: dict[str, list[str]] = {}
         domains = sorted(domain_projects.keys())
+        meta_domains_key = self._get_meta_domains_key()
         if domains:
-            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+            self._write_meta_list(meta_domains_key, domains)
         for d in domains:
             projects = sorted(domain_projects[d])
             if projects:
-                self._write_meta_list(self._meta_projects_key(d), projects)
+                self._write_meta_list(self._get_meta_projects_key(d), projects)
             result[d] = projects
         return result
 
     def clear_metadata(self) -> None:
         """Delete all metadata registry keys."""
-        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        meta_domains_key = self._get_meta_domains_key()
+        domains = self._read_meta_list(meta_domains_key)
         for d in domains:
             try:
-                self._raw_delete(self._meta_projects_key(d))
+                self._raw_delete(self._get_meta_projects_key(d))
             except Exception:
                 pass
         try:
-            self._raw_delete(self._META_DOMAINS_KEY)
+            self._raw_delete(meta_domains_key)
         except Exception:
             pass
 

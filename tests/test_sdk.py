@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 
+import pytest
+
 from enveloper import dotenv_values, load_dotenv
 
 
@@ -403,6 +405,126 @@ def test_load_dotenv_service_aws_readonly(mock_keyring, sample_env):
             os.environ.pop(key, None)
 
 
+def test_load_dotenv_service_gcp_readonly(mock_keyring, sample_env):
+    """load_dotenv(service='gcp') reads from cloud and sets env vars to correct values."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    CliRunner().invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    cfg = load_config()
+    store = get_store("gcp", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
+        store.set(full_key, value)
+
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+        os.environ.pop(key, None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="gcp")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    finally:
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+            os.environ.pop(key, None)
+
+
+def test_load_dotenv_service_azure_readonly(mock_keyring, sample_env):
+    """load_dotenv(service='azure') reads from cloud and sets env vars to correct values."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    CliRunner().invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    cfg = load_config()
+    store = get_store("azure", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
+        store.set(full_key, value)
+
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+        os.environ.pop(key, None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="azure")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    finally:
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+            os.environ.pop(key, None)
+
+
+def test_load_dotenv_service_vault_readonly(mock_keyring, sample_env):
+    """load_dotenv(service='vault') reads from cloud and sets env vars to correct values."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    CliRunner().invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    cfg = load_config()
+    store = get_store("vault", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
+        store.set(full_key, value)
+
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+        os.environ.pop(key, None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="vault")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    finally:
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+            os.environ.pop(key, None)
+
+
+def test_load_dotenv_service_aliyun_readonly(mock_keyring, sample_env):
+    """load_dotenv(service='aliyun') reads from cloud and sets env vars to correct values."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    CliRunner().invoke(cli, ["--project", "test", "-d", "aws", "import", str(sample_env)])
+    cfg = load_config()
+    store = get_store("aliyun", project="test", domain="aws", config=cfg)
+    for key, value in [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+    ]:
+        full_key = store.build_key(name=key, domain="aws", project="test", version="1.0.0")
+        store.set(full_key, value)
+
+    for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+        os.environ.pop(key, None)
+    try:
+        result = load_dotenv(project="test", domain="aws", service="aliyun")
+        assert result is True
+        assert os.environ.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        assert os.environ.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    finally:
+        for key in ("TWILIO_API_SID", "TWILIO_AUTH_TOKEN"):
+            os.environ.pop(key, None)
+
+
 def test_dotenv_values_service_cloud_empty(mock_keyring):
     """dotenv_values for cloud service with no secrets returns empty dict."""
     data = dotenv_values(project="empty_xyz", domain="empty", service="aws")
@@ -413,6 +535,83 @@ def test_load_dotenv_service_cloud_empty(mock_keyring):
     """load_dotenv for cloud service with no secrets returns False."""
     result = load_dotenv(project="empty_xyz", domain="empty", service="aws")
     assert result is False
+
+
+@pytest.mark.parametrize("service", ["local", "file", "aws", "gcp", "azure", "vault", "aliyun"])
+def test_dotenv_values_returns_correct_values_for_each_service(
+    service: str, mock_keyring, tmp_path
+):
+    """For each service, seed known key/values and assert dotenv_values returns exact values."""
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    expected = {"SDK_A": "val1", "SDK_B": "value_with_equals=here", "SDK_EMPTY": ""}
+    project, domain = "sdk_p", "sdk_d"
+
+    if service == "file":
+        env_file = tmp_path / "sdk_vals.env"
+        env_file.write_text("SDK_A=val1\nSDK_B=value_with_equals=here\nSDK_EMPTY=\n")
+        data = dotenv_values(service="file", path=str(env_file))
+    elif service == "local":
+        env_file = tmp_path / "local_sdk.env"
+        env_file.write_text("SDK_A=val1\nSDK_B=value_with_equals=here\nSDK_EMPTY=\n")
+        from click.testing import CliRunner
+
+        from enveloper.cli import cli
+        CliRunner().invoke(cli, ["--project", project, "-d", domain, "import", str(env_file)])
+        data = dotenv_values(project=project, domain=domain, service="local")
+    else:
+        cfg = load_config()
+        store = get_store(service, project=project, domain=domain, config=cfg)
+        for k, v in expected.items():
+            full_key = store.build_key(name=k, domain=domain, project=project, version="1.0.0")
+            store.set(full_key, v)
+        data = dotenv_values(project=project, domain=domain, service=service)
+
+    assert data.get("SDK_A") == "val1"
+    assert data.get("SDK_B") == "value_with_equals=here"
+    assert data.get("SDK_EMPTY") == ""
+
+
+def test_dotenv_values_local_and_keychain_return_full_sample_values(mock_keyring, sample_env):
+    """dotenv_values(service='local') returns all imported keychain values correctly."""
+    from click.testing import CliRunner
+
+    from enveloper.cli import cli
+
+    CliRunner().invoke(cli, ["--project", "test", "-d", "sdk_domain", "import", str(sample_env)])
+    data = dotenv_values(project="test", domain="sdk_domain", service="local")
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    assert data.get("SINGLE_QUOTED") == "hello world"
+    assert data.get("EQUALS_IN_VALUE") == "postgres://user:pass@host/db?opt=1"
+    assert data.get("EMPTY_VALUE") == ""
+
+
+def test_dotenv_values_cloud_returns_full_sample_values(mock_keyring, sample_env):
+    """dotenv_values(service='gcp') returns all seeded cloud values correctly."""
+    from enveloper.config import load_config
+    from enveloper.resolve_store import get_store
+
+    cfg = load_config()
+    store = get_store("gcp", project="test", domain="sdk_d", config=cfg)
+    pairs = [
+        ("TWILIO_API_SID", "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"),
+        ("TWILIO_AUTH_TOKEN", "my secret token"),
+        ("SINGLE_QUOTED", "hello world"),
+        ("EQUALS_IN_VALUE", "postgres://user:pass@host/db?opt=1"),
+        ("EMPTY_VALUE", ""),
+    ]
+    for key, value in pairs:
+        full_key = store.build_key(name=key, domain="sdk_d", project="test", version="1.0.0")
+        store.set(full_key, value)
+
+    data = dotenv_values(project="test", domain="sdk_d", service="gcp")
+    assert data.get("TWILIO_API_SID") == "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    assert data.get("TWILIO_AUTH_TOKEN") == "my secret token"
+    assert data.get("SINGLE_QUOTED") == "hello world"
+    assert data.get("EQUALS_IN_VALUE") == "postgres://user:pass@host/db?opt=1"
+    assert data.get("EMPTY_VALUE") == ""
 
 
 # ---------------------------------------------------------------------------

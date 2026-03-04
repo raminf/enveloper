@@ -1,0 +1,6 @@
+# Minimal sample config (local keychain only).
+# Copy to ~/.enveloper/.enveloper.toml or to your project root as .enveloper.toml.
+
+[enveloper]
+project = "myapp"
+service = "local"

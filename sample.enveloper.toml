@@ -1,0 +1,40 @@
+# Sample enveloper config (all services).
+# Copy to ~/.enveloper/.enveloper.toml or to your project root as .enveloper.toml.
+# Use only the sections you need.
+
+[enveloper]
+project = "myapp"
+service = "local"
+
+# Optional: per-domain settings (e.g. for AWS SSM prefix)
+[enveloper.domains.aws]
+env_file = "/path/to/.env"
+ssm_prefix = "/myapp/dev/"
+
+# AWS Systems Manager Parameter Store
+[enveloper.aws]
+profile = "default"
+region = "us-west-2"
+
+# HashiCorp Vault KV v2
+[enveloper.vault]
+url = "http://127.0.0.1:8200"
+mount = "secret"
+
+# Google Cloud Secret Manager
+[enveloper.gcp]
+project = "my-gcp-project"
+
+# Azure Key Vault
+[enveloper.azure]
+vault_url = "https://my-vault.vault.azure.net/"
+
+# GitHub (repo passed via CLI: --repo owner/repo)
+[enveloper.github]
+prefix = ""
+
+# Alibaba Cloud KMS Secrets Manager
+[enveloper.aliyun]
+region_id = "cn-hangzhou"
+access_key_id = ""
+access_key_secret = ""

@@ -60,7 +60,7 @@ def test_compress_empty_list():
 def test_register_domain_creates_metadata():
     s = InMemoryStore()
     s.register_domain("dev")
-    raw = s._raw_get(s._META_DOMAINS_KEY)
+    raw = s._raw_get(s._get_meta_domains_key())
     assert raw is not None
     domains = json.loads(s._decompress(raw))
     assert "dev" in domains
@@ -70,7 +70,7 @@ def test_register_domain_idempotent():
     s = InMemoryStore()
     s.register_domain("dev")
     s.register_domain("dev")
-    domains = s._read_meta_list(s._META_DOMAINS_KEY)
+    domains = s._read_meta_list(s._get_meta_domains_key())
     assert domains.count("dev") == 1
 
 
@@ -79,7 +79,7 @@ def test_unregister_domain_removes():
     s.register_domain("dev")
     s.register_domain("staging")
     s.unregister_domain("dev")
-    domains = s._read_meta_list(s._META_DOMAINS_KEY)
+    domains = s._read_meta_list(s._get_meta_domains_key())
     assert "dev" not in domains
     assert "staging" in domains
 
@@ -88,7 +88,7 @@ def test_unregister_last_domain_deletes_key():
     s = InMemoryStore()
     s.register_domain("dev")
     s.unregister_domain("dev")
-    assert s._raw_get(s._META_DOMAINS_KEY) is None
+    assert s._raw_get(s._get_meta_domains_key()) is None
 
 
 def test_unregister_domain_also_removes_projects_key():
@@ -96,7 +96,7 @@ def test_unregister_domain_also_removes_projects_key():
     s.register_domain("dev")
     s.register_project("dev", "MyProject")
     s.unregister_domain("dev")
-    assert s._raw_get(s._meta_projects_key("dev")) is None
+    assert s._raw_get(s._get_meta_projects_key("dev")) is None
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ def test_unregister_domain_also_removes_projects_key():
 def test_register_project_creates_metadata():
     s = InMemoryStore()
     s.register_project("dev", "Proj1")
-    projects = s._read_meta_list(s._meta_projects_key("dev"))
+    projects = s._read_meta_list(s._get_meta_projects_key("dev"))
     assert "Proj1" in projects
 
 
@@ -114,7 +114,7 @@ def test_register_project_idempotent():
     s = InMemoryStore()
     s.register_project("dev", "Proj1")
     s.register_project("dev", "Proj1")
-    projects = s._read_meta_list(s._meta_projects_key("dev"))
+    projects = s._read_meta_list(s._get_meta_projects_key("dev"))
     assert projects.count("Proj1") == 1
 
 
@@ -123,7 +123,7 @@ def test_unregister_project_removes():
     s.register_project("dev", "Proj1")
     s.register_project("dev", "Proj2")
     s.unregister_project("dev", "Proj1")
-    projects = s._read_meta_list(s._meta_projects_key("dev"))
+    projects = s._read_meta_list(s._get_meta_projects_key("dev"))
     assert "Proj1" not in projects
     assert "Proj2" in projects
 
@@ -133,8 +133,8 @@ def test_unregister_last_project_also_removes_domain():
     s.register_domain("dev")
     s.register_project("dev", "only")
     s.unregister_project("dev", "only")
-    assert s._raw_get(s._meta_projects_key("dev")) is None
-    domains = s._read_meta_list(s._META_DOMAINS_KEY)
+    assert s._raw_get(s._get_meta_projects_key("dev")) is None
+    domains = s._read_meta_list(s._get_meta_domains_key())
     assert "dev" not in domains
 
 
@@ -147,8 +147,8 @@ def test_set_with_tracking_registers_domain_and_project():
     key = s.build_key("API_KEY", "dev", "WebApp")
     s.set_with_tracking(key, "secret123")
     assert s.get(key) == "secret123"
-    assert "dev" in s._read_meta_list(s._META_DOMAINS_KEY)
-    assert "WebApp" in s._read_meta_list(s._meta_projects_key("dev"))
+    assert "dev" in s._read_meta_list(s._get_meta_domains_key())
+    assert "WebApp" in s._read_meta_list(s._get_meta_projects_key("dev"))
 
 
 def test_delete_with_tracking_unregisters_empty_project():
@@ -157,7 +157,7 @@ def test_delete_with_tracking_unregisters_empty_project():
     s.set_with_tracking(key, "val")
     s.delete_with_tracking(key)
     assert s.get(key) is None
-    projects = s._read_meta_list(s._meta_projects_key("dev"))
+    projects = s._read_meta_list(s._get_meta_projects_key("dev"))
     assert "WebApp" not in projects
 
 
@@ -168,7 +168,7 @@ def test_delete_with_tracking_keeps_project_if_keys_remain():
     s.set_with_tracking(k1, "v1")
     s.set_with_tracking(k2, "v2")
     s.delete_with_tracking(k1)
-    projects = s._read_meta_list(s._meta_projects_key("dev"))
+    projects = s._read_meta_list(s._get_meta_projects_key("dev"))
     assert "WebApp" in projects
 
 
@@ -245,9 +245,9 @@ def test_clear_metadata_removes_all():
     s.register_project("dev", "P1")
     s.register_project("prod", "P2")
     s.clear_metadata()
-    assert s._raw_get(s._META_DOMAINS_KEY) is None
-    assert s._raw_get(s._meta_projects_key("dev")) is None
-    assert s._raw_get(s._meta_projects_key("prod")) is None
+    assert s._raw_get(s._get_meta_domains_key()) is None
+    assert s._raw_get(s._get_meta_projects_key("dev")) is None
+    assert s._raw_get(s._get_meta_projects_key("prod")) is None
 
 
 def test_clear_metadata_on_empty_store():
@@ -260,5 +260,18 @@ def test_clear_metadata_on_empty_store():
 # ---------------------------------------------------------------------------
 
 def test_meta_projects_key_format():
-    assert SecretStore._meta_projects_key("dev") == "_envr_meta_dom_dev_projects_"
-    assert SecretStore._meta_projects_key("staging") == "_envr_meta_dom_staging_projects_"
+    """Default metadata key format uses underscore-wrapped names."""
+    s = InMemoryStore()
+    assert s._get_meta_domains_key() == "_envr_meta_domains_"
+    assert s._get_meta_projects_key("dev") == "_envr_meta_dom_dev_projects_"
+    assert s._get_meta_projects_key("staging") == "_envr_meta_dom_staging_projects_"
+
+
+def test_azure_meta_key_names():
+    """Azure overrides metadata keys to use hyphenated names (Key Vault allows only [a-zA-Z0-9-])."""
+    from enveloper.stores.azure_kv import AzureKvStore
+
+    store = AzureKvStore(vault_url="https://test.vault.azure.net/")
+    assert store._get_meta_domains_key() == "envr-meta-domains"
+    assert store._get_meta_projects_key("dev") == "envr-meta-dom-dev-projects"
+    assert store._get_meta_projects_key("my_domain") == "envr-meta-dom-my-domain-projects"

@@ -10,6 +10,38 @@ import click
 from enveloper.cli import KeychainStore, _get_broad_store, _get_keychain, _get_store, cli, common_options, console
 
 
+def _confirm_clear_scope(domain: str, project: str, service: str) -> bool:
+    """Print a short, colored scope line and confirm. Returns True to proceed."""
+    if service == "local":
+        console.print(
+            "Clear  [dim]domain[/] [cyan]{domain}[/]  [dim]·[/]  [dim]project[/] [yellow]{project}[/]?"
+            .format(domain=domain, project=project)
+        )
+    else:
+        console.print(
+            "Clear  [dim]domain[/] [cyan]{domain}[/]  [dim]·[/]  [dim]project[/] [yellow]{project}[/]  "
+            "[dim]·[/]  [dim]service[/] [magenta]{service}[/]?".format(
+                domain=domain, project=project, service=service
+            )
+        )
+    return click.confirm("Proceed?", default=False)
+
+
+def _confirm_clear_all(service: str) -> bool:
+    """Print short, colored message and confirm. Returns True to proceed."""
+    if service == "local":
+        console.print("[bold]Clear ALL secrets[/] (every domain & project, local keychain).")
+    else:
+        console.print(
+            "[bold]Clear ALL secrets[/] (every domain & project)  "
+            "[dim]·[/]  [dim]service[/] [magenta]{0}[/].".format(service)
+        )
+    if not click.confirm("Proceed?", default=False):
+        return False
+    console.print("[dim]This cannot be undone.[/]")
+    return click.confirm("Really sure?", default=False)
+
+
 @cli.command()
 @click.option(
     "--quiet", "-q",
@@ -29,12 +61,8 @@ def clear(ctx: click.Context, quiet: bool, clear_all: bool) -> None:
     project = ctx.obj.get("project", "_default_")
 
     if clear_all:
-        if not quiet:
-            svc_label = f" on service '{service}'" if service != "local" else ""
-            if not click.confirm(f"This will delete ALL secrets across every project and domain{svc_label}. Are you sure?"):
-                raise click.Abort()
-            if not click.confirm("This cannot be undone. Are you REALLY sure?"):
-                raise click.Abort()
+        if not quiet and not _confirm_clear_all(service):
+            raise click.Abort()
 
         if service == "local":
             for proj in KeychainStore.list_all_projects() or ["_default_"]:
@@ -44,18 +72,18 @@ def clear(ctx: click.Context, quiet: bool, clear_all: bool) -> None:
                 KeychainStore.unregister_global_project(proj)
         else:
             store = _get_broad_store(ctx)
-            store.clear()
-            store.clear_metadata()
+            if quiet:
+                store.clear()
+                store.clear_metadata()
+            else:
+                with console.status(f"Clearing all secrets on [bold]{service}[/bold]…", spinner="circle"):
+                    store.clear()
+                    store.clear_metadata()
         console.print(f"[green]Cleared ALL secrets for every project and domain ({service})[/green]")
         return
 
-    if not quiet:
-        prompt = f"Clear all secrets for domain '{domain}', project '{project}'"
-        if service != "local":
-            prompt += f", service '{service}'"
-        prompt += "?"
-        if not click.confirm(prompt):
-            raise click.Abort()
+    if not quiet and not _confirm_clear_scope(domain, project, service):
+        raise click.Abort()
 
     if service == "local":
         store = _get_keychain(project, domain)
@@ -64,7 +92,12 @@ def clear(ctx: click.Context, quiet: bool, clear_all: bool) -> None:
             KeychainStore.unregister_global_project(project)
     else:
         store_to_clear = _get_store(ctx)
-        store_to_clear.clear()
-        store_to_clear.clear_metadata()
+        if quiet:
+            store_to_clear.clear()
+            store_to_clear.clear_metadata()
+        else:
+            with console.status(f"Clearing secrets on [bold]{service}[/bold]…", spinner="circle"):
+                store_to_clear.clear()
+                store_to_clear.clear_metadata()
 
     console.print(f"[green]Cleared secrets for domain '{domain}', project '{project}'[/green]")

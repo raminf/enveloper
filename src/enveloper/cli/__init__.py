@@ -106,11 +106,22 @@ def _make_cloud_store(
         raise click.UsageError(str(e))
 
 
+def _get_metadata_store(ctx: click.Context) -> SecretStore:
+    """Return a cloud store scoped to _default_/_default_ for reading metadata only.
+
+    Used by ``list domain`` and ``list project``; they read domain/project lists from
+    metadata keys, so no need for a broad prefix or full key scan.
+    """
+    service = ctx.obj.get("service", "local")
+    cfg = ctx.obj["config"]
+    env_name = ctx.obj["env_name"]
+    return _make_cloud_store(service, cfg, "_default_", "_default_", env_name)
+
+
 def _get_broad_store(ctx: click.Context) -> SecretStore:
     """Return a cloud store with a broad prefix so list_keys() returns ALL enveloper secrets.
 
-    Used by ``list domain`` and ``list project`` to discover across all
-    domain/project combinations rather than just the currently-scoped one.
+    Used by ``clear --all`` and ``rebuild``, which must list/delete every key.
     """
     from enveloper.stores import get_store_class
 

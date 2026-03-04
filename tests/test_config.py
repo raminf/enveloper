@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from enveloper.config import EnveloperConfig, load_config
+from enveloper.config import EnveloperConfig, find_config_file, load_config
 
 
 def test_load_config_invalid_toml_syntax(tmp_path):
@@ -62,6 +64,49 @@ def test_load_config_defaults():
     assert cfg.github_prefix == ""
     assert cfg.vault_url is None
     assert cfg.vault_mount == "secret"
+
+
+def test_find_config_file_prefers_user_enveloper_dir(monkeypatch, tmp_path):
+    """When ~/.enveloper exists and contains .enveloper.toml, it is preferred over cwd."""
+    home = tmp_path / "home"
+    home.mkdir()
+    user_dir = home / ".enveloper"
+    user_dir.mkdir()
+    user_config = user_dir / ".enveloper.toml"
+    user_config.write_text('[enveloper]\nproject = "from-home"\n')
+    monkeypatch.setattr(Path, "home", lambda: home)
+
+    # cwd has a config too
+    cwd = tmp_path / "project"
+    cwd.mkdir()
+    cwd_config = cwd / ".enveloper.toml"
+    cwd_config.write_text('[enveloper]\nproject = "from-cwd"\n')
+    monkeypatch.chdir(cwd)
+
+    found = find_config_file()
+    assert found is not None
+    assert found == user_config
+    cfg = load_config()
+    assert cfg.project == "from-home"
+
+
+def test_find_config_file_falls_back_to_cwd_when_user_dir_missing(monkeypatch, tmp_path):
+    """When ~/.enveloper does not exist, search upward from cwd."""
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setattr(Path, "home", lambda: home)
+    # no ~/.enveloper
+
+    cwd = tmp_path / "project"
+    cwd.mkdir()
+    cwd_config = cwd / ".enveloper.toml"
+    cwd_config.write_text('[enveloper]\nproject = "from-cwd"\n')
+    monkeypatch.chdir(cwd)
+
+    found = find_config_file()
+    assert found == cwd_config
+    cfg = load_config()
+    assert cfg.project == "from-cwd"
 
 
 def test_load_config_service(tmp_path):

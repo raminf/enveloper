@@ -111,6 +111,7 @@ enveloper --domain dev clear
 - [Technical Details](technical-details.md) - Architecture and internals
 - [Local Keychain](local-keychain.md) - OS keychain setup and usage
 - [Cloud Storage](cloud-storage.md) - Cloud service configuration
+- [Cloud Setup Guide](cloud-setup-guide.md) - Azure, GCP, and AWS setup (credentials, IAM/RBAC, testing)
 - [Versioning](versioning.md) - Semantic versioning for secrets
 - [JSON/YAML](json-yaml.md) - Import/export in JSON and YAML formats
 - [SDK](sdk.md) - Python SDK for `load_dotenv` / `dotenv_values`

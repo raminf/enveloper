@@ -71,6 +71,7 @@ nav:
   - Backends:
     - Local Keychain: local-keychain.md
     - Cloud Storage: cloud-storage.md
+    - Cloud Setup Guide (Azure, GCP, AWS): cloud-setup-guide.md
     - Service Backend: service-backend.md
   - Configuration:
     - Project Config: project-config.md

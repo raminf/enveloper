@@ -2,19 +2,37 @@
 
 ## Overview
 
-The `.enveloper.toml` file in your project root allows you to define default values for project, domain, and service settings. This eliminates the need to pass these values on the command line every time.
+The `.enveloper.toml` file allows you to define default values for project, domain, service, and cloud backend settings. This eliminates the need to pass these values on the command line every time.
 
 ## File Location
 
-Place `.enveloper.toml` in your project root directory:
+Config is loaded in this order:
+
+1. **`~/.enveloper/.enveloper.toml`** — If the directory `~/.enveloper` exists and contains `.enveloper.toml`, that file is used (good for a single global config).
+2. **Current directory and parents** — Otherwise, enveloper searches **upward from the current working directory** for `.enveloper.toml` (e.g. in your project root).
 
 ```
+# Option A: global config
+~/.enveloper/
+└── .enveloper.toml
+
+# Option B: per-project config
 myproject/
 ├── .enveloper.toml
 ├── src/
-├── tests/
 └── README.md
 ```
+
+When you run `enveloper` from `myproject/` or any subdirectory, the resolved config is used. If no file is found, defaults apply and you can still use environment variables or CLI flags.
+
+### Sample config files
+
+The repo includes sample configs (copy and edit as needed):
+
+- **`sample.enveloper.toml`** — Full example with all service sections (AWS, GCP, Azure, Vault, GitHub, Aliyun).
+- **`sample.enveloper.minimal.toml`** — Minimal (local keychain only).
+
+Copy to `~/.enveloper/.enveloper.toml` or to your project root as `.enveloper.toml`.
 
 ## Basic Structure
 
@@ -89,7 +107,7 @@ project = "my-gcp-project"
 
 | Option | Environment Variable | Description |
 |--------|---------------------|-------------|
-| `project` | `GOOGLE_CLOUD_PROJECT` | GCP project ID |
+| `project` | `ENVELOPER_GCP_PROJECT` or `GOOGLE_CLOUD_PROJECT` | GCP project ID or **Project name** (resolved to project ID); fallback: `gcloud config get-value project` |
 
 #### Azure
 
@@ -100,7 +118,16 @@ vault_url = "https://my-vault.vault.azure.net/"
 
 | Option | Environment Variable | Description |
 |--------|---------------------|-------------|
-| `vault_url` | `AZURE_VAULT_URL` | Key Vault URL |
+| `vault_url` | `ENVELOPER_AZURE_VAULT_URL` | Key Vault URL (full URL or vault name) |
+
+#### GitHub
+
+GitHub repository is passed via the CLI `--repo owner/name` when using push. Optional prefix in config:
+
+```toml
+[enveloper.github]
+prefix = ""
+```
 
 #### Alibaba Cloud
 
@@ -119,32 +146,59 @@ access_key_secret = "..."
 
 ## Complete Example
 
+All services in one `.enveloper.toml` (use only the sections you need):
+
 ```toml
 [enveloper]
 project = "myapp"
 service = "local"
 
+# Optional: per-domain settings (e.g. for AWS SSM prefix)
 [enveloper.domains.aws]
 env_file = "/path/to/.env"
 ssm_prefix = "/myapp/dev/"
 
+# AWS Systems Manager Parameter Store
 [enveloper.aws]
 profile = "default"
 region = "us-west-2"
 
+# HashiCorp Vault KV v2
 [enveloper.vault]
 url = "http://127.0.0.1:8200"
 mount = "secret"
 
+# Google Cloud Secret Manager
 [enveloper.gcp]
 project = "my-gcp-project"
 
+# Azure Key Vault
 [enveloper.azure]
 vault_url = "https://my-vault.vault.azure.net/"
 
+# GitHub (repo passed via CLI: --repo owner/repo)
+[enveloper.github]
+prefix = ""
+
+# Alibaba Cloud KMS Secrets Manager
 [enveloper.aliyun]
 region_id = "cn-hangzhou"
+access_key_id = ""
+access_key_secret = ""
 ```
+
+## Reference: All service options
+
+| Service | Config section | Options | Env fallback |
+|---------|----------------|---------|--------------|
+| **AWS** | `[enveloper.aws]` | `profile`, `region` | `AWS_PROFILE`, `AWS_DEFAULT_REGION` |
+| **GCP** | `[enveloper.gcp]` | `project` | `ENVELOPER_GCP_PROJECT`, `GOOGLE_CLOUD_PROJECT`, `gcloud config` |
+| **Azure** | `[enveloper.azure]` | `vault_url` | `ENVELOPER_AZURE_VAULT_URL` |
+| **Vault** | `[enveloper.vault]` | `url`, `mount` | `VAULT_ADDR` |
+| **GitHub** | `[enveloper.github]` | `prefix` | Repo via CLI `--repo owner/name` only |
+| **Aliyun** | `[enveloper.aliyun]` | `region_id`, `access_key_id`, `access_key_secret` | Alibaba env vars |
+
+See [Cloud setup guide](cloud-setup-guide.md) for step-by-step Azure, GCP, and AWS setup (credentials, IAM/RBAC, and testing).
 
 ## Priority Order
 

@@ -4,6 +4,8 @@
 
 `enveloper` supports multiple cloud secret management services. Each service provides secure storage with team collaboration, backup, and access control features.
 
+For **step-by-step setup** (credentials, IAM/RBAC, `.enveloper.toml`, and testing) for Azure, GCP, and AWS, see the [Cloud Setup Guide](cloud-setup-guide.md).
+
 ## Supported Cloud Services
 
 | Service | Store Name | Install Extra | Read/Write |
@@ -158,13 +160,16 @@ enveloper pull --service gcp -d prod --prefix myapp-prod
 **Configuration:**
 ```toml
 [enveloper.azure]
-vault_url = "https://my-vault.vault.azure.net/"  # or set AZURE_VAULT_URL
+vault_url = "https://my-vault.vault.azure.net/"  # or set ENVELOPER_AZURE_VAULT_URL
 ```
 
 **Authentication:**
 - DefaultAzureCredential
 - Service principal
 - Managed identity
+
+**RBAC for clear:**  
+`enveloper clear` permanently removes secrets (purge) so names can be reused immediately. That requires the **Key Vault Administrator** role (or a custom role with `secrets/purge`). **Key Vault Secrets Officer** is enough for push/pull/list but does not include purge. See [Cloud Setup Guide](cloud-setup-guide.md#azure-key-vault) for assignment commands.
 
 **Usage:**
 ```bash

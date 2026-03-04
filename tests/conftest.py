@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 from types import SimpleNamespace
-from typing import Any, Union, cast
+from typing import Any, Generator, Union, cast
 
 import pytest
 
@@ -39,21 +39,23 @@ class _FakeCloudStore(SecretStore):
         self._version = version or DEFAULT_VERSION
         self._domain = domain or "_default_"
         self._project = project or "_default_"
-        if self._store_id not in _FakeCloudStore._shared_data:
-            _FakeCloudStore._shared_data[self._store_id] = {}
+        # Key by service (first segment) so broad store (service:_default_:_default_) sees same data
+        self._bucket = self._store_id.split(":", 1)[0] if ":" in self._store_id else self._store_id
+        if self._bucket not in _FakeCloudStore._shared_data:
+            _FakeCloudStore._shared_data[self._bucket] = {}
 
     def get(self, key: str) -> str | None:
-        return _FakeCloudStore._shared_data[self._store_id].get(key)
+        return _FakeCloudStore._shared_data[self._bucket].get(key)
 
     def set(self, key: str, value: str) -> None:
-        _FakeCloudStore._shared_data[self._store_id][key] = value
+        _FakeCloudStore._shared_data[self._bucket][key] = value
 
     def delete(self, key: str) -> None:
-        _FakeCloudStore._shared_data[self._store_id].pop(key, None)
+        _FakeCloudStore._shared_data[self._bucket].pop(key, None)
 
     def list_keys(self) -> list[str]:
         """Return keys; when composite (prefix/domain/project/version/name), filter by this store's version."""
-        all_keys = sorted(_FakeCloudStore._shared_data[self._store_id].keys())
+        all_keys = sorted(_FakeCloudStore._shared_data[self._bucket].keys())
         # If keys look like composite keys (contain key_separator and parse), filter by version
         result: list[str] = []
         for key in all_keys:
@@ -132,8 +134,18 @@ class _FakeCloudStore(SecretStore):
 
     @classmethod
     def get_data(cls, store_id: str) -> dict[str, str]:
-        """Get data for a specific store."""
-        return cls._shared_data.get(store_id, {})
+        """Get data for a specific store (bucket is first segment of store_id)."""
+        bucket = store_id.split(":", 1)[0] if ":" in store_id else store_id
+        return cls._shared_data.get(bucket, {})
+
+
+@pytest.fixture(autouse=True)
+def _clear_fake_cloud_after_test(request: pytest.FixtureRequest) -> Generator[None, None, None]:
+    """Clear fake cloud store data after each test so tests don't leak state."""
+    yield
+    integration_markers = [m.name for m in request.node.iter_markers() if m.name.startswith("integration_")]
+    if not integration_markers:
+        _FakeCloudStore.clear_all()
 
 
 @pytest.fixture(autouse=True)
@@ -184,9 +196,13 @@ def _auto_mock_cloud_store(request: pytest.FixtureRequest, monkeypatch: pytest.M
         store_id = f"{store_name}:{domain_str}:{project_str}"
 
         if store_id not in _store_instances:
-            _store_instances[store_id] = _FakeCloudStore(store_id, version=version_str)
+            _store_instances[store_id] = _FakeCloudStore(
+                store_id, version=version_str, domain=domain_str, project=project_str
+            )
         else:
             _store_instances[store_id]._version = version_str
+            _store_instances[store_id]._domain = domain_str
+            _store_instances[store_id]._project = project_str
 
         return _store_instances[store_id]
 

@@ -11,8 +11,8 @@ from rich.table import Table
 
 from enveloper.cli import (
     KeychainStore,
-    _get_broad_store,
     _get_keychain,
+    _get_metadata_store,
     _get_store,
     _mask,
     cli,
@@ -20,6 +20,7 @@ from enveloper.cli import (
     console,
     key_to_export_name,
 )
+from enveloper.store import SecretStore
 
 
 @cli.group("list", invoke_without_command=True)
@@ -71,8 +72,9 @@ def list_domains(ctx: click.Context) -> None:
                 table.add_row(project, d)
         console.print(Panel(table, title="Domains (local keychain)", border_style="dim"))
     else:
-        store = _get_broad_store(ctx)
-        domains = store.list_domains()
+        store = _get_metadata_store(ctx)
+        with console.status(f"Listing domains from [bold]{service}[/bold]…", spinner="circle"):
+            domains = store.list_domains()
         if not domains:
             console.print("[yellow]No domains found.[/yellow]")
             return
@@ -118,8 +120,9 @@ def list_project_secrets(ctx: click.Context) -> None:
             border_style="dim",
         ))
     else:
-        store = _get_broad_store(ctx)
-        projects = store.list_projects(domain)
+        store = _get_metadata_store(ctx)
+        with console.status(f"Listing projects from [bold]{service}[/bold]…", spinner="circle"):
+            projects = store.list_projects(domain)
         if not projects:
             console.print(f"[yellow]No projects found for domain '{domain}'.[/yellow]")
             return
@@ -150,13 +153,19 @@ def list_keys(ctx: click.Context) -> None:
     project = ctx.obj.get("project") or "_default_"
     ctx.obj["domain_resolved"] = domain
 
+    store: SecretStore
     if service == "local":
         store = _get_keychain(project, domain)
     else:
         store = _get_store(ctx)
 
-    keys = store.list_keys()
-    keys_with_values = [(k, store.get(k)) for k in keys]
+    if service not in ("local", "file"):
+        with console.status(f"Listing keys from [bold]{service}[/bold]…", spinner="circle"):
+            keys = store.list_keys()
+            keys_with_values = [(k, store.get(k)) for k in keys]
+    else:
+        keys = store.list_keys()
+        keys_with_values = [(k, store.get(k)) for k in keys]
     keys_to_show = [(k, v) for k, v in keys_with_values if v is not None]
 
     title = f"Secrets for domain '{domain}', project '{project}'"

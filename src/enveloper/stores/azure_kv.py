@@ -24,9 +24,10 @@ _MISSING_AZURE = (
 _SECRET_NAME_RE = re.compile(r"[^a-zA-Z0-9-]+")
 
 
-def _sanitize_secret_name(key: str) -> str:
-    """Replace invalid chars with hyphen for Azure secret name."""
-    return _SECRET_NAME_RE.sub("-", key).strip("-").lower() or "key"
+def _sanitize_secret_name(key: str, preserve_case: bool = True) -> str:
+    """Replace invalid chars with hyphen for Azure secret name. Preserves case to match local keychain."""
+    out = _SECRET_NAME_RE.sub("-", key).strip("-") or "key"
+    return out if preserve_case else out.lower()
 
 
 def _get_client(vault_url: str) -> Any:
@@ -85,23 +86,45 @@ class AzureKvStore(SecretStore):
             self._client = _get_client(self._vault_url)
         return self._client
 
+    def _get_meta_domains_key(self) -> str:
+        """Azure Key Vault allows only [a-zA-Z0-9-]; use hyphenated names for metadata keys."""
+        return _sanitize_secret_name("_envr_meta_domains_", preserve_case=False)
+
+    def _get_meta_projects_key(self, domain: str) -> str:
+        """Azure Key Vault allows only [a-zA-Z0-9-]; use hyphenated names for metadata keys."""
+        safe = self.sanitize_key_segment(domain)
+        return _sanitize_secret_name(f"_envr_meta_dom_{safe}_projects_", preserve_case=False)
+
     def _raw_get(self, key: str) -> str | None:
         try:
             secret = self.client.get_secret(key)
             return secret.value
         except Exception as e:
-            if "SecretNotFound" in type(e).__name__ or "404" in str(e):
+            # SDK raises ResourceNotFoundError with "SecretNotFound" in message when secret is missing
+            if "SecretNotFound" in type(e).__name__ or "404" in str(e) or "SecretNotFound" in str(e):
                 return None
             raise
 
     def _raw_set(self, key: str, value: str) -> None:
-        self.client.set_secret(key, value)
+        try:
+            self.client.set_secret(key, value)
+        except Exception as e:
+            if (
+                "ResourceExistsError" in type(e).__name__ or "Conflict" in str(e)
+            ) and ("ObjectIsDeletedButRecoverable" in str(e) or "deleted but recoverable" in str(e).lower()):
+                self.client.begin_recover_deleted_secret(key).wait()
+                self.client.set_secret(key, value)
+            else:
+                raise
 
     def _raw_delete(self, key: str) -> None:
         try:
             self.client.begin_delete_secret(key).wait()
+            self.client.purge_deleted_secret(key)
         except Exception as e:
-            if "SecretNotFound" in type(e).__name__ or "404" in str(e):
+            if "SecretNotFound" in type(e).__name__ or "404" in str(e) or "SecretNotFound" in str(e):
+                pass
+            elif "Conflict" in str(e) and "is currently being deleted" in str(e).lower():
                 pass
             else:
                 raise
@@ -134,22 +157,36 @@ class AzureKvStore(SecretStore):
 
     def set(self, key: str, value: str) -> None:
         name = self._secret_name(key)
-        self.client.set_secret(name, value)
+        try:
+            self.client.set_secret(name, value)
+        except Exception as e:
+            if (
+                "ResourceExistsError" in type(e).__name__ or "Conflict" in str(e)
+            ) and ("ObjectIsDeletedButRecoverable" in str(e) or "deleted but recoverable" in str(e).lower()):
+                self.client.begin_recover_deleted_secret(name).wait()
+                self.client.set_secret(name, value)
+            else:
+                raise
 
     def delete(self, key: str) -> None:
+        """Delete the secret and purge it so the name can be reused immediately (no soft-delete retention)."""
         name = self._secret_name(key)
         try:
             self.client.begin_delete_secret(name).wait()
+            self.client.purge_deleted_secret(name)
         except Exception as e:
-            if "SecretNotFound" in type(e).__name__ or "404" in str(e):
+            if "SecretNotFound" in type(e).__name__ or "404" in str(e) or "SecretNotFound" in str(e):
+                pass
+            elif "Conflict" in str(e) and "is currently being deleted" in str(e).lower():
                 pass
             else:
                 raise
 
     def list_keys(self) -> list[str]:
-        """Return keys (sanitized full composite) so get(key) works."""
+        """Return keys (sanitized full composite, case preserved) so get(key) works."""
         keys: list[str] = []
-        filter_prefix = _sanitize_secret_name(self._path_prefix.rstrip("-")).lower()
+        # Case-insensitive prefix match so we find secrets regardless of stored case
+        filter_prefix = _sanitize_secret_name(self._path_prefix.rstrip("-"), preserve_case=True).lower()
         for prop in self.client.list_properties_of_secrets():
             name = getattr(prop, "name", "") or ""
             if filter_prefix and name.lower().startswith(filter_prefix):
