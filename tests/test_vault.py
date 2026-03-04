@@ -103,11 +103,18 @@ def test_vault_store_clear(mock_get_client, mock_vault_client):
 @patch("enveloper.stores.vault._get_client")
 def test_vault_store_read_empty_path(mock_get_client):
     """VaultStore _read_data returns {} when path not found (404)."""
-    import hvac.exceptions
+    # Use hvac.exceptions.InvalidPath when available; otherwise Exception("not found")
+    # so _vault_path_not_found works with or without enveloper[vault] (e.g. CI).
+    try:
+        import hvac.exceptions
+        path_error = hvac.exceptions.InvalidPath()
+    except ImportError:
+        path_error = Exception("path not found")
 
     client = MagicMock()
     client.is_authenticated.return_value = True
-    client.secrets.kv.v2.read_secret_version.side_effect = hvac.exceptions.InvalidPath()
+    client.secrets.kv.v2.read_secret_version.side_effect = path_error
+
     mock_get_client.return_value = client
 
     store = VaultStore(path="envr/nonexistent/proj", mount_point="secret")
