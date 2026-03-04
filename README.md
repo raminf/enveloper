@@ -66,7 +66,7 @@ enveloper --domain dev --project Enveloper push --service aws
 
 In the console, we can verify that the values are stored (in the case of AWS, in the SSM Parameter Store)
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/aws-cosole-push.png" width="80%" alt="AWS Service Console" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Service Console" />
 
 ```bash
 # Verify that they got pushed in AWS console for System Store > Parameters
