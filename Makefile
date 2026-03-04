@@ -8,6 +8,9 @@ help: ## Show this help
 install: ## Install for development (editable, all extras)
 	uv pip install -e ".[aws,dev]"
 
+install-all: ## Install for development (editable, all extras)
+	uv pip install -e ".[all]"
+
 dev: ## Create venv, sync deps, install editable
 	uv sync --all-extras
 

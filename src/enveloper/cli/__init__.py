@@ -106,6 +106,22 @@ def _make_cloud_store(
         raise click.UsageError(str(e))
 
 
+def _get_broad_store(ctx: click.Context) -> SecretStore:
+    """Return a cloud store with a broad prefix so list_keys() returns ALL enveloper secrets.
+
+    Used by ``list domain`` and ``list project`` to discover across all
+    domain/project combinations rather than just the currently-scoped one.
+    """
+    from enveloper.stores import get_store_class
+
+    service = ctx.obj.get("service", "local")
+    cfg = ctx.obj["config"]
+    env_name = ctx.obj["env_name"]
+    store_cls = get_store_class(service)
+    broad_prefix = f"{store_cls.prefix}{store_cls.key_separator}"
+    return _make_cloud_store(service, cfg, "_default_", "_default_", env_name, prefix=broad_prefix)
+
+
 def _mask(value: str) -> str:
     if len(value) <= 6:
         return "****"
@@ -147,10 +163,10 @@ def common_options(f: F) -> F:
     @click.pass_context
     def wrapper(
         ctx: click.Context,
-        project: str | None,
-        domain: str | None,
-        service: str | None,
-        version: str | None,
+        service: str | None = None,
+        domain: str | None = None,
+        project: str | None = None,
+        version: str | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> Any:
@@ -236,5 +252,6 @@ from enveloper.cli import (  # noqa: E402, F401
     init_cmd,
     list_cmd,
     push_pull_cmd,
+    rebuild_cmd,
     service_cmd,
 )

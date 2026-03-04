@@ -29,7 +29,7 @@ cx_Freeze creates a directory with the executable and all dependencies, avoiding
 
 ### Required Tools
 
-- **Python 3.10+** (for building)
+- **Python 3.12+** (for building)
 - **cx_Freeze** (automatically installed if missing)
 - **GitHub CLI** (`gh`) for uploading releases
 - **zip** for creating archives
@@ -78,7 +78,7 @@ sudo apt install zip pkg-config
 ### On Windows
 
 ```powershell
-# Install Python 3.10+
+# Install Python 3.12+
 # Install cx_Freeze
 pip install cx-freeze
 

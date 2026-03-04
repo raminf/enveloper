@@ -21,6 +21,7 @@ import keyring
 from enveloper.store import DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MANIFEST_KEY = "__keys__"
+_GLOBAL_REGISTRY_SERVICE = "envr:__registry__"
 
 
 _KEYRING_DOC = "https://github.com/jaraco/keyring"
@@ -157,8 +158,88 @@ class KeychainStore(SecretStore):
             except keyring.errors.PasswordDeleteError:
                 pass
 
+    # ------------------------------------------------------------------
+    # Global project registry (shared across all KeychainStore instances)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def list_all_projects(cls) -> list[str]:
+        """Return all project names ever registered (global registry)."""
+        raw = keyring.get_password(_GLOBAL_REGISTRY_SERVICE, "__projects__")
+        if raw is None:
+            return []
+        try:
+            return json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @classmethod
+    def register_global_project(cls, project: str) -> None:
+        """Add *project* to the global project registry."""
+        projects = cls.list_all_projects()
+        if project not in projects:
+            projects.append(project)
+            keyring.set_password(
+                _GLOBAL_REGISTRY_SERVICE, "__projects__", json.dumps(sorted(projects))
+            )
+
+    @classmethod
+    def unregister_global_project(cls, project: str) -> None:
+        """Remove *project* from the global project registry."""
+        projects = cls.list_all_projects()
+        if project not in projects:
+            return
+        projects = [p for p in projects if p != project]
+        if projects:
+            keyring.set_password(
+                _GLOBAL_REGISTRY_SERVICE, "__projects__", json.dumps(sorted(projects))
+            )
+        else:
+            try:
+                keyring.delete_password(_GLOBAL_REGISTRY_SERVICE, "__projects__")
+            except keyring.errors.PasswordDeleteError:
+                pass
+
+    @classmethod
+    def list_all_domains(cls) -> dict[str, list[str]]:
+        """Return a mapping of project -> domains for all registered projects."""
+        result: dict[str, list[str]] = {}
+        for project in cls.list_all_projects():
+            store = cls(project=project)
+            domains = store.list_domains()
+            if domains:
+                result[project] = domains
+        return result
+
+    @classmethod
+    def list_projects_for_domain(cls, domain: str) -> list[str]:
+        """Return all project names that have the given domain."""
+        projects = []
+        for project in cls.list_all_projects():
+            store = cls(project=project)
+            if domain in store.list_domains():
+                projects.append(project)
+        return sorted(projects)
+
     def set_with_domain_tracking(self, key: str, value: str) -> None:
-        """Set a key and ensure its domain is registered in the domain manifest."""
+        """Set a key and ensure its domain and project are registered."""
         self.set(key, value)
         if self._domain:
             self.register_domain(self._domain)
+        project_name = self._service.removeprefix(f"{self.prefix}:")
+        self.register_global_project(project_name)
+
+    def set_with_tracking(self, key: str, value: str) -> None:
+        """Bridge to set_with_domain_tracking for the unified API."""
+        self.set_with_domain_tracking(key, value)
+
+    def delete_with_tracking(self, key: str) -> None:
+        """Delete and update keyring-based registry."""
+        self.delete(key)
+
+    def clear_metadata(self) -> None:
+        """Keychain metadata is cleaned up automatically via register/unregister."""
+
+    def rebuild_registry(self) -> dict[str, list[str]]:
+        """Rebuild is not needed for keychain (managed via manifests)."""
+        return {}

@@ -59,8 +59,25 @@ def make_cloud_store(
         if cfg.vault_mount is not None:
             kwargs["mount_point"] = cfg.vault_mount
     elif store_name == "gcp":
-        if cfg.gcp_project is not None:
-            kwargs["project_id"] = cfg.gcp_project
+        from enveloper.stores.gcp_sm import _detect_gcp_project, resolve_gcp_project_id
+
+        # GCP project_id is the Google Cloud project, NOT the enveloper --project namespace.
+        # The configured value may be a project ID *or* a human-friendly display name
+        # (the "Project name" shown in the GCP console). resolve_gcp_project_id handles both.
+        if cfg.gcp_project:
+            gcp_project_id = resolve_gcp_project_id(cfg.gcp_project)
+        else:
+            gcp_project_id = _detect_gcp_project()
+        if not gcp_project_id:
+            raise ValueError(
+                "GCP project ID is required but could not be determined.\n"
+                "Set one of:\n"
+                "  - ENVELOPER_GCP_PROJECT or GOOGLE_CLOUD_PROJECT env var\n"
+                "  - [enveloper.gcp] project = \"...\" in .enveloper.toml\n"
+                "    (accepts a project ID or the Project Name from the GCP console)\n"
+                "  - gcloud config set project <project-id>"
+            )
+        kwargs["project_id"] = gcp_project_id
     elif store_name == "azure":
         if cfg.azure_vault_url is not None:
             kwargs["vault_url"] = cfg.azure_vault_url

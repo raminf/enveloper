@@ -85,6 +85,27 @@ class AzureKvStore(SecretStore):
             self._client = _get_client(self._vault_url)
         return self._client
 
+    def _raw_get(self, key: str) -> str | None:
+        try:
+            secret = self.client.get_secret(key)
+            return secret.value
+        except Exception as e:
+            if "SecretNotFound" in type(e).__name__ or "404" in str(e):
+                return None
+            raise
+
+    def _raw_set(self, key: str, value: str) -> None:
+        self.client.set_secret(key, value)
+
+    def _raw_delete(self, key: str) -> None:
+        try:
+            self.client.begin_delete_secret(key).wait()
+        except Exception as e:
+            if "SecretNotFound" in type(e).__name__ or "404" in str(e):
+                pass
+            else:
+                raise
+
     def _resolve_key(self, key: str) -> str:
         """Return full composite key; if key is short name, build full key with domain/project/version."""
         if self.parse_key(key) is not None:

@@ -28,9 +28,17 @@ class _FakeCloudStore(SecretStore):
     service_display_name: str = "Fake Cloud Store"
     service_doc_url: str = ""
 
-    def __init__(self, store_id: str | None = None, version: str | None = None) -> None:
+    def __init__(
+        self,
+        store_id: str | None = None,
+        version: str | None = None,
+        domain: str | None = None,
+        project: str | None = None,
+    ) -> None:
         self._store_id = store_id or "default"
         self._version = version or DEFAULT_VERSION
+        self._domain = domain or "_default_"
+        self._project = project or "_default_"
         if self._store_id not in _FakeCloudStore._shared_data:
             _FakeCloudStore._shared_data[self._store_id] = {}
 
@@ -100,8 +108,8 @@ class _FakeCloudStore(SecretStore):
         try:
             name = parts[-1]
             version = parts[-2]
-            project = parts[-4]
-            domain = parts[-3]
+            project = parts[-3]
+            domain = parts[-4]
             prefix = parts[-5]
 
             # Convert version separator back to dots

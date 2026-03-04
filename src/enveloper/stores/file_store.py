@@ -62,5 +62,10 @@ class FileStore(SecretStore):
     def list_keys(self) -> list[str]:
         return sorted(self._read().keys())
 
+    def list_domains(self) -> list[str]:
+        """File store has no domain structure; return _default_ if any keys exist."""
+        keys = self.list_keys()
+        return ["_default_"] if keys else []
+
     def clear(self) -> None:
         self._write({})

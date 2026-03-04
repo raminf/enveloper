@@ -7,7 +7,7 @@ name = "enveloper-binary"
 version = "0.1.0"
 description = "Build system for enveloper standalone executables"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"
 authors = [{ name = "Ramin Firoozye" }]
 

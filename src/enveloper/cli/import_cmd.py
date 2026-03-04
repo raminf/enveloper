@@ -12,7 +12,6 @@ import click
 
 from enveloper.cli import (
     HAS_YAML,
-    KeychainStore,
     _get_store,
     cli,
     common_options,
@@ -124,10 +123,7 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
 
     store = _get_store(ctx)
     for key, value in pairs.items():
-        if isinstance(store, KeychainStore):
-            store.set_with_domain_tracking(key, value)
-        else:
-            store.set(key, value)
+        store.set_with_tracking(key, value)
 
     console.print(
         f"[green]Imported {len(pairs)} variable(s) from {file}[/green]"

@@ -79,6 +79,9 @@ class GitHubStore(SecretStore):
             check=True,
         )
 
+    def _raw_get(self, key: str) -> str | None:
+        return None
+
     def _resolve_key(self, key: str) -> str:
         """Return full composite key; if key is short name, build full key with domain/project/version."""
         if self.parse_key(key) is not None:

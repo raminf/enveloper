@@ -86,6 +86,24 @@ class AwsSsmStore(SecretStore):
             self._client = _get_client(self._profile, self._region)
         return self._client
 
+    def _raw_get(self, key: str) -> str | None:
+        try:
+            resp = self.client.get_parameter(Name=key, WithDecryption=True)
+            return resp["Parameter"]["Value"]
+        except self.client.exceptions.ParameterNotFound:
+            return None
+
+    def _raw_set(self, key: str, value: str) -> None:
+        self.client.put_parameter(
+            Name=key, Value=value, Type=self._type, Overwrite=True,
+        )
+
+    def _raw_delete(self, key: str) -> None:
+        try:
+            self.client.delete_parameter(Name=key)
+        except self.client.exceptions.ParameterNotFound:
+            pass
+
     def _resolve_key(self, key: str) -> str:
         """Return full composite key; if key is short name, build full key with domain/project/version."""
         if self.parse_key(key) is not None:

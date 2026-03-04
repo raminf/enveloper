@@ -116,6 +116,21 @@ class VaultStore(SecretStore):
             mount_point=self._mount_point,
         )
 
+    def _raw_get(self, key: str) -> str | None:
+        data = self._read_data()
+        return data.get(key)
+
+    def _raw_set(self, key: str, value: str) -> None:
+        data = self._read_data()
+        data[key] = value
+        self._write_data(data)
+
+    def _raw_delete(self, key: str) -> None:
+        data = self._read_data()
+        if key in data:
+            del data[key]
+            self._write_data(data)
+
     def _resolve_key(self, key: str) -> str:
         """Return full composite key; if key is short name, build full key with domain/project/version."""
         if self.parse_key(key) is not None:

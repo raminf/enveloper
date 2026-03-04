@@ -9,7 +9,6 @@ import click
 
 from enveloper.cli import (
     GitHubStore,
-    KeychainStore,
     _get_store,
     _make_cloud_store,
     cli,
@@ -70,12 +69,12 @@ def push(
         if val is not None:
             name = key_to_export_name(source, key)
             if isinstance(target, GitHubStore):
-                target.set(name, val)
+                target.set_with_tracking(name, val)
                 if ctx.obj["verbose"]:
                     console.print(f"  {name}")
             else:
                 target_key = target.build_key(name=name, domain=domain, project=project, version=source_version)
-                target.set(target_key, val)
+                target.set_with_tracking(target_key, val)
                 if ctx.obj["verbose"]:
                     console.print(f"  {target_key}")
             count += 1
@@ -126,10 +125,7 @@ def pull(
         val = source.get(key)
         if val is not None:
             local_key = key_to_export_name(source, key)
-            if isinstance(target, KeychainStore):
-                target.set_with_domain_tracking(local_key, val)
-            else:
-                target.set(local_key, val)
+            target.set_with_tracking(local_key, val)
             count += 1
             if ctx.obj["verbose"]:
                 console.print(f"  {local_key}")

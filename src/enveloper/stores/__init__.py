@@ -5,17 +5,12 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterator
+from importlib.metadata import entry_points
 
 from enveloper.store import SecretStore
 from enveloper.stores.file_store import FileStore
 from enveloper.stores.keychain import KeychainStore
-
-if sys.version_info >= (3, 12):
-    from importlib.metadata import entry_points
-else:
-    from importlib.metadata import entry_points
 
 
 def get_service_entries() -> Iterator[tuple[str, type[SecretStore]]]:

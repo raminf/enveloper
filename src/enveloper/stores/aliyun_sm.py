@@ -121,6 +121,49 @@ class AliyunSmStore(SecretStore):
             )
         return self._client
 
+    def _raw_get(self, key: str) -> str | None:
+        try:
+            from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
+            req = models.GetSecretValueRequest(secret_name=key)
+            resp = self.client.get_secret_value(req)
+            if resp.body and resp.body.secret_data:
+                return resp.body.secret_data
+            return None
+        except Exception as e:
+            if "SecretNotFound" in str(e) or "NotFound" in str(e) or "404" in str(e):
+                return None
+            raise
+
+    def _raw_set(self, key: str, value: str) -> None:
+        from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
+        try:
+            req = models.CreateSecretRequest(
+                secret_name=key, version_id="v1",
+                secret_data=value, secret_data_type="text",
+            )
+            self.client.create_secret(req)
+        except Exception as e:
+            if "AlreadyExists" in str(e) or "already exist" in str(e).lower():
+                put_req = models.PutSecretValueRequest(
+                    secret_name=key,
+                    version_id=f"v{int(time.time() * 1000)}",
+                    secret_data=value, secret_data_type="text",
+                )
+                self.client.put_secret_value(put_req)
+            else:
+                raise
+
+    def _raw_delete(self, key: str) -> None:
+        try:
+            from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
+            req = models.DeleteSecretRequest(secret_name=key)
+            self.client.delete_secret(req)
+        except Exception as e:
+            if "SecretNotFound" in str(e) or "NotFound" in str(e) or "404" in str(e):
+                pass
+            else:
+                raise
+
     def _resolve_key(self, key: str) -> str:
         """Return full composite key; if key is short name, build full key with domain/project/version."""
         if self.parse_key(key) is not None:

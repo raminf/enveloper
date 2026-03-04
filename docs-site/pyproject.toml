@@ -2,7 +2,7 @@
 name = "enveloper-docs"
 version = "0.1.0"
 description = "MkDocs site for enveloper (enveloper.net)"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.0",

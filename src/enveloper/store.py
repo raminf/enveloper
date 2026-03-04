@@ -5,7 +5,10 @@
 
 from __future__ import annotations
 
+import base64
+import json
 import re
+import zlib
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
@@ -136,6 +139,177 @@ class SecretStore(ABC):
     @abstractmethod
     def list_keys(self) -> list[str]:
         """Return all key names managed by this store."""
+
+    # ------------------------------------------------------------------
+    # Metadata registry (domain/project tracking via compressed keys)
+    # ------------------------------------------------------------------
+
+    _META_DOMAINS_KEY = "_envr_meta_domains_"
+
+    @classmethod
+    def _meta_projects_key(cls, domain: str) -> str:
+        safe = cls.sanitize_key_segment(domain)
+        return f"_envr_meta_dom_{safe}_projects_"
+
+    @staticmethod
+    def _compress(data: str) -> str:
+        return base64.b64encode(zlib.compress(data.encode())).decode("ascii")
+
+    @staticmethod
+    def _decompress(data: str) -> str:
+        return zlib.decompress(base64.b64decode(data)).decode()
+
+    def _raw_get(self, key: str) -> str | None:
+        """Read a raw metadata key. Subclasses override to bypass key building."""
+        return self.get(key)
+
+    def _raw_set(self, key: str, value: str) -> None:
+        """Write a raw metadata key. Subclasses override to bypass key building."""
+        self.set(key, value)
+
+    def _raw_delete(self, key: str) -> None:
+        """Delete a raw metadata key. Subclasses override to bypass key building."""
+        self.delete(key)
+
+    def _read_meta_list(self, meta_key: str) -> list[str]:
+        raw = self._raw_get(meta_key)
+        if raw is None:
+            return []
+        try:
+            return json.loads(self._decompress(raw))
+        except Exception:
+            return []
+
+    def _write_meta_list(self, meta_key: str, items: list[str]) -> None:
+        self._raw_set(meta_key, self._compress(json.dumps(sorted(set(items)))))
+
+    def register_domain(self, domain: str) -> None:
+        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        if domain not in domains:
+            domains.append(domain)
+            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+
+    def unregister_domain(self, domain: str) -> None:
+        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        if domain not in domains:
+            return
+        domains = [d for d in domains if d != domain]
+        if domains:
+            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+        else:
+            self._raw_delete(self._META_DOMAINS_KEY)
+        self._raw_delete(self._meta_projects_key(domain))
+
+    def register_project(self, domain: str, project: str) -> None:
+        key = self._meta_projects_key(domain)
+        projects = self._read_meta_list(key)
+        if project not in projects:
+            projects.append(project)
+            self._write_meta_list(key, projects)
+
+    def unregister_project(self, domain: str, project: str) -> None:
+        key = self._meta_projects_key(domain)
+        projects = self._read_meta_list(key)
+        if project not in projects:
+            return
+        projects = [p for p in projects if p != project]
+        if projects:
+            self._write_meta_list(key, projects)
+        else:
+            self._raw_delete(key)
+            self.unregister_domain(domain)
+
+    def set_with_tracking(self, key: str, value: str) -> None:
+        """Set a key and update the domain/project metadata registry."""
+        self.set(key, value)
+        domain = getattr(self, "_domain", None) or DEFAULT_NAMESPACE
+        project = getattr(self, "_project", None) or DEFAULT_NAMESPACE
+        self.register_domain(domain)
+        self.register_project(domain, project)
+
+    def delete_with_tracking(self, key: str) -> None:
+        """Delete a key and update the metadata registry if the project/domain is now empty."""
+        self.delete(key)
+        domain = getattr(self, "_domain", None) or DEFAULT_NAMESPACE
+        project = getattr(self, "_project", None) or DEFAULT_NAMESPACE
+        remaining = [k for k in self.list_keys() if k != key]
+        has_project = False
+        for k in remaining:
+            parsed = self.parse_key(k)
+            if parsed and parsed.get("domain") == domain and parsed.get("project") == project:
+                has_project = True
+                break
+        if not has_project:
+            self.unregister_project(domain, project)
+
+    def list_domains(self) -> list[str]:
+        """Return domain names. Reads metadata registry first, falls back to key scan."""
+        cached = self._read_meta_list(self._META_DOMAINS_KEY)
+        if cached:
+            return sorted(cached)
+        domains = set()
+        for key in self.list_keys():
+            parsed = self.parse_key(key)
+            if parsed and parsed.get("domain"):
+                domains.add(parsed["domain"])
+        result = sorted(domains)
+        if result:
+            self._write_meta_list(self._META_DOMAINS_KEY, result)
+        return result
+
+    def list_projects(self, domain: str) -> list[str]:
+        """Return project names for a domain. Reads metadata first, falls back to key scan."""
+        cached = self._read_meta_list(self._meta_projects_key(domain))
+        if cached:
+            return sorted(cached)
+        projects = set()
+        for key in self.list_keys():
+            parsed = self.parse_key(key)
+            if parsed and parsed.get("domain") == domain and parsed.get("project"):
+                projects.add(parsed["project"])
+        result = sorted(projects)
+        if result:
+            self._write_meta_list(self._meta_projects_key(domain), result)
+        return result
+
+    def rebuild_registry(self) -> dict[str, list[str]]:
+        """Scan all keys and rebuild domain/project metadata from scratch.
+
+        Returns a mapping of domain -> [projects].
+        """
+        domain_projects: dict[str, set[str]] = {}
+        for key in self.list_keys():
+            parsed = self.parse_key(key)
+            if parsed:
+                d = parsed.get("domain")
+                p = parsed.get("project")
+                if d:
+                    domain_projects.setdefault(d, set())
+                    if p:
+                        domain_projects[d].add(p)
+        result: dict[str, list[str]] = {}
+        domains = sorted(domain_projects.keys())
+        if domains:
+            self._write_meta_list(self._META_DOMAINS_KEY, domains)
+        for d in domains:
+            projects = sorted(domain_projects[d])
+            if projects:
+                self._write_meta_list(self._meta_projects_key(d), projects)
+            result[d] = projects
+        return result
+
+    def clear_metadata(self) -> None:
+        """Delete all metadata registry keys."""
+        domains = self._read_meta_list(self._META_DOMAINS_KEY)
+        for d in domains:
+            try:
+                self._raw_delete(self._meta_projects_key(d))
+            except Exception:
+                pass
+        try:
+            self._raw_delete(self._META_DOMAINS_KEY)
+        except Exception:
+            pass
 
     def clear(self) -> None:
         """Remove every key managed by this store (default: delete each key from list_keys).

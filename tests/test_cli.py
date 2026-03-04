@@ -36,7 +36,7 @@ def test_import_and_list(cli_runner, mock_keyring, sample_env):
     assert result.exit_code == 0
     assert "Imported" in result.output
 
-    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "list"])
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "list", "keys"])
     assert result.exit_code == 0
     assert "TWILIO_API_SID" in result.output
 
@@ -119,7 +119,7 @@ def test_clear(cli_runner, mock_keyring):
 def test_clear_after_import_then_verify_gone(cli_runner, mock_keyring, sample_env):
     """Import a set, clear it, then verify the keys are no longer in the store."""
     cli_runner.invoke(cli, ["--project", "test", "-d", "clear_import", "import", str(sample_env)])
-    r_list_before = cli_runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list"])
+    r_list_before = cli_runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list", "keys"])
     assert r_list_before.exit_code == 0
     assert "TWILIO_API_SID" in r_list_before.output
 
@@ -127,7 +127,7 @@ def test_clear_after_import_then_verify_gone(cli_runner, mock_keyring, sample_en
     assert result.exit_code == 0
     assert "Cleared" in result.output
 
-    r_list_after = cli_runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list"])
+    r_list_after = cli_runner.invoke(cli, ["--project", "test", "-d", "clear_import", "list", "keys"])
     assert r_list_after.exit_code == 0
     assert "TWILIO_API_SID" not in r_list_after.output
 
@@ -178,7 +178,7 @@ def test_service_file_list_get_set(cli_runner, tmp_path):
     """List, get, and set with --service file and --path."""
     env_file = tmp_path / "my.env"
     env_file.write_text("FOO=bar\nBAZ=qux\n")
-    result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "list"])
+    result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "list", "keys"])
     assert result.exit_code == 0
     assert "FOO" in result.output and "BAZ" in result.output
     result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "get", "FOO"])
@@ -186,7 +186,7 @@ def test_service_file_list_get_set(cli_runner, tmp_path):
     assert "bar" in result.output
     result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "set", "NEW", "value"])
     assert result.exit_code == 0
-    result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "list"])
+    result = cli_runner.invoke(cli, ["--service", "file", "--path", str(env_file), "list", "keys"])
     assert result.exit_code == 0
     assert "NEW" in result.output
     assert "NEW=value" in env_file.read_text() or "NEW=" in env_file.read_text()
@@ -206,7 +206,7 @@ def test_service_flag_short_form(cli_runner, tmp_path):
     """-s file works like --service file."""
     env_file = tmp_path / "short.env"
     env_file.write_text("X=1\n")
-    result = cli_runner.invoke(cli, ["-s", "file", "--path", str(env_file), "list"])
+    result = cli_runner.invoke(cli, ["-s", "file", "--path", str(env_file), "list", "keys"])
     assert result.exit_code == 0
     assert "X" in result.output
 
@@ -218,7 +218,7 @@ def test_service_from_env(cli_runner, tmp_path):
     env_file.write_text("FROM_ENV=ok\n")
     result = cli_runner.invoke(
         cli,
-        ["--path", str(env_file), "list"],
+        ["--path", str(env_file), "list", "keys"],
         env={**os.environ, "ENVELOPER_SERVICE": "file"},
     )
     assert result.exit_code == 0
@@ -238,18 +238,18 @@ def test_path_ignored_when_service_local(cli_runner, mock_keyring):
     """--path with --service local is ignored (keychain used)."""
     result = cli_runner.invoke(
         cli,
-        ["--project", "test", "--service", "local", "--path", "/nonexistent/.env", "list"],
+        ["--project", "test", "--service", "local", "--path", "/nonexistent/.env", "list", "keys"],
     )
     assert result.exit_code == 0
     # Should show keychain list (default or empty), not try to read file
-    assert "No secrets stored" in result.output or "_default_" in result.output or "Project" in result.output
+    assert "No secrets stored" in result.output or "_default_" in result.output or "project" in result.output.lower()
 
 
 def test_service_file_nonexistent_path_list(cli_runner):
-    """--service file with nonexistent path: list returns empty (FileStore treats as empty)."""
+    """--service file with nonexistent path: list project returns empty (FileStore treats as empty)."""
     result = cli_runner.invoke(
         cli,
-        ["--service", "file", "--path", "/nonexistent/env/file.env", "list"],
+        ["--service", "file", "--path", "/nonexistent/env/file.env", "list", "keys"],
     )
     assert result.exit_code == 0
     assert "(empty)" in result.output
@@ -266,8 +266,8 @@ def test_service_file_nonexistent_path_get(cli_runner):
 
 
 def test_invalid_service_name_list(cli_runner):
-    """--service with unknown store name: list fails with clear message."""
-    result = cli_runner.invoke(cli, ["--service", "no-such-store", "list"])
+    """--service with unknown store name: list project fails with clear message."""
+    result = cli_runner.invoke(cli, ["--service", "no-such-store", "list", "keys"])
     assert result.exit_code != 0
     msg = (result.output or "") + (str(result.exception) if result.exception else "")
     assert "Unknown store" in msg or "no-such-store" in msg
@@ -295,7 +295,7 @@ def test_invalid_service_name_set(cli_runner):
 
 def test_empty_service_value(cli_runner, mock_keyring):
     """--service '' is treated as unknown store (fails)."""
-    result = cli_runner.invoke(cli, ["--service", "", "list"])
+    result = cli_runner.invoke(cli, ["--service", "", "list", "keys"])
     # Empty string is not "local" or "file", so looked up as cloud store and fails
     assert result.exit_code != 0
 
@@ -335,7 +335,7 @@ def test_clear_with_service_file(cli_runner, tmp_path):
         ["--service", "file", "--path", str(env_file), "clear", "--quiet"],
     )
     assert result.exit_code == 0
-    assert "Cleared all secrets for service 'file'" in result.output
+    assert "Cleared secrets for domain" in result.output
     assert env_file.read_text().strip() == "" or "A=" not in env_file.read_text()
 
 
@@ -645,8 +645,8 @@ def test_invalid_region_format(cli_runner, mock_keyring, sample_env):
 # ---------------------------------------------------------------------------
 
 def test_list_empty_project(cli_runner, mock_keyring):
-    """Test list with project that has no secrets (shows default domain as empty)."""
-    result = cli_runner.invoke(cli, ["--project", "empty_project_xyz", "list"])
+    """Test list keys with project that has no secrets (shows default domain as empty)."""
+    result = cli_runner.invoke(cli, ["--project", "empty_project_xyz", "list", "keys"])
     assert result.exit_code == 0
     assert "_default_" in result.output and "(empty)" in result.output
 
@@ -915,7 +915,7 @@ def test_clear_nonexistent_project(cli_runner, mock_keyring):
     """Test clearing a project that doesn't exist (clears all domains / default)."""
     result = cli_runner.invoke(cli, ["--project", "nonexistent_project_xyz", "clear", "--quiet"])
     assert result.exit_code == 0
-    assert "Cleared all secrets for service 'local' (all domains)" in result.output
+    assert "Cleared secrets for domain" in result.output
 
 
 def test_clear_empty_domain_explicit(cli_runner, mock_keyring):
@@ -927,8 +927,8 @@ def test_clear_empty_domain_explicit(cli_runner, mock_keyring):
     assert result.exit_code == 0
     assert "Cleared" in result.output
 
-    # Verify it's cleared - list shows "(empty)" for empty domains
-    result = cli_runner.invoke(cli, ["--project", "test", "-d", "empty_test", "list"])
+    # Verify it's cleared - list keys shows "(empty)" for empty domains
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "empty_test", "list", "keys"])
     assert result.exit_code == 0
     assert "(empty)" in result.output
 
@@ -944,10 +944,10 @@ def test_clear_project_after_domain_clear(cli_runner, mock_keyring):
     result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "clear", "--quiet"])
     assert result.exit_code == 0
 
-    # Clear without -d clears all domains (web and default)
+    # Clear without -d clears the default domain
     result = cli_runner.invoke(cli, ["--project", "test", "clear", "--quiet"])
     assert result.exit_code == 0
-    assert "Cleared all secrets for service 'local' (all domains)" in result.output
+    assert "Cleared secrets for domain '_default_'" in result.output
 
 
 # ---------------------------------------------------------------------------
@@ -976,7 +976,7 @@ def test_cli_domain_project_with_separator_sanitized(cli_runner, mock_keyring):
     result = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "get", "SEP_KEY"])
     assert result.exit_code == 0
     assert result.output.strip() == "val"
-    result_list = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "list"])
+    result_list = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "list", "keys"])
     assert result_list.exit_code == 0
     assert "SEP_KEY" in result_list.output
 
@@ -987,7 +987,7 @@ def test_domain_with_emoji_roundtrip(cli_runner, mock_keyring):
     r = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "get", "EMOJI_K"])
     assert r.exit_code == 0
     assert r.output.strip() == "v1"
-    r_list = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "list"])
+    r_list = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "list", "keys"])
     assert r_list.exit_code == 0
     assert "EMOJI_K" in r_list.output
 
@@ -1010,8 +1010,8 @@ def test_key_name_with_emoji_roundtrip(cli_runner, mock_keyring):
 
 def test_invalid_version_cli_fails(cli_runner):
     """CLI with invalid semver (e.g. --version 1.0) fails with clear message."""
-    # Pass --version after list so it's the semver option, not the package --version
-    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "--service", "aws", "list", "--version", "1.0"])
+    # Pass --version with list project so it's the semver option, not the package --version
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "--service", "aws", "list", "keys", "--version", "1.0"])
     assert result.exit_code != 0
     assert "version" in result.output.lower() or "invalid" in result.output.lower() or "semver" in result.output.lower()
 
@@ -1138,7 +1138,7 @@ def test_clear_without_confirmation(cli_runner):
     """Test that clear without --quiet flag requires confirmation."""
     result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "clear"])
     # Without --quiet and no input, confirmation is declined -> abort
-    assert result.exit_code != 0 or "Are you sure" in result.output
+    assert result.exit_code != 0 or "Clear all secrets for domain" in result.output
 
 
 # ---------------------------------------------------------------------------
@@ -1152,7 +1152,7 @@ def test_domain_from_env_var(cli_runner, mock_keyring, sample_env, monkeypatch):
     assert result.exit_code == 0
 
     # Verify it was stored under the env var domain
-    result = cli_runner.invoke(cli, ["--project", "test", "-d", "env_domain", "list"])
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "env_domain", "list", "keys"])
     assert result.exit_code == 0
     assert "TWILIO_API_SID" in result.output
 
@@ -1166,24 +1166,24 @@ def test_env_var_overridden_by_cli_option(cli_runner, mock_keyring, sample_env, 
     assert result.exit_code == 0
 
     # Verify it was stored under CLI options, not env vars
-    result = cli_runner.invoke(cli, ["--project", "cli_project", "-d", "cli_domain", "list"])
+    result = cli_runner.invoke(cli, ["--project", "cli_project", "-d", "cli_domain", "list", "keys"])
     assert result.exit_code == 0
     assert "TWILIO_API_SID" in result.output
 
     # Env var project should not have the secrets
-    result = cli_runner.invoke(cli, ["--project", "env_project", "list"])
+    result = cli_runner.invoke(cli, ["--project", "env_project", "list", "keys"])
     assert result.exit_code == 0
     assert "TWILIO_API_SID" not in result.output
 
 
 def test_env_var_with_list_command(cli_runner, mock_keyring, sample_env, monkeypatch):
-    """Test list command with environment variables set."""
+    """Test list project command with environment variables set."""
     monkeypatch.setenv("ENVELOPER_PROJECT", "test")
     monkeypatch.setenv("ENVELOPER_DOMAIN", "aws")
     cli_runner.invoke(cli, ["import", str(sample_env)])
 
-    # List without specifying project/domain (should use env vars)
-    result = cli_runner.invoke(cli, ["list"])
+    # List keys without specifying project/domain (should use env vars)
+    result = cli_runner.invoke(cli, ["list", "keys"])
     assert result.exit_code == 0
     assert "TWILIO_API_SID" in result.output
 

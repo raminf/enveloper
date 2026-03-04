@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import click
 
-from enveloper.cli import KeychainStore, _get_store, cli, common_options, console
+from enveloper.cli import _get_store, cli, common_options, console
 
 
 @cli.command()
@@ -29,10 +29,7 @@ def get(ctx: click.Context, key: str) -> None:
 def set_key(ctx: click.Context, key: str, value: str) -> None:
     """Set a single secret."""
     store = _get_store(ctx)
-    if isinstance(store, KeychainStore):
-        store.set_with_domain_tracking(key, value)
-    else:
-        store.set(key, value)
+    store.set_with_tracking(key, value)
     console.print(f"[green]Set {key}[/green]")
 
 
@@ -42,5 +39,5 @@ def set_key(ctx: click.Context, key: str, value: str) -> None:
 def delete(ctx: click.Context, key: str) -> None:
     """Remove a single secret."""
     store = _get_store(ctx)
-    store.delete(key)
+    store.delete_with_tracking(key)
     console.print(f"[green]Removed {key}[/green]")
