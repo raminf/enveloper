@@ -16,7 +16,7 @@ ssm_prefix = "/myapp/dev/"
 profile = "default"
 region = "us-west-2"
 
-# HashiCorp Vault KV v2
+# HashiCorp Vault KV v2 (self-hosted or HCP Vault Dedicated)
 [enveloper.vault]
 url = "http://127.0.0.1:8200"
 mount = "secret"

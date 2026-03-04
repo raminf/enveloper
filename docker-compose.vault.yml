@@ -1,0 +1,24 @@
+# Local HashiCorp Vault for development and testing with the enveloper "vault" store.
+# Same vault store works with this container or a real Vault (self-hosted / HCP Vault Dedicated).
+#
+# Usage:
+#   docker compose -f docker-compose.vault.yml up -d
+#   export VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=root
+#   enveloper push --service vault -d dev -p myapp
+#
+# Web UI: http://127.0.0.1:8200/ui  (sign in with token "root")
+#
+# Stop: docker compose -f docker-compose.vault.yml down
+
+services:
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: enveloper-vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    cap_add:
+      - IPC_LOCK
+    command: server -dev

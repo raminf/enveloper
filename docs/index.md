@@ -29,11 +29,11 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 
 ```bash
 # Import an existing .env file into the keychain
-enveloper import sample.env --domain dev
+enveloper import sample.env --domain dev --project Enveloper
 
 # List what's stored
 
-enveloper list
+enveloper list key --domain dev --project Enveloper
 ```
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-keychain.png" width="80%" alt="Import and list values" />
@@ -41,45 +41,77 @@ enveloper list
 ```bash
 # Load local environment settings from keychain
 
-eval "$(enveloper --domain dev export --format unix)"
+eval "$(enveloper --domain dev --project Enveloper export --format unix)"
 
 # Values are loaded into local environment variables. 
 # Use in Makefile, shell scripts, etc. 
 # 'unix' format works for Linux, Mac, and Windows WSL. 
 # For Windows Powershell, use 'win' as format.
-
-# When done, you can use 'unexport' command to remove the set of env variables
-
-eval "$(enveloper --domain dev unexport --format unix)"
 ```
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" />
 
-```bash
-# Push to AWS SSM - assume AWS_EXPORT is set or default is configured 
 
-enveloper --service aws --domain dev push
+```bash
+# When done, you can use 'unexport' command to remove the set of env variables
+
+eval "$(enveloper --domain dev --project Enveloper unexport --format unix)"
+
+# Push to cloud service
+
+enveloper --domain dev --project Enveloper push --service aws
 ```
-<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws.png" width="80%" alt="Push all values in doman from keychain to AWS service" />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="Push all values from keychain to cloud" />
+
+In the console, we can verify that the values are stored (in the case of AWS, in the SSM Parameter Store)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-cosole-push.png" width="80%" alt="AWS Service Console" />
 
 ```bash
 # Verify that they got pushed in AWS console for System Store > Parameters
 
-enveloper --service aws list --domain dev
+enveloper list key --domain dev --project Enveloper --service aws
 ```
-<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-aws-list.png" width="50%" alt="Env values in AWS SSM" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-list-key.png" width="80%" alt="Env values in AWS SSM" />
 
 
 ```bash
 # Pull from AWS SSM into local keychain
 
-enveloper --service aws --domain dev pull
+enveloper pull --domain dev --project Enveloper --service aws
 
 # Clear environment settings
-enveloper --domain dev clear
+enveloper clear --domain dev --project Enveloper --service aws
 ```
-<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-clear.png" width="50%" alt="Clear settings from keychain" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-clear.png" width="80%" alt="Clear settings from cloud" />
 
+
+## Multiple cloud services
+
+### Amazon Web Services (aws)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="AWS Terminal Push" />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Console Push " />
+
+### Google Cloud (gcp)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-terminal-push.png" width="80%" alt="GCP Terminal Push" />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-console-push.png" width="80%" alt="GCP Console Push " />
+
+### Microsoft Azure Cloud (azure)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/azure-terminal-push.png" width="80%" alt="Azure Terminal Push" />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " />
+
+### Hashicorp Vault (vault)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="80%" alt="Vault Console Push " />
 
 ## Features
 

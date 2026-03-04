@@ -109,8 +109,17 @@ markers = [
     "integration_aws: integration tests for AWS SSM (set ENVELOPER_TEST_AWS=1 and AWS credentials)",
     "integration_gcp: integration tests for GCP Secret Manager (set ENVELOPER_TEST_GCP=1, ENVELOPER_TEST_GCP_PROJECT, and GCP credentials)",
     "integration_azure: integration tests for Azure Key Vault (set ENVELOPER_TEST_AZURE=1, ENVELOPER_TEST_AZURE_VAULT_URL, and Azure credentials)",
+    "integration_vault: integration tests for Vault KV v2 (set ENVELOPER_TEST_VAULT=1, VAULT_ADDR, VAULT_TOKEN; e.g. local Docker)",
     "integration_alibaba: integration tests for Alibaba Cloud KMS Secrets (set ENVELOPER_TEST_ALIBABA=1, ENVELOPER_TEST_ALIBABA_REGION, and Alibaba credentials)",
 ]
 
 [tool.uv]
 index-url = "https://pypi.org/simple"
+# Exclude yanked grpcio 1.78.1 (pulled in by google-cloud-*); use 1.78.0 or earlier
+constraint-dependencies = ["grpcio!=1.78.1", "grpcio-status!=1.78.1"]
+
+[dependency-groups]
+dev = [
+    "grpcio==1.78.0",
+    "grpcio-status==1.78.0",
+]

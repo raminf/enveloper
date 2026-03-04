@@ -6,6 +6,7 @@ and pass the corresponding marker, e.g.:
   ENVELOPER_TEST_GCP=1 ENVELOPER_TEST_GCP_PROJECT=my-project pytest -m integration_gcp tests/integration/
   ENVELOPER_TEST_AZURE=1 ENVELOPER_TEST_AZURE_VAULT_URL=https://my.vault.azure.net/ pytest -m integration_azure tests/integration/
   ENVELOPER_TEST_AWS=1 pytest -m integration_aws tests/integration/
+  ENVELOPER_TEST_VAULT=1 VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=root pytest -m integration_vault tests/integration/
 
 Unit tests (tests/test_*.py) use autouse mocks for both the keychain and cloud
 stores, so they never touch real backends. Integration tests (marked integration_*)
@@ -77,3 +78,19 @@ def alibaba_credentials():
             "Set ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET for Alibaba integration tests."
         )
     return os.environ.get("ENVELOPER_TEST_ALIBABA_REGION", "cn-hangzhou")
+
+
+@pytest.fixture(scope="module")
+def vault_credentials():
+    """Require ENVELOPER_TEST_VAULT=1, VAULT_ADDR, and VAULT_TOKEN (e.g. local Docker Vault)."""
+    _skip_unless(
+        "ENVELOPER_TEST_VAULT",
+        "Vault integration tests are disabled by default.",
+    )
+    addr = os.environ.get("VAULT_ADDR", "http://127.0.0.1:8200")
+    token = os.environ.get("VAULT_TOKEN")
+    if not token:
+        pytest.skip(
+            "Set VAULT_ADDR and VAULT_TOKEN for Vault integration tests (e.g. local Docker: VAULT_TOKEN=root)."
+        )
+    return {"url": addr, "token": token}

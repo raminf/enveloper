@@ -260,6 +260,73 @@ enveloper list keys --domain dev --project myapp --service aws
 
 ---
 
+## HashiCorp Vault (local Docker or server)
+
+The **`vault`** store works with **any** Vault that exposes the KV v2 API: local Vault in Docker (for development/testing) or a real deployment (self-hosted or HCP Vault Dedicated). You use the same `--service vault` and config; only `VAULT_ADDR` and `VAULT_TOKEN` change.
+
+### Option A: Local Vault in Docker (no cloud, good for tests)
+
+No cloud account. Run Vault in dev mode locally:
+
+**1. Start Vault**
+
+From the repo (or wherever you put the compose file):
+
+```bash
+docker compose -f docker-compose.vault.yml up -d
+```
+
+The Vault **web UI** is available at **http://127.0.0.1:8200/ui** — sign in with token `root`.
+
+**2. KV v2 at `secret/`**
+
+Recent Vault dev servers (1.15+) mount KV v2 at `secret/` by default, so nothing else is needed. If you use an older image and get errors about versioning, enable KV v2 once:
+
+```bash
+docker compose -f docker-compose.vault.yml exec vault vault secrets disable secret
+docker compose -f docker-compose.vault.yml exec vault vault secrets enable -path=secret kv-v2
+```
+
+**3. Set env vars and config**
+
+```bash
+export VAULT_ADDR=http://127.0.0.1:8200
+export VAULT_TOKEN=root
+```
+
+Or in `.enveloper.toml`:
+
+```toml
+[enveloper.vault]
+url = "http://127.0.0.1:8200"
+mount = "secret"
+```
+
+The token must be set via **`VAULT_TOKEN`** (or your shell); avoid putting the root token in the config file.
+
+**4. Install vault extra and test**
+
+```bash
+pip install enveloper[vault]
+# or: uv sync --extra vault
+enveloper list keys --domain dev --project myapp --service vault
+enveloper push --domain dev --project myapp --service vault
+```
+
+**Stop:** `docker compose -f docker-compose.vault.yml down`
+
+### Option B: Real Vault (self-hosted or HCP Vault Dedicated)
+
+Use your server or HCP Vault Dedicated URL and a token with read/write on the KV v2 mount:
+
+- **VAULT_ADDR** – e.g. `https://vault.example.com` or your HCP cluster address  
+- **VAULT_TOKEN** – token with policy allowing `secret/*` (or the mount you use)  
+- **Config:** `[enveloper.vault]` with `url` and `mount` as needed  
+
+Same `enveloper push --service vault` / `pull --service vault`; only the address and token differ.
+
+---
+
 ## Quick reference
 
 | Cloud  | Config / env | Credentials | Docs |
@@ -267,5 +334,6 @@ enveloper list keys --domain dev --project myapp --service aws
 | **Azure** | `[enveloper.azure]` `vault_url` or `ENVELOPER_AZURE_VAULT_URL` | `az login` or service principal | [Azure Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/) |
 | **GCP**  | `[enveloper.gcp]` `project` or `ENVELOPER_GCP_PROJECT` / `GOOGLE_CLOUD_PROJECT` | `gcloud auth application-default login` | [Secret Manager](https://cloud.google.com/secret-manager/docs) |
 | **AWS**  | `[enveloper.aws]` `profile`, `region` or `AWS_PROFILE`, `AWS_DEFAULT_REGION` | `aws configure` or env vars | [Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html) |
+| **Vault** (local or server) | `[enveloper.vault]` `url`, `mount` or `VAULT_ADDR`, `VAULT_TOKEN` | Root or policy token (local dev: `root`) | [Vault KV v2](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2) |
 
-For Vault, Aliyun, and GitHub, see [Cloud Storage](cloud-storage.md) and [Project Config](project-config.md).
+For Aliyun and GitHub, see [Cloud Storage](cloud-storage.md) and [Project Config](project-config.md).

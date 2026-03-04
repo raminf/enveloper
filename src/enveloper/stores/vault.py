@@ -3,8 +3,10 @@
 
 """VaultStore -- push/pull secrets to HashiCorp Vault KV v2.
 
-Requires ``hvac`` (install with ``pip install enveloper[vault]``).
-Uses KV v2: one Vault path holds all keys for the given prefix/path.
+Works with any Vault server (local Docker, self-hosted, or HCP Vault Dedicated).
+Uses VAULT_ADDR + VAULT_TOKEN and the standard KV v2 API. Requires ``hvac``
+(install with ``pip install enveloper[vault]``). One Vault path holds all keys
+for the given prefix/path.
 """
 
 from __future__ import annotations
