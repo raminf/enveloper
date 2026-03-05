@@ -354,6 +354,7 @@ def test_mcp_main_exits_when_mcp_import_fails() -> None:
 @pytest.mark.integration
 def test_mcp_server_responds_to_initialize() -> None:
     """MCP server responds to initialize JSON-RPC with Enveloper server name."""
+    pytest.importorskip("mcp", reason="enveloper[mcp] not installed; skip MCP server integration test")
     proc = subprocess.run(
         [sys.executable, "-m", "enveloper.mcp_server"],
         input=json.dumps(
