@@ -38,7 +38,9 @@ publish-test: publish-check bump-patch ## Run publish-check, bump patch, then pu
 	uv build
 	uv run twine upload -r testpypi dist/*
 
-publish: publish-check build ## Run publish-check, build, then publish to PyPI (uses ~/.pypirc [pypi])
+publish: publish-check ## Run publish-check, build, then publish to PyPI (uses ~/.pypirc [pypi])
+	rm -rf dist
+	uv build
 	uv run twine upload dist/*
 
 bump-patch: ## Bump patch version (0.1.0 -> 0.1.1)

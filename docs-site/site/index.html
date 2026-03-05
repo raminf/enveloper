@@ -1888,8 +1888,8 @@
 <li>etc.</li>
 </ul>
 <p>In some cases, these are inadvertently hard-coded into code, which is then pushed out to shared repositories. There are services to scan for these, but a recommended practice has been to place these in <code>.env</code> files. </p>
-<p><img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" />
-[<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]</p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" /></p>
+<p>[<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]</p>
 <hr />
 
 <p><code>.env</code> files are often excluded in <code>.gitignore</code> files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the <code>.env</code> file so they can use these shared secrets.</p>
@@ -1914,7 +1914,7 @@
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Sample .env file</span>
 </code></pre></div>
-<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="50%" alt="Sample .env file" /></p>
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="40%" alt="Sample .env file" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Import an existing .env file into the keychain</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>enveloper<span class="w"> </span>import<span class="w"> </span>sample.env<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
