@@ -128,33 +128,33 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 ## Multiple cloud services
 
-### Amazon Web Services (aws)
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-logo.svg" width="10%" alt="AWS logo" /> 
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/aws-logo.svg" width="20%" alt="AWS logo" /> 
+### Amazon Web Services (aws)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="AWS Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Console Push " />
 
-### Google Cloud (gcp)
+<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-logo.svg" width="10%" alt="AWS logo" /> 
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-logo.svg" width="20%" alt="AWS logo" /> 
+### Google Cloud (gcp)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/gcp-terminal-push.png" width="80%" alt="GCP Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/gcp-console-push.png" width="80%" alt="GCP Console Push " />
 
-### Microsoft Azure Cloud (azure)
+<img src="https://github.com/raminf/enveloper/raw/main/media/azure-logo.svg" width="10%" alt="AWS logo" /> 
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/azure-logo.svg" width="20%" alt="AWS logo" /> 
+### Microsoft Azure Cloud (azure)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-terminal-push.png" width="80%" alt="Azure Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " />
 
-### Hashicorp Vault (vault)
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="10%" alt="AWS logo" /> 
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="20%" alt="AWS logo" /> 
+### Hashicorp Vault (vault)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" />
 
