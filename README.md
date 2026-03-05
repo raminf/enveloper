@@ -152,13 +152,13 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " />
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="10%" alt="AWS logo" /> 
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="20%" alt="AWS logo" /> 
 
 ### Hashicorp Vault (vault)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" />
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="60%" alt="Vault Console Push " />
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="50%" alt="Vault Console Push " />
 
 ## Features
 
