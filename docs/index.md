@@ -33,9 +33,10 @@ In some cases, these are inadvertently hard-coded into code, which is then pushe
 
 Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
 
-Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs.
+Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs. Security companies are noticing that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-companies.png" width="50%" alt="News Headlines" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" />
+
 
 ## Enter `enveloper`
 
@@ -127,11 +128,15 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 ## Multiple cloud services
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-logo.svg" width="10%" alt="AWS logo" /> 
+
 ### Amazon Web Services (aws)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="AWS Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Console Push " />
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-logo.svg" width="10%" alt="AWS logo" /> 
 
 ### Google Cloud (gcp)
 
@@ -139,17 +144,21 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/gcp-console-push.png" width="80%" alt="GCP Console Push " />
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/azure-logo.svg" width="10%" alt="AWS logo" /> 
+
 ### Microsoft Azure Cloud (azure)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-terminal-push.png" width="80%" alt="Azure Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " />
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="20%" alt="AWS logo" /> 
+
 ### Hashicorp Vault (vault)
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" />
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="80%" alt="Vault Console Push " />
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="50%" alt="Vault Console Push " />
 
 ## Features
 
