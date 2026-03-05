@@ -11,7 +11,7 @@
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/headlines.png" width="100%" alt="News Headlines" />
 
-[ <a href='https://krebsonsecurity.com/2025/05/xai-dev-leaks-api-key-for-private-spacex-tesla-llms/' target='_blank'>KrebsOnSecurity</a>, <a href='https://blog.gitguardian.com/toyota-accidently-exposed-a-secret-key-publicly-on-github-for-five-years/' target='_blank'>GitGuardian/Toyota</a> - ]
+[ <a href='https://krebsonsecurity.com/2025/05/xai-dev-leaks-api-key-for-private-spacex-tesla-llms/' target='_blank'>KrebsOnSecurity</a>, <a href='https://blog.gitguardian.com/fresh-from-the-docks-uncovering-100-000-valid-secrets-in-dockerhub/' target='_blank'>DockerHub/GitGuardian</a>, <a href='https://blog.gitguardian.com/toyota-accidently-exposed-a-secret-key-publicly-on-github-for-five-years/' target='_blank'>Toyota/GitGuardian</a>]
 
 When developing software, there are often secrets that every developer or team need to deal with. These include:
 
