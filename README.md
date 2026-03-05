@@ -33,9 +33,10 @@ In some cases, these are inadvertently hard-coded into code, which is then pushe
 
 Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
 
-Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs.
+Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs. Security companies are noticing that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-companies.png" width="50%" alt="News Headlines" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" />
+
 
 ## Enter `enveloper`
 
