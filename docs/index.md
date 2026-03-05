@@ -84,8 +84,9 @@ Runnable examples show how to use enveloper in different environments without co
 | [GitHub Secrets](examples.md#github-secrets) | Push keychain values into GitHub Actions repository secrets. |
 | [Python SDK](examples.md#sdk) | Load secrets in a Python script with `load_dotenv` and `dotenv_values`. |
 | [Domains, projects & versioning](examples.md#domains-projects-versioning) | Organize secrets by domain, project, and semver version; list domains/projects. |
+| [MCP server](examples.md#mcp) | Let an LLM agent (e.g. Cursor) read/write env vars from keychain or cloud via Model Context Protocol; full CLI parity. |
 
-See [**Examples**](examples.md) for the full list, prerequisites, and links to each example in the repository.
+See [**Examples**](examples.md) for the full list, prerequisites, and links to each example in the repository. For MCP setup and tools, see [MCP server](mcp.md) and [examples/mcp/](https://github.com/raminf/enveloper/tree/main/examples/mcp).
 
 ## Quick Start
 

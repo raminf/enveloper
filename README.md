@@ -224,6 +224,8 @@ enveloper clear --domain dev --project Enveloper --service aws
 - [Makefile Integration](docs/makefile-integration.md) - Build system integration
 - [Other Projects](docs/other-projects.md) - Comparison with similar tools
 - [Development](docs/development.md) - Contributing and development
+- [LLM / AI assistant guide](docs/llm.md) - Information for LLMs and AI assistants working on this repo (see also [LLM/](LLM/))
+- [MCP server](docs/mcp.md) - Expose enveloper secrets to other LLMs (Cursor, Claude Desktop) via Model Context Protocol
 - [Adding Stores](docs/adding-stores.md) - Creating custom store plugins
 - [Publishing](docs/publishing.md) - Publishing to PyPI
 - [Security](docs/security.md) - Secure data storage and access control

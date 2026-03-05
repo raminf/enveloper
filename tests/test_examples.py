@@ -343,6 +343,39 @@ def test_examples_domains_projects_versioning_workflow(cli_runner, mock_keyring)
 
 
 # ---------------------------------------------------------------------------
+# MCP example
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_examples_mcp_readme_exists():
+    assert _examples_path("mcp", "README.md").is_file()
+
+
+@pytest.mark.unit
+def test_examples_mcp_readme_documents_tools_and_cursor():
+    content = _examples_path("mcp", "README.md").read_text()
+    assert "get_secret" in content or "MCP" in content
+    assert "enveloper-mcp" in content or "mcp_server" in content
+    assert "Cursor" in content or "cursor" in content or "mcpServers" in content
+    assert "list_services" in content or "list_keys" in content
+    assert "set_secret" in content or "import_from_file" in content
+
+
+@pytest.mark.unit
+def test_examples_mcp_step_by_step_exists():
+    assert _examples_path("mcp", "STEP_BY_STEP.md").is_file()
+
+
+@pytest.mark.unit
+def test_examples_mcp_step_by_step_has_install_and_configure():
+    content = _examples_path("mcp", "STEP_BY_STEP.md").read_text()
+    assert "install" in content.lower()
+    assert "enveloper-mcp" in content or "mcp_server" in content
+    assert "list_services" in content or "get_secret" in content or "list_keys" in content
+
+
+# ---------------------------------------------------------------------------
 # Runnable workflow: shell script with file store (integration)
 # ---------------------------------------------------------------------------
 

@@ -91,6 +91,21 @@ See also [Domains, projects & versioning](domains-projects-versioning.md) and [V
 
 ---
 
+## MCP server { #mcp }
+
+Let an **LLM agent** (e.g. in Cursor or Claude Desktop) access environment variables from enveloper — **full CLI parity**: read and write secrets from local keychain or remote secret managers (AWS, GCP, Azure, Vault, GitHub, etc.) without loading a `.env` file.
+
+- **Install:** `pip install enveloper[mcp]` (add `[aws]` or other cloud extras if needed).
+- **Run:** The MCP client runs `enveloper-mcp` (stdio). No need to run it manually.
+- **Configure:** In Cursor: **Settings → MCP**, add server with command `enveloper-mcp` (or `uv run python -m enveloper.mcp_server` with `cwd` set to project root).
+- **Tools:** The LLM can get a secret, list keys, set a secret, export env, import from file, clear scope, push to service, pull from service (API names: `get_secret`, `list_keys`, etc.; messages are human-friendly). Defaults for domain/project/version/service come from **ENVELOPER_*** and **.enveloper.toml**.
+
+**Files**: [examples/mcp/](https://github.com/raminf/enveloper/tree/main/examples/mcp) — README (step-by-step), STEP_BY_STEP.md, cursor-mcp-sample.json.
+
+See [MCP server](mcp.md) for the full tool list, parameters, step-by-step setup, and security notes.
+
+---
+
 ## sample.env
 
 The [examples/sample.env](https://github.com/raminf/enveloper/tree/main/examples/sample.env) file defines variables such as `MY_API_KEY`, `MY_API_SECRET`, and `LEVEL_SET`. Use it to import into the keychain: `enveloper import sample.env -d mydomain -p myproject`. No secrets are committed; the file is a template.

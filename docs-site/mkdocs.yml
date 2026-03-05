@@ -87,6 +87,8 @@ nav:
     - Security: security.md
   - Development:
     - Development: development.md
+    - LLM / AI assistant guide: llm.md
+    - MCP server: mcp.md
     - Adding Stores: adding-stores.md
     - Publishing: publishing.md
   - Other:
