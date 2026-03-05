@@ -130,11 +130,15 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 ### Amazon Web Services (aws)
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/aws-logo.svg" width="20%" alt="AWS logo" /> 
+
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="AWS Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Console Push " />
 
 ### Google Cloud (gcp)
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/gcp-logo.svg" width="20%" alt="AWS logo" /> 
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/gcp-terminal-push.png" width="80%" alt="GCP Terminal Push" />
 
@@ -142,15 +146,19 @@ enveloper clear --domain dev --project Enveloper --service aws
 
 ### Microsoft Azure Cloud (azure)
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/azure-logo.svg" width="20%" alt="AWS logo" /> 
+
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-terminal-push.png" width="80%" alt="Azure Terminal Push" />
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " />
 
 ### Hashicorp Vault (vault)
 
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="20%" alt="AWS logo" /> 
+
 <img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" />
 
-<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="80%" alt="Vault Console Push " />
+<img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="60%" alt="Vault Console Push " />
 
 ## Features
 
