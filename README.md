@@ -79,7 +79,13 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 ```bash
 # Import an existing .env file into the keychain
 enveloper import sample.env --domain dev --project Enveloper
+```
 
+Keys are stored in local keychain.
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/keychain-push.png" width="40%" alt="Sample .env file" />
+
+```bash
 # List what's stored
 
 enveloper list key --domain dev --project Enveloper
