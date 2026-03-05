@@ -7,6 +7,44 @@
 [![mypy](https://img.shields.io/badge/mypy-checked-blue.svg)](https://mypy-lang.org/)
 [![PyPI version](https://img.shields.io/pypi/v/enveloper.svg)](https://pypi.org/project/enveloper/)
 
+## Background
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/headlines.png" width="100%" alt="News Headlines" />
+
+When developing software, there are often secrets that every developer or team need to deal with. These include:
+
+- API keys
+- API secrets
+- Web passwords
+- User-Ids
+- User and Administrative Passwords
+- Tokens
+- Private endpoints
+- File paths
+- Universal Identifiers
+- Authorization keys
+- etc.
+
+In some cases, these are inadvertently hard-coded into code, which is then pushed out to shared repositories. There are services to scan for these, but a recommended practice has been to place these in `.env` files. 
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" />
+
+`.env` files are often excluded in `.gitignore` files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
+
+Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
+
+Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs.
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-companies.png" width="50%" alt="News Headlines" />
+
+## Enter `enveloper`
+
+`enveloper` allows you to avoid `.env` files or hard-coded credentials by storing secrets in your own protected system keychain. These can be injected into a build session at runtime, without any risk of inadvertent release.
+
+Local keychains work well for individuals. But what about sharing secrets? Fortunately, cloud-based services have already solved this problem, by offering _Secret Managers_ or _Vaults_ stored in cryptographically secure locations. 
+
+`enveloper` lets you store all your secrets in your local keychain or cloud-based secret managers, and easily move them back and forth or share them without having to leave any data in the open.
+
 <img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" />
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
