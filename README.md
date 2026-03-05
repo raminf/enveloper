@@ -13,6 +13,8 @@
 
 [ <a href='https://krebsonsecurity.com/2025/05/xai-dev-leaks-api-key-for-private-spacex-tesla-llms/' target='_blank'>KrebsOnSecurity</a>, <a href='https://blog.gitguardian.com/fresh-from-the-docks-uncovering-100-000-valid-secrets-in-dockerhub/' target='_blank'>DockerHub/GitGuardian</a>, <a href='https://blog.gitguardian.com/toyota-accidently-exposed-a-secret-key-publicly-on-github-for-five-years/' target='_blank'>Toyota/GitGuardian</a>]
 
+<hr />
+
 When developing software, there are often secrets that every developer or team need to deal with. These include:
 
 - API keys
@@ -32,6 +34,8 @@ In some cases, these are inadvertently hard-coded into code, which is then pushe
 <img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" />
 [<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]
 
+<hr />
+
 `.env` files are often excluded in `.gitignore` files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
 
 Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
@@ -39,7 +43,7 @@ Over time, these `.env` files themselves end up proliferating all over someone's
 Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" />
-
+<hr />
 
 ## Enter `enveloper`
 
@@ -52,6 +56,8 @@ Local keychains work well for individuals. But what about sharing secrets? Fortu
 <img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" />
 
 Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed `.env` files laying about your filesystem.
+
+<hr />
 
 ## Installation
 
