@@ -52,7 +52,7 @@ All examples use the same **domain** and **project** as the [sample.env](sample.
 | [github-secrets/](github-secrets/) | Push keychain (or file) values into **GitHub Actions repository secrets** via `enveloper push --service github`. |
 | [sdk/](sdk/) | Load secrets in a **Python script** with the SDK (`load_dotenv`, `dotenv_values`); requires `pip install enveloper[sdk]`. |
 | [domains-projects-versioning/](domains-projects-versioning/) | Organize secrets by **domain**, **project**, and **semver version**; list domains/projects, set/get by version. |
-| [mcp/](mcp/) | **MCP server**: let other LLMs (e.g. Cursor, Claude Desktop) get a secret, list keys, export env, and more from enveloper (human-friendly tools and messages). |
+| [mcp/](mcp/) | **MCP server**: let other LLMs (e.g. Cursor, Claude Desktop) get a secret, list keys, export env, and more from enveloper (human-friendly tools and messages). Includes [README](mcp/README.md) (install, use, step-by-step), [demo_tools.py](mcp/demo_tools.py) (runnable demo), and tests: `pytest tests/test_mcp.py` and `pytest tests/test_examples.py -k mcp`. |
 
 ## sample.env
 

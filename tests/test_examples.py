@@ -375,6 +375,45 @@ def test_examples_mcp_step_by_step_has_install_and_configure():
     assert "list_services" in content or "get_secret" in content or "list_keys" in content
 
 
+@pytest.mark.unit
+def test_examples_mcp_readme_has_install_and_use():
+    """MCP README documents how to install and use."""
+    content = _examples_path("mcp", "README.md").read_text()
+    assert "install" in content.lower()
+    assert "pip install enveloper[mcp]" in content or "uv pip install" in content
+    assert "use" in content.lower() or "enveloper-mcp" in content
+    assert "demo_tools.py" in content or "demo script" in content.lower()
+    assert "pytest" in content or "test" in content.lower()
+
+
+@pytest.mark.unit
+def test_examples_mcp_demo_script_exists():
+    assert _examples_path("mcp", "demo_tools.py").is_file()
+
+
+@pytest.mark.unit
+def test_examples_mcp_demo_env_exists():
+    assert _examples_path("mcp", "demo.env").is_file()
+
+
+@pytest.mark.integration
+def test_examples_mcp_demo_runs():
+    """Run the MCP demo script (same tool calls an LLM would make)."""
+    script = _examples_path("mcp", "demo_tools.py")
+    assert script.is_file()
+    result = subprocess.run(
+        [sys.executable, str(script)],
+        cwd=EXAMPLES_DIR.parent,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    assert "list_services" in result.stdout or "list_keys" in result.stdout or "get_secret" in result.stdout
+    assert "demo_key" in result.stdout or "MY_API_KEY" in result.stdout
+    assert "Secret not found" in result.stdout or "not found" in result.stdout
+
+
 # ---------------------------------------------------------------------------
 # Runnable workflow: shell script with file store (integration)
 # ---------------------------------------------------------------------------

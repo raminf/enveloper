@@ -22,6 +22,19 @@ enveloper-mcp --help
 uv run python -c "from enveloper.mcp_server import list_services; print(list_services())"
 ```
 
+**Optional — run the demo script** (calls the same MCP tool functions an LLM would use, using the file store):
+
+```bash
+uv run python examples/mcp/demo_tools.py
+```
+
+**Optional — run the MCP tests:**
+
+```bash
+uv run pytest tests/test_mcp.py -v
+uv run pytest tests/test_examples.py -v -k mcp
+```
+
 ## 2. Add secrets (choose one)
 
 **A. Local keychain (default)**

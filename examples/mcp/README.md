@@ -2,6 +2,51 @@
 
 This example shows how to run enveloper’s **MCP server** so that an LLM (e.g. in Cursor or Claude Desktop) can **read and write** environment variables from your local keychain or remote secret manager — the same as using the CLI.
 
+## Install
+
+```bash
+pip install enveloper[mcp]
+```
+
+With **uv**:
+
+```bash
+uv pip install enveloper[mcp]
+```
+
+For cloud backends (e.g. AWS), add the extra: `pip install enveloper[mcp,aws]`.
+
+## Use
+
+1. **Add secrets** (optional): `enveloper import sample.env --domain mydomain --project myproject` from the `examples/` folder, or use a `.env` file and pass `service="file"` and `path` to tools.
+2. **Run the server**: Your MCP client runs `enveloper-mcp` (stdio); you don’t start it manually.
+3. **Configure the client**: In Cursor, go to **Settings → MCP** and add a server with command `enveloper-mcp` (or `uv run python -m enveloper.mcp_server` with `cwd` set to the project root).
+4. **Call tools from the LLM**: e.g. get a secret, list keys, export env — see the tool list and examples below.
+
+## Examples and tests
+
+- **Run the demo script** (same tool calls an LLM would make, using the file store and `demo.env` in this folder):
+
+  ```bash
+  uv run python examples/mcp/demo_tools.py
+  ```
+
+  Or from this directory: `uv run python demo_tools.py`
+
+- **Run the MCP tests** (unit and server startup):
+
+  ```bash
+  uv run pytest tests/test_mcp.py -v
+  ```
+
+- **Run the example docs tests** (check README and STEP_BY_STEP content):
+
+  ```bash
+  uv run pytest tests/test_examples.py -v -k mcp
+  ```
+
+See [STEP_BY_STEP.md](STEP_BY_STEP.md) for detailed setup and [cursor-mcp-sample.json](cursor-mcp-sample.json) for a sample Cursor config.
+
 ## Step-by-step: get it working
 
 ### 1. Install

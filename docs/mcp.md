@@ -116,6 +116,13 @@ To use a `.env` file instead of the keychain, pass `service="file"` and `path` t
 
 You can set **ENVELOPER_SERVICE=file** and **ENVELOPER_PATH** (if your client supports env) so the LLM doesn’t need to pass them every time.
 
+## Examples and tests
+
+- **Runnable demo:** From the repo root, run `uv run python examples/mcp/demo_tools.py`. This script calls the same MCP tool functions (get secret, list keys, export env) an LLM would use, with the file store and `examples/mcp/demo.env`.
+- **Tests:** Run `uv run pytest tests/test_mcp.py -v` for MCP tool and server tests, and `uv run pytest tests/test_examples.py -v -k mcp` for example-docs and demo checks.
+
+See [examples/mcp/README.md](../examples/mcp/README.md) for install, use, and step-by-step instructions.
+
 ## Security
 
 - The MCP server has **full read and write** access to the configured stores (keychain, file, or cloud). The LLM can get a secret, set a secret, list keys, export env, import from file, clear scope, push to service, and pull from service.

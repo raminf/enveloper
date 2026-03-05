@@ -100,7 +100,10 @@ Let an **LLM agent** (e.g. in Cursor or Claude Desktop) access environment varia
 - **Configure:** In Cursor: **Settings → MCP**, add server with command `enveloper-mcp` (or `uv run python -m enveloper.mcp_server` with `cwd` set to project root).
 - **Tools:** The LLM can get a secret, list keys, set a secret, export env, import from file, clear scope, push to service, pull from service (API names: `get_secret`, `list_keys`, etc.; messages are human-friendly). Defaults for domain/project/version/service come from **ENVELOPER_*** and **.enveloper.toml**.
 
-**Files**: [examples/mcp/](https://github.com/raminf/enveloper/tree/main/examples/mcp) — README (step-by-step), STEP_BY_STEP.md, cursor-mcp-sample.json.
+**Files**: [examples/mcp/](https://github.com/raminf/enveloper/tree/main/examples/mcp) — README (install, use, step-by-step), STEP_BY_STEP.md, [demo_tools.py](https://github.com/raminf/enveloper/tree/main/examples/mcp/demo_tools.py) (runnable demo), demo.env, cursor-mcp-sample.json.
+
+- **Run the demo:** `uv run python examples/mcp/demo_tools.py` (uses the same tool calls an LLM would make, with the file store).
+- **Run tests:** `uv run pytest tests/test_mcp.py -v` and `uv run pytest tests/test_examples.py -v -k mcp`.
 
 See [MCP server](mcp.md) for the full tool list, parameters, step-by-step setup, and security notes.
 
