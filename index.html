@@ -538,6 +538,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enter-enveloper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enter enveloper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1846,6 +1868,32 @@
 <a href="https://github.com/astral-sh/ruff"><img alt="Ruff" src="https://img.shields.io/badge/ruff-checked-yellow.svg" /></a>
 <a href="https://mypy-lang.org/"><img alt="mypy" src="https://img.shields.io/badge/mypy-checked-blue.svg" /></a>
 <a href="https://pypi.org/project/enveloper/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/enveloper.svg" /></a></p>
+<h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/headlines.png" width="100%" alt="News Headlines" /></p>
+<p>When developing software, there are often secrets that every developer or team need to deal with. These include:</p>
+<ul>
+<li>API keys</li>
+<li>API secrets</li>
+<li>Web passwords</li>
+<li>User-Ids</li>
+<li>User and Administrative Passwords</li>
+<li>Tokens</li>
+<li>Private endpoints</li>
+<li>File paths</li>
+<li>Universal Identifiers</li>
+<li>Authorization keys</li>
+<li>etc.</li>
+</ul>
+<p>In some cases, these are inadvertently hard-coded into code, which is then pushed out to shared repositories. There are services to scan for these, but a recommended practice has been to place these in <code>.env</code> files. </p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" /></p>
+<p><code>.env</code> files are often excluded in <code>.gitignore</code> files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the <code>.env</code> file so they can use these shared secrets.</p>
+<p>Over time, these <code>.env</code> files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.</p>
+<p>Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read <code>.env</code> files, or send them to remote LLMs. Security companies are noticing that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.</p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" /></p>
+<h2 id="enter-enveloper">Enter <code>enveloper</code><a class="headerlink" href="#enter-enveloper" title="Permanent link">&para;</a></h2>
+<p><code>enveloper</code> allows you to avoid <code>.env</code> files or hard-coded credentials by storing secrets in your own protected system keychain. These can be injected into a build session at runtime, without any risk of inadvertent release.</p>
+<p>Local keychains work well for individuals. But what about sharing secrets? Fortunately, cloud-based services have already solved this problem, by offering <em>Secret Managers</em> or <em>Vaults</em> stored in cryptographically secure locations. </p>
+<p><code>enveloper</code> lets you store all your secrets in your local keychain or cloud-based secret managers, and easily move them back and forth or share them without having to leave any data in the open.</p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" /></p>
 <p>Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed <code>.env</code> files laying about your filesystem.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
@@ -1885,7 +1933,7 @@
 </code></pre></div>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="Push all values from keychain to cloud" /></p>
 <p>In the console, we can verify that the values are stored (in the case of AWS, in the SSM Parameter Store)</p>
-<p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-cosole-push.png" width="80%" alt="AWS Service Console" /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Service Console" /></p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Verify that they got pushed in AWS console for System Store &gt; Parameters</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>key<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
@@ -1900,18 +1948,22 @@
 </code></pre></div>
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-clear.png" width="80%" alt="Clear settings from cloud" /></p>
 <h2 id="multiple-cloud-services">Multiple cloud services<a class="headerlink" href="#multiple-cloud-services" title="Permanent link">&para;</a></h2>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-logo.svg" width="10%" alt="AWS logo" /> </p>
 <h3 id="amazon-web-services-aws">Amazon Web Services (aws)<a class="headerlink" href="#amazon-web-services-aws" title="Permanent link">&para;</a></h3>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="AWS Terminal Push" /></p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Console Push " /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/gcp-logo.svg" width="10%" alt="AWS logo" /> </p>
 <h3 id="google-cloud-gcp">Google Cloud (gcp)<a class="headerlink" href="#google-cloud-gcp" title="Permanent link">&para;</a></h3>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/gcp-terminal-push.png" width="80%" alt="GCP Terminal Push" /></p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/gcp-console-push.png" width="80%" alt="GCP Console Push " /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/azure-logo.svg" width="10%" alt="AWS logo" /> </p>
 <h3 id="microsoft-azure-cloud-azure">Microsoft Azure Cloud (azure)<a class="headerlink" href="#microsoft-azure-cloud-azure" title="Permanent link">&para;</a></h3>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/azure-terminal-push.png" width="80%" alt="Azure Terminal Push" /></p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/azure-console-push.png" width="80%" alt="Azure Console Push " /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/vault-logo.svg" width="20%" alt="AWS logo" /> </p>
 <h3 id="hashicorp-vault-vault">Hashicorp Vault (vault)<a class="headerlink" href="#hashicorp-vault-vault" title="Permanent link">&para;</a></h3>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/vault-terminal-push.png" width="80%" alt="Vault Terminal Push" /></p>
-<p><img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="80%" alt="Vault Console Push " /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/vault-console-push.png" width="50%" alt="Vault Console Push " /></p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Backward compatible with <code>.env</code> files.</li>
@@ -1943,10 +1995,6 @@
 <td>AWS Systems Manager Parameter Store</td>
 </tr>
 <tr>
-<td><strong>GitHub</strong></td>
-<td>GitHub Actions secrets</td>
-</tr>
-<tr>
 <td><strong>Vault</strong></td>
 <td>HashiCorp Vault KV v2</td>
 </tr>
@@ -1960,7 +2008,11 @@
 </tr>
 <tr>
 <td><strong>Alibaba</strong></td>
-<td>Alibaba Cloud KMS Secrets Manager</td>
+<td>Alibaba Cloud KMS Secrets Manager (untested)</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td>GitHub Actions secrets (coming soon)</td>
 </tr>
 </tbody>
 </table>
