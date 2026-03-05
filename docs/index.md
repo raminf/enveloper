@@ -32,6 +32,7 @@ When developing software, there are often secrets that every developer or team n
 In some cases, these are inadvertently hard-coded into code, which is then pushed out to shared repositories. There are services to scan for these, but a recommended practice has been to place these in `.env` files. 
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" />
+
 [<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]
 
 <hr />
@@ -72,7 +73,7 @@ pip install enveloper[all]       # CLI + SDK + all cloud backends
 ```bash
 # Sample .env file
 ```
-<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="50%" alt="Sample .env file" />
+<img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="40%" alt="Sample .env file" />
 
 
 ```bash

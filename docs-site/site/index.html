@@ -1870,6 +1870,9 @@
 <a href="https://pypi.org/project/enveloper/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/enveloper.svg" /></a></p>
 <h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/headlines.png" width="100%" alt="News Headlines" /></p>
+<p>[ <a href='https://krebsonsecurity.com/2025/05/xai-dev-leaks-api-key-for-private-spacex-tesla-llms/' target='_blank'>KrebsOnSecurity</a>, <a href='https://blog.gitguardian.com/fresh-from-the-docks-uncovering-100-000-valid-secrets-in-dockerhub/' target='_blank'>DockerHub/GitGuardian</a>, <a href='https://blog.gitguardian.com/toyota-accidently-exposed-a-secret-key-publicly-on-github-for-five-years/' target='_blank'>Toyota/GitGuardian</a>]</p>
+<hr />
+
 <p>When developing software, there are often secrets that every developer or team need to deal with. These include:</p>
 <ul>
 <li>API keys</li>
@@ -1885,17 +1888,24 @@
 <li>etc.</li>
 </ul>
 <p>In some cases, these are inadvertently hard-coded into code, which is then pushed out to shared repositories. There are services to scan for these, but a recommended practice has been to place these in <code>.env</code> files. </p>
-<p><img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" /></p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/best-practice-env.png" width="50%" alt="News Headlines" />
+[<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]</p>
+<hr />
+
 <p><code>.env</code> files are often excluded in <code>.gitignore</code> files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the <code>.env</code> file so they can use these shared secrets.</p>
 <p>Over time, these <code>.env</code> files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.</p>
-<p>Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read <code>.env</code> files, or send them to remote LLMs. Security companies are noticing that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.</p>
+<p>Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read <code>.env</code> files, or send them to remote LLMs. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.</p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" /></p>
+<hr />
+
 <h2 id="enter-enveloper">Enter <code>enveloper</code><a class="headerlink" href="#enter-enveloper" title="Permanent link">&para;</a></h2>
 <p><code>enveloper</code> allows you to avoid <code>.env</code> files or hard-coded credentials by storing secrets in your own protected system keychain. These can be injected into a build session at runtime, without any risk of inadvertent release.</p>
 <p>Local keychains work well for individuals. But what about sharing secrets? Fortunately, cloud-based services have already solved this problem, by offering <em>Secret Managers</em> or <em>Vaults</em> stored in cryptographically secure locations. </p>
 <p><code>enveloper</code> lets you store all your secrets in your local keychain or cloud-based secret managers, and easily move them back and forth or share them without having to leave any data in the open.</p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/enveloper.svg" width="100%" alt="Envelope Services" /></p>
 <p>Manage environment secrets via your system keychain or cloud secret stores. Don't leave exposed <code>.env</code> files laying about your filesystem.</p>
+<hr />
+
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="w">            </span><span class="c1"># CLI only</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>sdk<span class="o">]</span><span class="w">       </span><span class="c1"># CLI + SDK (load_dotenv / dotenv_values)</span>
