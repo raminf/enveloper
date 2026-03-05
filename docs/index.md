@@ -37,13 +37,18 @@ In some cases, these are inadvertently hard-coded into code, which is then pushe
 
 <hr />
 
-`.env` files are often excluded in `.gitignore` files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
+## A Different Approach
 
-Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
+`.env` files open up a new range of problems:
 
-Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
+- If you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
+- Over time, multiple `.env` files end up proliferating all over one's computer, end up in logs, backups, or get lost.
+- AI-based agents with access to the local filesystem can create problems. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" />
+
+File-based `.env` files are best to be avoided.
+
 <hr />
 
 ## Enter `enveloper`
@@ -63,30 +68,14 @@ Manage environment secrets via your system keychain or cloud secret stores. Don'
 ## Installation
 
 ```bash
-pip install enveloper            # CLI only
-pip install enveloper[sdk]       # CLI + SDK (load_dotenv / dotenv_values)
-pip install enveloper[all]       # CLI + SDK + all cloud backends
+pip install enveloper            # CLI only (scripts, Make, Docker, CI)
+pip install enveloper[sdk]       # CLI + SDK — recommended for Python apps (load_dotenv / dotenv_values)
+pip install enveloper[all]        # CLI + SDK + all cloud backends
 ```
 
 For Python applications that load secrets at runtime (keychain or cloud), install the **SDK** extra: `pip install enveloper[sdk]`.
 
-## Examples
-
-Runnable examples show how to use enveloper in different environments without committing `.env` files:
-
-| Example | Description |
-|--------|-------------|
-| [Docker](examples.md#docker) | Run a container that loads secrets from keychain or AWS. |
-| [Makefile](examples.md#makefile) | Load env for targets, then unexport when done. |
-| [Kubernetes](examples.md#kubernetes) | Job or init container that uses enveloper to inject env vars. |
-| [CI/CD](examples.md#cicd) | GitHub Actions (or similar) that pull secrets and use export / unexport. |
-| [Shell script](examples.md#shell) | Load secrets with `eval "$(enveloper export ...)"`, run app, then unexport. |
-| [GitHub Secrets](examples.md#github-secrets) | Push keychain values into GitHub Actions repository secrets. |
-| [Python SDK](examples.md#sdk) | Load secrets in a Python script with `load_dotenv` and `dotenv_values`. |
-| [Domains, projects & versioning](examples.md#domains-projects-versioning) | Organize secrets by domain, project, and semver version; list domains/projects. |
-| [MCP server](examples.md#mcp) | Let an LLM agent (e.g. Cursor) read/write env vars from keychain or cloud via Model Context Protocol; full CLI parity. |
-
-See [**Examples**](examples.md) for the full list, prerequisites, and links to each example in the repository. For MCP setup and tools, see [MCP server](mcp.md) and [examples/mcp/](https://github.com/raminf/enveloper/tree/main/examples/mcp).
+**Examples:** Runnable samples for Docker, Makefile, Kubernetes, CI/CD, shell scripts, GitHub Secrets, the Python SDK, and domains/versioning are in the [**examples**](examples/README.md) folder.
 
 ## Quick Start
 
@@ -99,7 +88,13 @@ See [**Examples**](examples.md) for the full list, prerequisites, and links to e
 ```bash
 # Import an existing .env file into the keychain
 enveloper import sample.env --domain dev --project Enveloper
+```
 
+Keys are stored in local keychain.
+
+<img src="https://github.com/raminf/enveloper/raw/main/media/keychain-push.png" width="40%" alt="Sample .env file" />
+
+```bash
 # List what's stored
 
 enveloper list key --domain dev --project Enveloper
@@ -216,21 +211,26 @@ enveloper clear --domain dev --project Enveloper --service aws
 ## Documentation
 
 - [Step-by-Step Tutorial](step-by-step-tutorial.md) - From sample.env to keychain, builds, and cloud
+- [Examples](examples/README.md) - Docker, Makefile, Kubernetes, CI/CD, shell, GitHub Secrets, SDK, domains/versioning
 - [CLI Reference](cli-reference.md) - All commands and options
 - [Technical Details](technical-details.md) - Architecture and internals
 - [Local Keychain](local-keychain.md) - OS keychain setup and usage
 - [Cloud Storage](cloud-storage.md) - Cloud service configuration
 - [Cloud Setup Guide](cloud-setup-guide.md) - Azure, GCP, and AWS setup (credentials, IAM/RBAC, testing)
 - [Versioning](versioning.md) - Semantic versioning for secrets
+- [Domains, projects & versioning](domains-projects-versioning.md) - Organize secrets by domain, project, and semver
 - [JSON/YAML](json-yaml.md) - Import/export in JSON and YAML formats
 - [SDK](sdk.md) - Python SDK for `load_dotenv` / `dotenv_values`
 - [Project Config](project-config.md) - `.enveloper.toml` configuration
 - [Config/Env Overrides](config-env-overrides.md) - Priority order for settings
 - [Service Backend](service-backend.md) - Backend selection and configuration
 - [CI/CD Integration](cicd-integration.md) - GitHub Actions, CodeBuild, GitLab CI
+- [GitHub Secrets](github-secrets.md) - Push keychain values into GitHub Actions secrets
 - [Makefile Integration](makefile-integration.md) - Build system integration
 - [Other Projects](other-projects.md) - Comparison with similar tools
 - [Development](development.md) - Contributing and development
+- [LLM / AI assistant guide](llm.md) - Information for LLMs and AI assistants working on this repo (see also [LLM/](LLM/))
+- [MCP server](mcp.md) - Expose enveloper secrets to other LLMs (Cursor, Claude Desktop) via Model Context Protocol
 - [Adding Stores](adding-stores.md) - Creating custom store plugins
 - [Publishing](publishing.md) - Publishing to PyPI
 - [Security](security.md) - Secure data storage and access control
