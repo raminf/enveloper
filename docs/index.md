@@ -68,6 +68,25 @@ pip install enveloper[sdk]       # CLI + SDK (load_dotenv / dotenv_values)
 pip install enveloper[all]       # CLI + SDK + all cloud backends
 ```
 
+For Python applications that load secrets at runtime (keychain or cloud), install the **SDK** extra: `pip install enveloper[sdk]`.
+
+## Examples
+
+Runnable examples show how to use enveloper in different environments without committing `.env` files:
+
+| Example | Description |
+|--------|-------------|
+| [Docker](examples.md#docker) | Run a container that loads secrets from keychain or AWS. |
+| [Makefile](examples.md#makefile) | Load env for targets, then unexport when done. |
+| [Kubernetes](examples.md#kubernetes) | Job or init container that uses enveloper to inject env vars. |
+| [CI/CD](examples.md#cicd) | GitHub Actions (or similar) that pull secrets and use export / unexport. |
+| [Shell script](examples.md#shell) | Load secrets with `eval "$(enveloper export ...)"`, run app, then unexport. |
+| [GitHub Secrets](examples.md#github-secrets) | Push keychain values into GitHub Actions repository secrets. |
+| [Python SDK](examples.md#sdk) | Load secrets in a Python script with `load_dotenv` and `dotenv_values`. |
+| [Domains, projects & versioning](examples.md#domains-projects-versioning) | Organize secrets by domain, project, and semver version; list domains/projects. |
+
+See [**Examples**](examples.md) for the full list, prerequisites, and links to each example in the repository.
+
 ## Quick Start
 
 ```bash

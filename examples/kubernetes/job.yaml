@@ -1,0 +1,48 @@
+# Example Kubernetes Job: run a container that loads env from enveloper (AWS SSM)
+# and runs a command. No .env file in the image.
+#
+# Prerequisites: AWS credentials in the pod (e.g. IRSA or Secret with
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY). Enveloper domain/project and
+# prefix configured in AWS SSM.
+#
+# Apply: kubectl apply -f examples/kubernetes/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: enveloper-demo
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: app
+          image: python:3.12-slim
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              pip install -q enveloper[aws]
+              export ENVELOPER_DOMAIN="${ENVELOPER_DOMAIN:-mydomain}"
+              export ENVELOPER_PROJECT="${ENVELOPER_PROJECT:-myproject}"
+              enveloper pull --service aws --domain "$ENVELOPER_DOMAIN" --project "$ENVELOPER_PROJECT" || true
+              eval "$(enveloper --domain "$ENVELOPER_DOMAIN" --project "$ENVELOPER_PROJECT" export --format unix)" || true
+              echo "Env from enveloper: MY_API_KEY set=${MY_API_KEY:+yes} LEVEL_SET=$LEVEL_SET"
+              echo "Done."
+          env:
+            - name: ENVELOPER_DOMAIN
+              value: "mydomain"
+            - name: ENVELOPER_PROJECT
+              value: "myproject"
+            # In production, use IRSA or inject AWS_* from a Secret
+            # - name: AWS_ACCESS_KEY_ID
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: aws-creds
+            #       key: access_key_id
+            # - name: AWS_SECRET_ACCESS_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: aws-creds
+            #       key: secret_access_key

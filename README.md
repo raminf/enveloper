@@ -63,10 +63,14 @@ Manage environment secrets via your system keychain or cloud secret stores. Don'
 ## Installation
 
 ```bash
-pip install enveloper            # CLI only
-pip install enveloper[sdk]       # CLI + SDK (load_dotenv / dotenv_values)
-pip install enveloper[all]       # CLI + SDK + all cloud backends
+pip install enveloper            # CLI only (scripts, Make, Docker, CI)
+pip install enveloper[sdk]       # CLI + SDK — recommended for Python apps (load_dotenv / dotenv_values)
+pip install enveloper[all]        # CLI + SDK + all cloud backends
 ```
+
+For Python applications that load secrets at runtime (keychain or cloud), install the **SDK** extra: `pip install enveloper[sdk]`.
+
+**Examples:** Runnable samples for Docker, Makefile, Kubernetes, CI/CD, shell scripts, GitHub Secrets, the Python SDK, and domains/versioning are in the [**examples**](examples/README.md) folder.
 
 ## Quick Start
 
@@ -202,18 +206,21 @@ enveloper clear --domain dev --project Enveloper --service aws
 ## Documentation
 
 - [Step-by-Step Tutorial](docs/step-by-step-tutorial.md) - From sample.env to keychain, builds, and cloud
+- [Examples](examples/README.md) - Docker, Makefile, Kubernetes, CI/CD, shell, GitHub Secrets, SDK, domains/versioning
 - [CLI Reference](docs/cli-reference.md) - All commands and options
 - [Technical Details](docs/technical-details.md) - Architecture and internals
 - [Local Keychain](docs/local-keychain.md) - OS keychain setup and usage
 - [Cloud Storage](docs/cloud-storage.md) - Cloud service configuration
 - [Cloud Setup Guide](docs/cloud-setup-guide.md) - Azure, GCP, and AWS setup (credentials, IAM/RBAC, testing)
 - [Versioning](docs/versioning.md) - Semantic versioning for secrets
+- [Domains, projects & versioning](docs/domains-projects-versioning.md) - Organize secrets by domain, project, and semver
 - [JSON/YAML](docs/json-yaml.md) - Import/export in JSON and YAML formats
 - [SDK](docs/sdk.md) - Python SDK for `load_dotenv` / `dotenv_values`
 - [Project Config](docs/project-config.md) - `.enveloper.toml` configuration
 - [Config/Env Overrides](docs/config-env-overrides.md) - Priority order for settings
 - [Service Backend](docs/service-backend.md) - Backend selection and configuration
 - [CI/CD Integration](docs/cicd-integration.md) - GitHub Actions, CodeBuild, GitLab CI
+- [GitHub Secrets](docs/github-secrets.md) - Push keychain values into GitHub Actions secrets
 - [Makefile Integration](docs/makefile-integration.md) - Build system integration
 - [Other Projects](docs/other-projects.md) - Comparison with similar tools
 - [Development](docs/development.md) - Contributing and development

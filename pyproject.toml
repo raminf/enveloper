@@ -105,6 +105,8 @@ disable_error_code = ["attr-defined"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
+    "unit: unit tests (structure, content, in-process CLI with mocks)",
+    "integration: integration tests (subprocess scripts, full workflows)",
     "integration_full_flow: full flow test (clear, import, export, push, set, unexport, clear); uses shared script in enveloper-rs/tests",
     "integration_aws: integration tests for AWS SSM (set ENVELOPER_TEST_AWS=1 and AWS credentials)",
     "integration_gcp: integration tests for GCP Secret Manager (set ENVELOPER_TEST_GCP=1, ENVELOPER_TEST_GCP_PROJECT, and GCP credentials)",

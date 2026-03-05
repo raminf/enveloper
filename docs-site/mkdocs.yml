@@ -64,6 +64,8 @@ nav:
     - Step-by-Step Tutorial: step-by-step-tutorial.md
     - Technical Details: technical-details.md
     - Installation: https://pypi.org/project/enveloper/
+    - Examples: examples.md
+    - Domains, projects & versioning: domains-projects-versioning.md
   - CLI Reference:
     - CLI Reference: cli-reference.md
   - SDK:

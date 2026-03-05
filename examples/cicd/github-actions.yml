@@ -1,0 +1,46 @@
+# Example GitHub Actions workflow: use enveloper to load secrets (no .env in repo).
+# - import (or pull from AWS) loads the keychain
+# - export --format unix loads vars into the job environment
+# - unexport clears them at the end
+#
+# Add secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (and optionally ENV_FILE).
+
+name: Enveloper CI demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install enveloper
+        run: pip install enveloper[aws]
+
+      - name: Pull secrets from AWS SSM
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: enveloper pull --service aws --domain mydomain --project myproject || true
+
+      - name: Export env and run demo
+        run: |
+          eval "$(enveloper --domain mydomain --project myproject export --format unix)"
+          echo "MY_API_KEY is set: ${MY_API_KEY:+yes}"
+          echo "LEVEL_SET=$LEVEL_SET"
+          echo "Demo step done."
+
+      - name: Unexport (clear env)
+        if: always()
+        run: |
+          eval "$(enveloper --domain mydomain --project myproject unexport --format unix)"
+          echo "Env cleared."

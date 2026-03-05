@@ -37,10 +37,12 @@ Every secret is stored under a composite key built from five segments:
 |---------|---------|--------|
 | `prefix` | `envr` | `SecretStore.prefix` class attr |
 | `sep` | `/` | `SecretStore.key_separator` |
-| `domain` | `_default_` | CLI `--domain` / env var |
-| `project` | `_default_` | CLI `--project` / config |
-| `version` | `1.0.0` | CLI `--version` / env var |
+| `domain` | `_default_` | CLI `--domain` / `ENVELOPER_DOMAIN` / config |
+| `project` | `_default_` | CLI `--project` / `ENVELOPER_PROJECT` / config |
+| `version` | `1.0.0` | CLI `--version` / `ENVELOPER_VERSION` |
 | `name` | *(user-supplied)* | The actual secret name |
+
+Defaults for domain, project, and version may be interpreted differently by each store (keychain, file, AWS, GitHub, GCP, Azure, etc.); see [Domains, projects & versioning](domains-projects-versioning.md).
 
 **Example:** With AWS store (separator `/`), the key for `API_KEY` might be:
 ```
