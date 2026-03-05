@@ -37,13 +37,18 @@ In some cases, these are inadvertently hard-coded into code, which is then pushe
 
 <hr />
 
-`.env` files are often excluded in `.gitignore` files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
+## A Different Approach
 
-Over time, these `.env` files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.
+`.env` files open up a new range of problems:
 
-Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read `.env` files, or send them to remote LLMs. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
+- If you move to a new machine, or want others to work on the code, they need to get a copy of the `.env` file so they can use these shared secrets.
+- Over time, multiple `.env` files end up proliferating all over one's computer, end up in logs, backups, or get lost.
+- AI-based agents with access to the local filesystem can create problems. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.
 
 <img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" />
+
+File-based `.env` files are best to be avoided.
+
 <hr />
 
 ## Enter `enveloper`
