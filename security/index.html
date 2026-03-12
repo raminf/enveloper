@@ -636,6 +636,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../domains-projects-versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Domains, projects & versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1409,6 +1465,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#input-sanitization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Sanitization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#local-keychain" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1794,6 +1861,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM / AI assistant guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../adding-stores/" class="md-nav__link">
         
   
@@ -2016,6 +2139,16 @@
 <h1 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p><code>enveloper</code> prioritizes security by storing secrets in encrypted, vendor-provided storage systems. This document outlines the security mechanisms and best practices.</p>
+<h2 id="input-sanitization">Input Sanitization<a class="headerlink" href="#input-sanitization" title="Permanent link">&para;</a></h2>
+<p>Before <code>enveloper</code> writes a secret to the local keychain, <code>.env</code> file store, or a cloud secret backend, it validates the input with a shared sanitization layer.</p>
+<ul>
+<li>Keys must be ASCII environment-variable names: start with a letter or <code>_</code>, then use only letters, digits, and <code>_</code></li>
+<li>Keys reject invalid unicode, compatibility forms, spaces, punctuation variants, and control characters</li>
+<li>Values reject suspicious SQL injection, shell injection, and prompt-injection patterns</li>
+<li>Keys and values are length-limited so a <code>KEY=value</code> pair stays within the most conservative cross-platform environment size budget used by the project</li>
+<li>File access paths are checked for traversal patterns such as <code>..</code>, <code>../</code>, <code>..\\</code>, shell metacharacters, and similar unsafe constructs before reads or writes happen</li>
+</ul>
+<p>These checks are implemented in one reusable module so new rules can be added in a single place and immediately apply across CLI, SDK, file import/export, and store backends.</p>
 <h2 id="local-keychain">Local Keychain<a class="headerlink" href="#local-keychain" title="Permanent link">&para;</a></h2>
 <h3 id="macos-keychain">macOS Keychain<a class="headerlink" href="#macos-keychain" title="Permanent link">&para;</a></h3>
 <ul>

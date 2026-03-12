@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://enveloper.net/disclosures/">
+        <link rel="canonical" href="https://enveloper.net/llm/">
       
       
-        <link rel="prev" href="../other-projects/">
+        <link rel="prev" href="../development/">
       
       
-        <link rel="next" href="../license/">
+        <link rel="next" href="../mcp/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Disclosures - enveloper</title>
+        <title>LLM / AI assistant guide - enveloper</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#disclosures" class="md-skip">
+        <a href="#llm-and-ai-assistant-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Disclosures
+              LLM / AI assistant guide
             
           </span>
         </div>
@@ -389,10 +389,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../development/" class="md-tabs__link">
           
   
@@ -409,12 +411,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../other-projects/" class="md-tabs__link">
           
   
@@ -1421,26 +1421,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
             
   
   
@@ -1458,7 +1463,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1501,10 +1506,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../llm/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM / AI assistant guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1520,6 +1552,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-look" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to look
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tests-for-the-llm-folder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests for the LLM folder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mcp-server-for-other-llms-to-read-env-vars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCP server (for other LLMs to read env vars)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1620,31 +1705,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
             
   
   
@@ -1662,7 +1742,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1705,37 +1785,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Disclosures
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../disclosures/" class="md-nav__link">
         
   
   
@@ -1751,48 +1804,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#on-python" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        On Python
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#on-vibe-coding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        On Vibe-coding
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1853,28 +1864,25 @@
   
 
 
-<h1 id="disclosures">Disclosures<a class="headerlink" href="#disclosures" title="Permanent link">&para;</a></h1>
-<p>The problem with having code secrets in <code>.env</code> files is that not only is there the risk of accidentally leaking them into a shared repository, but with LLMs able to access the local filesystem, some of these secrets could inadvertently make their way into training sets.</p>
-<p>It's also <em>really</em> hard to make sure they're kept consistent and uptodate across different projects and shared teams. Fortunately, local secure keychains are now available across all major OS platforms. </p>
-<p>I built this for a solo project covering many domains and languages: web (Vue.js), cross-platform desktop app (Rust+Tauri), background privileged system services (Rust), firmware (C/C++), and serverless (CDK with Typescript, Python lambdas), as well as a variety of toolchains (esp-idf, python, rust, npm/typescript, CDK) and build tools (Github Actions, CodeBuild CI/CD, Makefiles).</p>
-<p>Storing and managing all the secrets inside <code>.env</code> files just became untenable. Each domain needed its own set of different settings, and different values would be needed across various stages of development (i.e. <em>dev, test, qa, prod</em>). Also, as these variables evolve, there would be a need for fine-grain versioning at the individual item level.</p>
-<p>My own needs were very specific: I wanted it to use my local Mac keychain, build and flash to ESP32 devices, package and sign for various OSes (Mac, Linux, Windows), and deploy to AWS serverless.</p>
-<p>When developing this, I wanted to maintain backward compatibility with <code>.env</code> and Python <code>dotenv</code> SDK, But I also wanted to offer coverage for other cloud providers that I personally had no experience with. Mainly, I wanted something others could use and integrate into their day-to-day lives.</p>
-<p>I'm hoping others will test this out with their favorite cloud-service providers and contribute fixes and PRs. The section on testing covers how to enable tests for different platforms. These are currently mocked.</p>
-<p>The section on <code>services</code> covers how to plug in other service providers. If you do decide to add your own, please make sure to include tests specific to them and include the test run results in PRs. I will likely have no way to validate the tests and will have to trust that your own backend service.</p>
-<p>I'll try to set up automated testing as part of the release, but it may not be viable to run against every remote backend service.</p>
-<h2 id="on-python">On Python<a class="headerlink" href="#on-python" title="Permanent link">&para;</a></h2>
-<p>I chose Python, mainly because it already had a cross-platform, <a href="https://pypi.org/project/keyring/">keyring</a> local keychain library, and most cloud-providers have SDKs that allow direct access to their secrets managers. </p>
-<p>However, it was awfully tempting to make it be a native standalone executable via Rust. There is a corresponding <a href="https://docs.rs/keyring/latest/keyring/">keyring</a> but the cloud-service SDKs weren't just there, and that meant the daunting prospect of reverse-engineering an awful lot of cloud-service calls.</p>
-<p>In the future, as Rust coverage grows, it may be worth moving to make it a standalone executable withuot external runtime dependencies. </p>
-<h2 id="on-vibe-coding">On Vibe-coding<a class="headerlink" href="#on-vibe-coding" title="Permanent link">&para;</a></h2>
-<p>I've personally built multiple CLI-based tools using the same stack here, and created simpler versions of this for a number of internal projects. </p>
-<p>For this version, however, I made use of both locally run and remote LLMs, essentially as scribe/transcribers. These were all manually controlled with small, precise instructions at all times.</p>
-<p>The local stack was run on an NVidia DGX Spark using the latest (as of this writing) Qwen model via vLLM. It ran great, but would sometimes get into loops. And the Spark would overheat a little (my solo project was to keep an eye on all this). </p>
-<p>For remote LLMs, I used Cursor, primarily with Claude Opus 4.6.</p>
-<p>LLMs were also used to generate tests (again, under very specific, tight instructions), augmented by hand-made integration tests.</p>
-<p>Also creation of mechanical parts of some of the docs, like examples, references, etc. were done by LLMs. I hand-wrote the first draft of the docs, but as it got larger and more cumbersome, I asked an LLM to refactor it and expand the contents. I hand-generated all the illustrations and screenshots and reviewed the contents.</p>
-<p>Having said that, all mistakes and errors are mine.</p>
+<h1 id="llm-and-ai-assistant-guide">LLM and AI assistant guide<a class="headerlink" href="#llm-and-ai-assistant-guide" title="Permanent link">&para;</a></h1>
+<p>This page is for <strong>maintainers</strong> and for <strong>LLMs (large language models)</strong> or AI assistants that work on the enveloper repository. It points to the information they need to accomplish tasks correctly.</p>
+<h2 id="where-to-look">Where to look<a class="headerlink" href="#where-to-look" title="Permanent link">&para;</a></h2>
+<p>All LLM-oriented material lives in the <strong><code>LLM/</code></strong> directory at the repository root:</p>
+<ul>
+<li><strong><a href="../LLM/README.md">LLM/README.md</a></strong> — Entry point for an LLM: what enveloper is, repo layout, commands to run (<code>make check</code>, <code>uv run pytest</code>, etc.), and links to detailed guidelines.</li>
+<li><strong>LLM/guidelines/</strong> — Detailed guidelines in separate documents:</li>
+<li><a href="../LLM/guidelines/conventions.md">conventions.md</a> — Package manager (uv), Python version, project/domain semantics, code style.</li>
+<li><a href="../LLM/guidelines/testing.md">testing.md</a> — How to run tests, pytest markers (unit/integration), fixtures, adding tests.</li>
+<li><a href="../LLM/guidelines/examples.md">examples.md</a> — How examples are structured and how to add or change them.</li>
+</ul>
+<p>If you are an LLM or an AI assistant working on this repo, read <strong>LLM/README.md</strong> first, then the guidelines as needed for the task.</p>
+<h2 id="tests-for-the-llm-folder">Tests for the LLM folder<a class="headerlink" href="#tests-for-the-llm-folder" title="Permanent link">&para;</a></h2>
+<p>The project includes tests that validate the <strong>LLM/</strong> structure and content so that required files and sections remain present. Run them with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/test_llm.py<span class="w"> </span>-v
+</code></pre></div>
+<p>These tests are part of the normal test suite (<code>make test</code>).</p>
+<h2 id="mcp-server-for-other-llms-to-read-env-vars">MCP server (for other LLMs to read env vars)<a class="headerlink" href="#mcp-server-for-other-llms-to-read-env-vars" title="Permanent link">&para;</a></h2>
+<p>Enveloper can run an <strong>MCP server</strong> so that other LLMs (e.g. in Cursor or Claude Desktop) can read environment variables from this project’s keychain or cloud stores. See <a href="../mcp/">MCP server</a> for install, tools, and client configuration. LLM-specific notes are in <a href="../LLM/guidelines/mcp.md">LLM/guidelines/mcp.md</a>.</p>
 
 
 
