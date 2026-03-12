@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://enveloper.net/disclosures/">
+        <link rel="canonical" href="https://enveloper.net/mcp/">
       
       
-        <link rel="prev" href="../other-projects/">
+        <link rel="prev" href="../llm/">
       
       
-        <link rel="next" href="../license/">
+        <link rel="next" href="../adding-stores/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Disclosures - enveloper</title>
+        <title>MCP server - enveloper</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#disclosures" class="md-skip">
+        <a href="#mcp-server-full-access-to-enveloper-from-llms" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Disclosures
+              MCP server
             
           </span>
         </div>
@@ -389,10 +389,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../development/" class="md-tabs__link">
           
   
@@ -409,12 +411,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../other-projects/" class="md-tabs__link">
           
   
@@ -1421,26 +1421,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
             
   
   
@@ -1458,7 +1463,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1529,10 +1534,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../mcp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP server
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1548,6 +1580,181 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run the server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools-exposed-to-llms-full-cli-parity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tools exposed to LLMs (full CLI parity)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tools exposed to LLMs (full CLI parity)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step-by-step setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-your-ide-or-mcp-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring your IDE or MCP client
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring your IDE or MCP client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cursor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#claude-desktop-other-mcp-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claude Desktop / other MCP clients
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-file-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the file store
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples-and-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples and tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1620,31 +1827,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
             
   
   
@@ -1662,7 +1864,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1705,37 +1907,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Disclosures
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../disclosures/" class="md-nav__link">
         
   
   
@@ -1751,48 +1926,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#on-python" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        On Python
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#on-vibe-coding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        On Vibe-coding
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1853,28 +1986,161 @@
   
 
 
-<h1 id="disclosures">Disclosures<a class="headerlink" href="#disclosures" title="Permanent link">&para;</a></h1>
-<p>The problem with having code secrets in <code>.env</code> files is that not only is there the risk of accidentally leaking them into a shared repository, but with LLMs able to access the local filesystem, some of these secrets could inadvertently make their way into training sets.</p>
-<p>It's also <em>really</em> hard to make sure they're kept consistent and uptodate across different projects and shared teams. Fortunately, local secure keychains are now available across all major OS platforms. </p>
-<p>I built this for a solo project covering many domains and languages: web (Vue.js), cross-platform desktop app (Rust+Tauri), background privileged system services (Rust), firmware (C/C++), and serverless (CDK with Typescript, Python lambdas), as well as a variety of toolchains (esp-idf, python, rust, npm/typescript, CDK) and build tools (Github Actions, CodeBuild CI/CD, Makefiles).</p>
-<p>Storing and managing all the secrets inside <code>.env</code> files just became untenable. Each domain needed its own set of different settings, and different values would be needed across various stages of development (i.e. <em>dev, test, qa, prod</em>). Also, as these variables evolve, there would be a need for fine-grain versioning at the individual item level.</p>
-<p>My own needs were very specific: I wanted it to use my local Mac keychain, build and flash to ESP32 devices, package and sign for various OSes (Mac, Linux, Windows), and deploy to AWS serverless.</p>
-<p>When developing this, I wanted to maintain backward compatibility with <code>.env</code> and Python <code>dotenv</code> SDK, But I also wanted to offer coverage for other cloud providers that I personally had no experience with. Mainly, I wanted something others could use and integrate into their day-to-day lives.</p>
-<p>I'm hoping others will test this out with their favorite cloud-service providers and contribute fixes and PRs. The section on testing covers how to enable tests for different platforms. These are currently mocked.</p>
-<p>The section on <code>services</code> covers how to plug in other service providers. If you do decide to add your own, please make sure to include tests specific to them and include the test run results in PRs. I will likely have no way to validate the tests and will have to trust that your own backend service.</p>
-<p>I'll try to set up automated testing as part of the release, but it may not be viable to run against every remote backend service.</p>
-<h2 id="on-python">On Python<a class="headerlink" href="#on-python" title="Permanent link">&para;</a></h2>
-<p>I chose Python, mainly because it already had a cross-platform, <a href="https://pypi.org/project/keyring/">keyring</a> local keychain library, and most cloud-providers have SDKs that allow direct access to their secrets managers. </p>
-<p>However, it was awfully tempting to make it be a native standalone executable via Rust. There is a corresponding <a href="https://docs.rs/keyring/latest/keyring/">keyring</a> but the cloud-service SDKs weren't just there, and that meant the daunting prospect of reverse-engineering an awful lot of cloud-service calls.</p>
-<p>In the future, as Rust coverage grows, it may be worth moving to make it a standalone executable withuot external runtime dependencies. </p>
-<h2 id="on-vibe-coding">On Vibe-coding<a class="headerlink" href="#on-vibe-coding" title="Permanent link">&para;</a></h2>
-<p>I've personally built multiple CLI-based tools using the same stack here, and created simpler versions of this for a number of internal projects. </p>
-<p>For this version, however, I made use of both locally run and remote LLMs, essentially as scribe/transcribers. These were all manually controlled with small, precise instructions at all times.</p>
-<p>The local stack was run on an NVidia DGX Spark using the latest (as of this writing) Qwen model via vLLM. It ran great, but would sometimes get into loops. And the Spark would overheat a little (my solo project was to keep an eye on all this). </p>
-<p>For remote LLMs, I used Cursor, primarily with Claude Opus 4.6.</p>
-<p>LLMs were also used to generate tests (again, under very specific, tight instructions), augmented by hand-made integration tests.</p>
-<p>Also creation of mechanical parts of some of the docs, like examples, references, etc. were done by LLMs. I hand-wrote the first draft of the docs, but as it got larger and more cumbersome, I asked an LLM to refactor it and expand the contents. I hand-generated all the illustrations and screenshots and reviewed the contents.</p>
-<p>Having said that, all mistakes and errors are mine.</p>
+<h1 id="mcp-server-full-access-to-enveloper-from-llms">MCP server: full access to enveloper from LLMs<a class="headerlink" href="#mcp-server-full-access-to-enveloper-from-llms" title="Permanent link">&para;</a></h1>
+<p>The <strong>Model Context Protocol (MCP)</strong> lets applications expose context and tools to LLMs in a standard way. Enveloper’s optional <strong>MCP server</strong> gives an LLM agent <strong>full parity with the CLI</strong>: read and write environment variables from the local keychain or remote secret managers (AWS, GCP, Azure, Vault, GitHub, etc.) <strong>without</strong> loading a <code>.env</code> file in the repo.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>mcp<span class="o">]</span>
+</code></pre></div>
+<p>Or with uv:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>mcp<span class="o">]</span>
+</code></pre></div>
+<p>For cloud stores, add the right extra, e.g. <code>pip install enveloper[mcp,aws]</code>.</p>
+<h2 id="run-the-server">Run the server<a class="headerlink" href="#run-the-server" title="Permanent link">&para;</a></h2>
+<p>The server uses <strong>stdio</strong> (for IDE integration):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>enveloper-mcp
+</code></pre></div>
+<p>Or:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>enveloper.mcp_server
+</code></pre></div>
+<p>The MCP client (Cursor, Claude Desktop, etc.) spawns this command and talks over stdin/stdout.</p>
+<h2 id="tools-exposed-to-llms-full-cli-parity">Tools exposed to LLMs (full CLI parity)<a class="headerlink" href="#tools-exposed-to-llms-full-cli-parity" title="Permanent link">&para;</a></h2>
+<p>An LLM can do everything you can do via the enveloper CLI. Tools are described in human-friendly terms (e.g. get secret, list keys, set secret, export env). In code you call them as <code>get_secret()</code>, <code>list_keys()</code>, and so on; error messages are also human-friendly (e.g. "Secret not found", "File not found").</p>
+<h3 id="read">Read<a class="headerlink" href="#read" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool (API name)</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>get_secret</strong> (get secret)</td>
+<td>Get a secret value by key. Parameters: <code>key</code>, optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>list_keys</strong> (list keys)</td>
+<td>List key names (no values) for a scope. Parameters: optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>list_domains</strong> (list domains)</td>
+<td>List domain names that have secrets. Parameters: optional <code>project</code>, <code>service</code>.</td>
+</tr>
+<tr>
+<td><strong>list_projects</strong> (list projects)</td>
+<td>List project names for a domain. Parameters: optional <code>domain</code>, <code>project</code>, <code>service</code>.</td>
+</tr>
+<tr>
+<td><strong>list_services</strong> (list services)</td>
+<td>List available store names (keychain, file, aws, gcp, azure, vault, github, …).</td>
+</tr>
+<tr>
+<td><strong>export_env</strong> (export env)</td>
+<td>Export all secrets for the scope as env lines. Parameters: optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>; <code>format</code>: <code>"dotenv"</code> or <code>"unix"</code>.</td>
+</tr>
+<tr>
+<td><strong>unexport_env</strong> (unexport env)</td>
+<td>Output shell <code>unset</code> (or PowerShell) commands for all variables in the scope. Parameters: optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>; <code>format</code>: <code>"unix"</code> or <code>"win"</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="write">Write<a class="headerlink" href="#write" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tool (API name)</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>set_secret</strong> (set secret)</td>
+<td>Set a secret. Parameters: <code>key</code>, <code>value</code>, optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>delete_secret</strong> (delete secret)</td>
+<td>Remove a secret. Parameters: <code>key</code>, optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>import_from_file</strong> (import from file)</td>
+<td>Import key-value pairs from a .env file into the store. Parameters: <code>file_path</code>, optional <code>domain</code>, <code>project</code>, <code>version</code>, <code>service</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>clear_scope</strong> (clear scope)</td>
+<td>Clear all secrets for a domain/project. Parameters: optional <code>domain</code>, <code>project</code>, <code>service</code>, <code>path</code>; <code>clear_all=True</code> to clear every secret. No confirmation.</td>
+</tr>
+<tr>
+<td><strong>push_to_service</strong> (push to service)</td>
+<td>Push secrets from a source store (default: local) to a cloud store. Parameters: <code>cloud_service</code> (aws, github, gcp, azure, vault, aliyun), optional <code>from_service</code>, <code>domain</code>, <code>project</code>, <code>path</code>.</td>
+</tr>
+<tr>
+<td><strong>pull_from_service</strong> (pull from service)</td>
+<td>Pull secrets from a cloud store into a target store (default: local). Parameters: <code>cloud_service</code>, optional <code>to_service</code>, <code>domain</code>, <code>project</code>, <code>path</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>All optional parameters default from <strong>ENVELOPER_DOMAIN</strong>, <strong>ENVELOPER_PROJECT</strong>, <strong>ENVELOPER_VERSION</strong>, <strong>ENVELOPER_SERVICE</strong>, and <strong>.enveloper.toml</strong> (see <a href="../config-env-overrides/">Config/Env Overrides</a>).</p>
+<h2 id="step-by-step-setup">Step-by-step setup<a class="headerlink" href="#step-by-step-setup" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Install:</strong> <code>pip install enveloper[mcp]</code> (and e.g. <code>[aws]</code> if you use AWS).</li>
+<li><strong>Secrets:</strong> Import into keychain with <code>enveloper import sample.env -d mydomain -p myproject</code>, or use a <code>.env</code> file and pass <code>service="file"</code> and <code>path</code> to tools.</li>
+<li><strong>Run server:</strong> Your MCP client will run <code>enveloper-mcp</code> (or <code>uv run python -m enveloper.mcp_server</code>). No need to run it manually.</li>
+<li><strong>Configure client:</strong> In Cursor: <strong>Settings → MCP</strong>, add server with command <code>enveloper-mcp</code> and empty args. If not on PATH, use command <code>uv</code>, args <code>["run", "python", "-m", "enveloper.mcp_server"]</code>, and set <code>cwd</code> to your project root.</li>
+<li><strong>Use tools:</strong> The LLM can get a secret, list keys, export env, etc. For example: <code>get_secret(key="MY_API_KEY", domain="mydomain", project="myproject")</code> or <code>list_keys(service="file", path="/path/to/.env")</code>.</li>
+</ol>
+<p>See <a href="../examples/mcp/README.md">examples/mcp/README.md</a> and <a href="../examples/mcp/STEP_BY_STEP.md">examples/mcp/STEP_BY_STEP.md</a> for detailed steps and Cursor config samples.</p>
+<h2 id="configuring-your-ide-or-mcp-client">Configuring your IDE or MCP client<a class="headerlink" href="#configuring-your-ide-or-mcp-client" title="Permanent link">&para;</a></h2>
+<h3 id="cursor">Cursor<a class="headerlink" href="#cursor" title="Permanent link">&para;</a></h3>
+<p>Add the enveloper MCP server (e.g. <strong>Settings → MCP</strong> or <code>.cursor/mcp.json</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;enveloper&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;enveloper-mcp&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
+</code></pre></div>
+<p>If <code>enveloper-mcp</code> is not on PATH, use the project directory and uv:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;enveloper&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uv&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;run&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;enveloper.mcp_server&quot;</span><span class="p">],</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">&quot;cwd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/your/enveloper-py&quot;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="claude-desktop-other-mcp-clients">Claude Desktop / other MCP clients<a class="headerlink" href="#claude-desktop-other-mcp-clients" title="Permanent link">&para;</a></h3>
+<p>Register a server with command <code>enveloper-mcp</code> (or the uv variant) and <strong>stdio</strong> transport. See your client’s documentation.</p>
+<h2 id="using-the-file-store">Using the file store<a class="headerlink" href="#using-the-file-store" title="Permanent link">&para;</a></h2>
+<p>To use a <code>.env</code> file instead of the keychain, pass <code>service="file"</code> and <code>path</code> to the tools, e.g.:</p>
+<ul>
+<li><code>get_secret(key="MY_API_KEY", service="file", path="/path/to/.env")</code></li>
+<li><code>set_secret(key="X", value="y", service="file", path="/path/to/.env")</code></li>
+<li><code>list_keys(service="file", path="/path/to/.env")</code></li>
+</ul>
+<p>You can set <strong>ENVELOPER_SERVICE=file</strong> and <strong>ENVELOPER_PATH</strong> (if your client supports env) so the LLM doesn’t need to pass them every time.</p>
+<h2 id="examples-and-tests">Examples and tests<a class="headerlink" href="#examples-and-tests" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Runnable demo:</strong> From the repo root, run <code>uv run python examples/mcp/demo_tools.py</code>. This script calls the same MCP tool functions (get secret, list keys, export env) an LLM would use, with the file store and <code>examples/mcp/demo.env</code>.</li>
+<li><strong>Tests:</strong> Run <code>uv run pytest tests/test_mcp.py -v</code> for MCP tool and server tests, and <code>uv run pytest tests/test_examples.py -v -k mcp</code> for example-docs and demo checks.</li>
+</ul>
+<p>See <a href="../examples/mcp/README.md">examples/mcp/README.md</a> for install, use, and step-by-step instructions.</p>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The MCP server has <strong>full read and write</strong> access to the configured stores (keychain, file, or cloud). The LLM can get a secret, set a secret, list keys, export env, import from file, clear scope, push to service, and pull from service.</li>
+<li>Run it only in a <strong>trusted environment</strong>. Any process that can start the server can read and change secrets for the scopes allowed by your ENVELOPER_* and config.</li>
+<li>For cloud stores, the server uses your existing credentials (env vars, config, default chain). Restrict who can spawn the MCP server.</li>
+</ul>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../llm/">LLM / AI assistant guide</a> — How LLMs work on this repo (including MCP).</li>
+<li><a href="../domains-projects-versioning/">Domains, projects &amp; versioning</a> — How domain/project/version scope secrets.</li>
+<li><a href="../service-backend/">Service Backend</a> — Choosing keychain, file, or cloud store.</li>
+<li><a href="../examples/mcp/">examples/mcp</a> — Runnable example and step-by-step instructions.</li>
+</ul>
 
 
 

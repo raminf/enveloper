@@ -549,6 +549,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-different-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Different Approach
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#enter-enveloper" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -817,6 +828,62 @@
     
   
     Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="domains-projects-versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Domains, projects & versioning
   
 
     
@@ -1642,6 +1709,62 @@
   
   
     <li class="md-nav__item">
+      <a href="llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM / AI assistant guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="adding-stores/" class="md-nav__link">
         
   
@@ -1892,10 +2015,15 @@
 <p>[<a href='https://blog.gitguardian.com/secure-your-secrets-with-env/' target='_blank'>GitGuardian</a>]</p>
 <hr />
 
-<p><code>.env</code> files are often excluded in <code>.gitignore</code> files so they don't get pushed out. But at build time, they can be loaded into the current environment (terminal, Docker, Lambdas, CI/CD instances). The problem is, if you move to a new machine, or want others to work on the code, they need to get a copy of the <code>.env</code> file so they can use these shared secrets.</p>
-<p>Over time, these <code>.env</code> files themselves end up proliferating all over someone's computer, end up in logs, backups, or lost.</p>
-<p>Lately, there's also the matter of AI-based agents with access to the local filesystem. Unless specifically excluded  agents can access and read <code>.env</code> files, or send them to remote LLMs. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.</p>
+<h2 id="a-different-approach">A Different Approach<a class="headerlink" href="#a-different-approach" title="Permanent link">&para;</a></h2>
+<p><code>.env</code> files open up a new range of problems:</p>
+<ul>
+<li>If you move to a new machine, or want others to work on the code, they need to get a copy of the <code>.env</code> file so they can use these shared secrets.</li>
+<li>Over time, multiple <code>.env</code> files end up proliferating all over one's computer, end up in logs, backups, or get lost.</li>
+<li>AI-based agents with access to the local filesystem can create problems. Security company Wiz noticed that <a href="https://www.wiz.io/blog/leaking-ai-secrets-in-public-code" target="_blank">"AI-related secret instances constitute a disproportional majority of the findings (4 out of top 5 secrets found were AI-related)"</a>.</li>
+</ul>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/headline-ai-secrets.png" width="50%" alt="News Headlines" /></p>
+<p>File-based <code>.env</code> files are best to be avoided.</p>
 <hr />
 
 <h2 id="enter-enveloper">Enter <code>enveloper</code><a class="headerlink" href="#enter-enveloper" title="Permanent link">&para;</a></h2>
@@ -1907,54 +2035,58 @@
 <hr />
 
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="w">            </span><span class="c1"># CLI only</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>sdk<span class="o">]</span><span class="w">       </span><span class="c1"># CLI + SDK (load_dotenv / dotenv_values)</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>all<span class="o">]</span><span class="w">       </span><span class="c1"># CLI + SDK + all cloud backends</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="w">            </span><span class="c1"># CLI only (scripts, Make, Docker, CI)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>sdk<span class="o">]</span><span class="w">       </span><span class="c1"># CLI + SDK — recommended for Python apps (load_dotenv / dotenv_values)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>enveloper<span class="o">[</span>all<span class="o">]</span><span class="w">        </span><span class="c1"># CLI + SDK + all cloud backends</span>
 </code></pre></div>
+<p>For Python applications that load secrets at runtime (keychain or cloud), install the <strong>SDK</strong> extra: <code>pip install enveloper[sdk]</code>.</p>
+<p><strong>Examples:</strong> Runnable samples for Docker, Makefile, Kubernetes, CI/CD, shell scripts, GitHub Secrets, the Python SDK, and domains/versioning are in the <a href="examples/README.md"><strong>examples</strong></a> folder.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Sample .env file</span>
 </code></pre></div>
 <img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-sample.png" width="40%" alt="Sample .env file" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Import an existing .env file into the keychain</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>enveloper<span class="w"> </span>import<span class="w"> </span>sample.env<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># List what&#39;s stored</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>enveloper<span class="w"> </span>list<span class="w"> </span>key<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper
+</code></pre></div>
+<p>Keys are stored in local keychain.</p>
+<p><img src="https://github.com/raminf/enveloper/raw/main/media/keychain-push.png" width="40%" alt="Sample .env file" /></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># List what&#39;s stored</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>key<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper
 </code></pre></div>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-keychain.png" width="80%" alt="Import and list values" /></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Load local environment settings from keychain</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Values are loaded into local environment variables. </span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Use in Makefile, shell scripts, etc. </span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># &#39;unix&#39; format works for Linux, Mac, and Windows WSL. </span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># For Windows Powershell, use &#39;win&#39; as format.</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Load local environment settings from keychain</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Values are loaded into local environment variables. </span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># Use in Makefile, shell scripts, etc. </span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># &#39;unix&#39; format works for Linux, Mac, and Windows WSL. </span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># For Windows Powershell, use &#39;win&#39; as format.</span>
 </code></pre></div>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/quickstart-export.png" width="80%" alt="Export from keychain to environment then unexport to clear out" /></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># When done, you can use &#39;unexport&#39; command to remove the set of env variables</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>unexport<span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Push to cloud service</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aws
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># When done, you can use &#39;unexport&#39; command to remove the set of env variables</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>unexport<span class="w"> </span>--format<span class="w"> </span>unix<span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Push to cloud service</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>enveloper<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>push<span class="w"> </span>--service<span class="w"> </span>aws
 </code></pre></div>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-push.png" width="80%" alt="Push all values from keychain to cloud" /></p>
 <p>In the console, we can verify that the values are stored (in the case of AWS, in the SSM Parameter Store)</p>
 <p><img src="https://github.com/raminf/enveloper/raw/main/media/aws-console-push.png" width="80%" alt="AWS Service Console" /></p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Verify that they got pushed in AWS console for System Store &gt; Parameters</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>key<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Verify that they got pushed in AWS console for System Store &gt; Parameters</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>enveloper<span class="w"> </span>list<span class="w"> </span>key<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
 </code></pre></div>
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-list-key.png" width="80%" alt="Env values in AWS SSM" /></p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Pull from AWS SSM into local keychain</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Clear environment settings</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>enveloper<span class="w"> </span>clear<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Pull from AWS SSM into local keychain</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>enveloper<span class="w"> </span>pull<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># Clear environment settings</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>enveloper<span class="w"> </span>clear<span class="w"> </span>--domain<span class="w"> </span>dev<span class="w"> </span>--project<span class="w"> </span>Enveloper<span class="w"> </span>--service<span class="w"> </span>aws
 </code></pre></div>
 <img src="https://github.com/raminf/enveloper/raw/main/media/aws-terminal-clear.png" width="80%" alt="Clear settings from cloud" /></p>
 <h2 id="multiple-cloud-services">Multiple cloud services<a class="headerlink" href="#multiple-cloud-services" title="Permanent link">&para;</a></h2>
@@ -1982,6 +2114,7 @@
 <li>Versioning of environment values using <a href="https://semver.org">Semantic Versioning</a>.</li>
 <li>Use in build chains (Make, Gradle, etc.) or CI/CD, including Github Actions.</li>
 <li>Support for hierarchical settings via <em>domain</em> and <em>project</em> sets.</li>
+<li>Shared sanitization for keys, values, and file paths before secrets are persisted or exported.</li>
 </ul>
 <h2 id="supported-backends">Supported Backends<a class="headerlink" href="#supported-backends" title="Permanent link">&para;</a></h2>
 <table>
@@ -2029,21 +2162,26 @@
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="step-by-step-tutorial/">Step-by-Step Tutorial</a> - From sample.env to keychain, builds, and cloud</li>
+<li><a href="examples/README.md">Examples</a> - Docker, Makefile, Kubernetes, CI/CD, shell, GitHub Secrets, SDK, domains/versioning</li>
 <li><a href="cli-reference/">CLI Reference</a> - All commands and options</li>
 <li><a href="technical-details/">Technical Details</a> - Architecture and internals</li>
 <li><a href="local-keychain/">Local Keychain</a> - OS keychain setup and usage</li>
 <li><a href="cloud-storage/">Cloud Storage</a> - Cloud service configuration</li>
 <li><a href="cloud-setup-guide/">Cloud Setup Guide</a> - Azure, GCP, and AWS setup (credentials, IAM/RBAC, testing)</li>
 <li><a href="versioning/">Versioning</a> - Semantic versioning for secrets</li>
+<li><a href="domains-projects-versioning/">Domains, projects &amp; versioning</a> - Organize secrets by domain, project, and semver</li>
 <li><a href="json-yaml/">JSON/YAML</a> - Import/export in JSON and YAML formats</li>
 <li><a href="sdk/">SDK</a> - Python SDK for <code>load_dotenv</code> / <code>dotenv_values</code></li>
 <li><a href="project-config/">Project Config</a> - <code>.enveloper.toml</code> configuration</li>
 <li><a href="config-env-overrides/">Config/Env Overrides</a> - Priority order for settings</li>
 <li><a href="service-backend/">Service Backend</a> - Backend selection and configuration</li>
 <li><a href="cicd-integration/">CI/CD Integration</a> - GitHub Actions, CodeBuild, GitLab CI</li>
+<li><a href="github-secrets/">GitHub Secrets</a> - Push keychain values into GitHub Actions secrets</li>
 <li><a href="makefile-integration/">Makefile Integration</a> - Build system integration</li>
 <li><a href="other-projects/">Other Projects</a> - Comparison with similar tools</li>
 <li><a href="development/">Development</a> - Contributing and development</li>
+<li><a href="llm/">LLM / AI assistant guide</a> - Information for LLMs and AI assistants working on this repo (see also <a href="LLM/">LLM/</a>)</li>
+<li><a href="mcp/">MCP server</a> - Expose enveloper secrets to other LLMs (Cursor, Claude Desktop) via Model Context Protocol</li>
 <li><a href="adding-stores/">Adding Stores</a> - Creating custom store plugins</li>
 <li><a href="publishing/">Publishing</a> - Publishing to PyPI</li>
 <li><a href="security/">Security</a> - Secure data storage and access control</li>

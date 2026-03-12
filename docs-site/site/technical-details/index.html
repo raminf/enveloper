@@ -16,7 +16,7 @@
         <link rel="prev" href="../step-by-step-tutorial/">
       
       
-        <link rel="next" href="../cli-reference/">
+        <link rel="next" href="../examples/">
       
       
         
@@ -898,6 +898,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../domains-projects-versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Domains, projects & versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1710,6 +1766,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM / AI assistant guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../adding-stores/" class="md-nav__link">
         
   
@@ -1978,17 +2090,17 @@
 <tr>
 <td><code>domain</code></td>
 <td><code>_default_</code></td>
-<td>CLI <code>--domain</code> / env var</td>
+<td>CLI <code>--domain</code> / <code>ENVELOPER_DOMAIN</code> / config</td>
 </tr>
 <tr>
 <td><code>project</code></td>
 <td><code>_default_</code></td>
-<td>CLI <code>--project</code> / config</td>
+<td>CLI <code>--project</code> / <code>ENVELOPER_PROJECT</code> / config</td>
 </tr>
 <tr>
 <td><code>version</code></td>
 <td><code>1.0.0</code></td>
-<td>CLI <code>--version</code> / env var</td>
+<td>CLI <code>--version</code> / <code>ENVELOPER_VERSION</code></td>
 </tr>
 <tr>
 <td><code>name</code></td>
@@ -1997,6 +2109,7 @@
 </tr>
 </tbody>
 </table>
+<p>Defaults for domain, project, and version may be interpreted differently by each store (keychain, file, AWS, GitHub, GCP, Azure, etc.); see <a href="../domains-projects-versioning/">Domains, projects &amp; versioning</a>.</p>
 <p><strong>Example:</strong> With AWS store (separator <code>/</code>), the key for <code>API_KEY</code> might be:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>/envr/payments/myapp/1.0.0/API_KEY
 </code></pre></div></p>
@@ -2058,10 +2171,11 @@
 </tr>
 <tr>
 <td><code>sanitize_key_segment(value)</code></td>
-<td>Replaces separator with <code>_</code></td>
+<td>Validates namespace segments before composing backend keys</td>
 </tr>
 </tbody>
 </table>
+<p>The shared validator in <code>src/enveloper/security.py</code> is also used by CLI, SDK, file import/export, and stores so key/value/path checks stay consistent across every backend.</p>
 <h2 id="entry-point-system">Entry Point System<a class="headerlink" href="#entry-point-system" title="Permanent link">&para;</a></h2>
 <p>Stores are discovered via Python entry points defined in <code>pyproject.toml</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[project.entry-points.</span><span class="s2">&quot;enveloper.stores&quot;</span><span class="k">]</span>

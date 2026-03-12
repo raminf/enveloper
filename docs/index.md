@@ -193,6 +193,7 @@ enveloper clear --domain dev --project Enveloper --service aws
 - Versioning of environment values using [Semantic Versioning](https://semver.org).
 - Use in build chains (Make, Gradle, etc.) or CI/CD, including Github Actions.
 - Support for hierarchical settings via _domain_ and _project_ sets.
+- Shared sanitization for keys, values, and file paths before secrets are persisted or exported.
 
 
 ## Supported Backends
