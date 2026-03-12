@@ -16,6 +16,7 @@ import re
 import time
 from typing import Any
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_ALIBABA = (
@@ -105,8 +106,8 @@ class AliyunSmStore(SecretStore):
         self._access_key_id = access_key_id
         self._access_key_secret = access_key_secret
         self._endpoint = endpoint
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         self._version = version
         self._client: Any = None
 
@@ -190,6 +191,10 @@ class AliyunSmStore(SecretStore):
             raise
 
     def set(self, key: str, value: str) -> None:
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = self.sanitize_secret_value(value)
         from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
 
         name = self._secret_name(key)
@@ -215,6 +220,8 @@ class AliyunSmStore(SecretStore):
                 raise
 
     def delete(self, key: str) -> None:
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         try:
             from alibabacloud_kms20160120 import models  # type: ignore[import-untyped]
             req = models.DeleteSecretRequest(secret_name=self._secret_name(key))
@@ -247,4 +254,3 @@ class AliyunSmStore(SecretStore):
                 break
             page += 1
         return sorted(set(keys))
-

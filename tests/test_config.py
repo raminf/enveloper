@@ -56,7 +56,8 @@ prefix = "MYPROJ_"
     assert cfg.domains["aws"].ssm_prefix == "/myproj/{env}/"
 
 
-def test_load_config_defaults():
+def test_load_config_defaults(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     cfg = load_config(path=None)
     assert cfg.project == "_default_"
     assert cfg.service is None

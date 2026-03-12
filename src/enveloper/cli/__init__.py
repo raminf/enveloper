@@ -24,6 +24,7 @@ from enveloper import __version__
 from enveloper.config import load_config
 from enveloper.resolve_store import get_store as resolve_get_store
 from enveloper.resolve_store import make_cloud_store as resolve_make_cloud_store
+from enveloper.security import SanitizationError, sanitize_file_access_path, sanitize_namespace_segment
 from enveloper.store import SecretStore
 from enveloper.stores import get_service_entries
 from enveloper.stores.github import GitHubStore
@@ -74,7 +75,7 @@ def _get_store(ctx: click.Context) -> SecretStore:
             service, project, domain, cfg,
             path=path, env_name=env_name, version=version,
         )
-    except ValueError as e:
+    except (ValueError, SanitizationError) as e:
         raise click.UsageError(str(e))
 
 
@@ -94,15 +95,15 @@ def _make_cloud_store(
     from enveloper.config import EnveloperConfig
 
     assert isinstance(cfg, EnveloperConfig)
-    domain_str = domain or "_default_"
-    project_str = project or "_default_"
+    domain_str = sanitize_namespace_segment(domain or "_default_", default="_default_", field_name="domain")
+    project_str = sanitize_namespace_segment(project or "_default_", default="_default_", field_name="project")
     try:
         return resolve_make_cloud_store(
             store_name, cfg, domain_str, env_name,
             project=project_str,
             prefix=prefix, profile=profile, region=region, repo=repo,
         )
-    except ValueError as e:
+    except (ValueError, SanitizationError) as e:
         raise click.UsageError(str(e))
 
 
@@ -148,9 +149,9 @@ def _merge_common(
 ) -> None:
     """Merge subcommand-level project/domain/service/version into ctx.obj."""
     if project is not None:
-        ctx.obj["project"] = project
+        ctx.obj["project"] = sanitize_namespace_segment(project, default="_default_", field_name="project")
     if domain is not None:
-        ctx.obj["domain"] = domain
+        ctx.obj["domain"] = sanitize_namespace_segment(domain, default="_default_", field_name="domain")
     ctx.obj["domain_resolved"] = ctx.obj["domain"] or "_default_"
     if service is not None:
         ctx.obj["service"] = service
@@ -203,20 +204,32 @@ def _cli_callback(
     verbose: bool,
 ) -> None:
     """Manage .env secrets via system keychain with cloud store plugins."""
-    cfg = load_config()
-    ctx.ensure_object(dict)
-    ctx.obj["config"] = cfg
-    ctx.obj["project"] = project or os.environ.get("ENVELOPER_PROJECT") or cfg.project
-    ctx.obj["domain"] = domain or os.environ.get("ENVELOPER_DOMAIN")
-    ctx.obj["domain_resolved"] = ctx.obj["domain"] or "_default_"
-    ctx.obj["service"] = (
-        service
-        if service is not None
-        else (os.environ.get("ENVELOPER_SERVICE") or cfg.service or "local")
-    )
-    ctx.obj["path"] = path if path is not None else ".env"
-    ctx.obj["env_name"] = env_name
-    ctx.obj["verbose"] = verbose
+    try:
+        cfg = load_config()
+        ctx.ensure_object(dict)
+        ctx.obj["config"] = cfg
+        ctx.obj["project"] = sanitize_namespace_segment(
+            project or os.environ.get("ENVELOPER_PROJECT") or cfg.project,
+            default="_default_",
+            field_name="project",
+        )
+        raw_domain = domain or os.environ.get("ENVELOPER_DOMAIN")
+        ctx.obj["domain"] = (
+            sanitize_namespace_segment(raw_domain, default="_default_", field_name="domain")
+            if raw_domain is not None
+            else None
+        )
+        ctx.obj["domain_resolved"] = ctx.obj["domain"] or "_default_"
+        ctx.obj["service"] = (
+            service
+            if service is not None
+            else (os.environ.get("ENVELOPER_SERVICE") or cfg.service or "local")
+        )
+        ctx.obj["path"] = str(sanitize_file_access_path(path if path is not None else ".env"))
+        ctx.obj["env_name"] = env_name
+        ctx.obj["verbose"] = verbose
+    except SanitizationError as e:
+        raise click.UsageError(str(e))
 
 
 cli = cast(

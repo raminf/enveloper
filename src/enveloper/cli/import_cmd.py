@@ -18,6 +18,7 @@ from enveloper.cli import (
     console,
 )
 from enveloper.env_file import parse_env_file
+from enveloper.security import SanitizationError, sanitize_file_access_path, sanitize_secret_pair
 
 if HAS_YAML:
     import yaml
@@ -54,7 +55,10 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
     if file is None:
         raise click.UsageError("Provide a file path or use --domain with a configured domain.")
 
-    path = Path(file)
+    try:
+        path = sanitize_file_access_path(file)
+    except SanitizationError as e:
+        raise click.BadParameter(str(e), param_hint="FILE")
     if not path.is_file():
         raise click.BadParameter(f"File not found: {file}", param_hint="FILE")
 
@@ -99,15 +103,18 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
                         for p_name, p_content in d_content.items():
                             if isinstance(p_content, dict):
                                 for k, v in p_content.items():
-                                    pairs[k] = str(v)
+                                    safe_key, safe_value = sanitize_secret_pair(k, str(v))
+                                    pairs[safe_key] = safe_value
             elif has_domains:
                 for d_name, d_content in data.items():
                     if isinstance(d_content, dict):
                         for k, v in d_content.items():
-                            pairs[k] = str(v)
+                            safe_key, safe_value = sanitize_secret_pair(k, str(v))
+                            pairs[safe_key] = safe_value
             else:
                 for k, v in data.items():
-                    pairs[k] = str(v)
+                    safe_key, safe_value = sanitize_secret_pair(k, str(v))
+                    pairs[safe_key] = safe_value
         elif isinstance(data, list):
             raise click.ClickException(
                 f"{fmt.upper()} file must contain an object/dictionary, not a list."
@@ -122,8 +129,12 @@ def import_env(ctx: click.Context, file: str | None, fmt: str) -> None:
         return
 
     store = _get_store(ctx)
-    for key, value in pairs.items():
-        store.set_with_tracking(key, value)
+    try:
+        for key, value in pairs.items():
+            safe_key, safe_value = sanitize_secret_pair(key, value)
+            store.set_with_tracking(safe_key, safe_value)
+    except SanitizationError as e:
+        raise click.ClickException(str(e))
 
     console.print(
         f"[green]Imported {len(pairs)} variable(s) from {file}[/green]"

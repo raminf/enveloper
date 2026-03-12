@@ -12,6 +12,13 @@ import zlib
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
+from enveloper.security import (
+    sanitize_namespace_segment,
+    sanitize_secret_key,
+    sanitize_secret_pair,
+    sanitize_secret_value,
+)
+
 # Default namespace used when project/domain are not provided (reserved name).
 # Cloud store plugins may override via class attribute ``default_namespace``.
 DEFAULT_NAMESPACE: str = "_default_"
@@ -225,6 +232,10 @@ class SecretStore(ABC):
 
     def set_with_tracking(self, key: str, value: str) -> None:
         """Set a key and update the domain/project metadata registry."""
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = sanitize_secret_value(value)
         self.set(key, value)
         domain = getattr(self, "_domain", None) or DEFAULT_NAMESPACE
         project = getattr(self, "_project", None) or DEFAULT_NAMESPACE
@@ -233,6 +244,8 @@ class SecretStore(ABC):
 
     def delete_with_tracking(self, key: str) -> None:
         """Delete a key and update the metadata registry if the project/domain is now empty."""
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         self.delete(key)
         domain = getattr(self, "_domain", None) or DEFAULT_NAMESPACE
         project = getattr(self, "_project", None) or DEFAULT_NAMESPACE
@@ -350,13 +363,24 @@ class SecretStore(ABC):
         str
             The sanitized value with key_separator replaced by underscore.
         """
-        if not value or not value.strip():
-            return cls.default_namespace
-        # Replace the key_separator with underscore
-        sanitized = value.replace(cls.key_separator, "_")
-        # Also replace common path separators that could cause issues
+        safe_value = sanitize_namespace_segment(
+            value,
+            default=cls.default_namespace,
+            field_name="key segment",
+        )
+        sanitized = safe_value.replace(cls.key_separator, "_")
         sanitized = sanitized.replace("\\", "_")
         return sanitized.strip() or cls.default_namespace
+
+    @staticmethod
+    def sanitize_secret_key(key: str) -> str:
+        """Validate and normalize a secret key."""
+        return sanitize_secret_key(key)
+
+    @staticmethod
+    def sanitize_secret_value(value: str, *, key: str | None = None) -> str:
+        """Validate a secret value."""
+        return sanitize_secret_value(value, key=key)
 
     def build_key(self, name: str, domain: str, project: str, version: str = DEFAULT_VERSION) -> str:
         """Build a key with prefix, domain, project, version, and name components.
@@ -370,7 +394,7 @@ class SecretStore(ABC):
         character is not present in any of them.
         """
         # Sanitize all segments to prevent key_separator in names
-        name_safe = self.sanitize_key_segment(name)
+        name_safe = self.sanitize_secret_key(name)
         domain_safe = self.sanitize_key_segment(domain)
         project_safe = self.sanitize_key_segment(project)
 
@@ -476,4 +500,3 @@ class SecretStore(ABC):
 
         # Create store with resolved prefix, domain, project, and any additional kwargs
         return cls(prefix=prefix, domain=domain, project=project, **kwargs)
-

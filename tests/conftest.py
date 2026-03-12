@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Generator, Union, cast
 
@@ -313,8 +314,9 @@ def cli_runner():
 
 
 @pytest.fixture()
-def sample_env(tmp_path):
+def sample_env(tmp_path, monkeypatch: pytest.MonkeyPatch):
     """Create a sample .env file and return its path."""
+    monkeypatch.chdir(tmp_path)
     content = """\
 TWILIO_API_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN="my secret token"
@@ -326,6 +328,6 @@ INLINE_COMMENT=some_value # this is a comment
 EMPTY_VALUE=
 EQUALS_IN_VALUE=postgres://user:pass@host/db?opt=1
 """
-    p = tmp_path / ".env"
+    p = Path(".env")
     p.write_text(content)
     return p

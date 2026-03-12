@@ -16,6 +16,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from enveloper.security import sanitize_file_access_path, sanitize_secret_pair
+
 _LINE_RE = re.compile(
     r"""
     ^\s*
@@ -32,7 +34,8 @@ _LINE_RE = re.compile(
 def parse_env_file(path: str | Path) -> dict[str, str]:
     """Read a .env file and return an ordered dict of key-value pairs."""
     result: dict[str, str] = {}
-    for line in Path(path).read_text().splitlines():
+    safe_path = sanitize_file_access_path(path)
+    for line in safe_path.read_text().splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
@@ -41,7 +44,8 @@ def parse_env_file(path: str | Path) -> dict[str, str]:
             continue
         key = m.group(1)
         raw = m.group(2).strip()
-        result[key] = _unquote(raw)
+        safe_key, safe_value = sanitize_secret_pair(key, _unquote(raw))
+        result[safe_key] = safe_value
     return result
 
 

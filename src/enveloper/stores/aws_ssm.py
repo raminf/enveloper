@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MISSING_BOTO3 = (
@@ -73,8 +74,8 @@ class AwsSsmStore(SecretStore):
         self._region = region
         self._type = "SecureString" if secure else "String"
         self._version = version
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         # Validate version format
         if not is_valid_semver(version):
             raise ValueError(f"Invalid version format: {version}. Must be valid semver (e.g., 1.0.0)")
@@ -130,6 +131,10 @@ class AwsSsmStore(SecretStore):
             return None
 
     def set(self, key: str, value: str) -> None:
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = self.sanitize_secret_value(value)
         param_name = self._param_name(key)
         self.client.put_parameter(
             Name=param_name,
@@ -139,6 +144,8 @@ class AwsSsmStore(SecretStore):
         )
 
     def delete(self, key: str) -> None:
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         param_name = self._param_name(key)
         try:
             self.client.delete_parameter(Name=param_name)

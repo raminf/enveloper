@@ -78,7 +78,9 @@ def list_keys(self) -> list[str]: ...
 | `build_key(name, domain, project, version)` | Builds composite key string (domain before project) |
 | `parse_key(key)` | Splits composite key into segments |
 | `key_to_export_name(key)` | Extracts name from composite key |
-| `sanitize_key_segment(value)` | Replaces separator with `_` |
+| `sanitize_key_segment(value)` | Validates namespace segments before composing backend keys |
+
+The shared validator in `src/enveloper/security.py` is also used by CLI, SDK, file import/export, and stores so key/value/path checks stay consistent across every backend.
 
 ## Entry Point System
 

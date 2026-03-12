@@ -15,6 +15,7 @@ from pathlib import Path
 
 from enveloper.config import load_config
 from enveloper.env_file import parse_env_file
+from enveloper.security import sanitize_file_access_path
 from enveloper.resolve_store import get_store, make_cloud_store
 from enveloper.sdk import dotenv_values
 from enveloper.stores.keychain import KeychainStore
@@ -230,7 +231,7 @@ def import_from_file(
     When service=file, path is the target .env file to write to; otherwise path is ignored for import source.
     """
     try:
-        p = Path(file_path)
+        p = sanitize_file_access_path(file_path)
         if not p.is_file():
             return f"File not found: {file_path!r}"
         pairs = parse_env_file(p)

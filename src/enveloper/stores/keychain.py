@@ -18,6 +18,7 @@ import json
 
 import keyring
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MANIFEST_KEY = "__keys__"
@@ -54,8 +55,14 @@ class KeychainStore(SecretStore):
         domain: str | None = None,
         version: str = DEFAULT_VERSION,
     ) -> None:
-        self._service = f"{self.prefix}:{project}"
-        self._domain = domain
+        safe_project = sanitize_namespace_segment(project, default="_default_", field_name="project")
+        safe_domain = (
+            sanitize_namespace_segment(domain, default="_default_", field_name="domain")
+            if domain is not None
+            else None
+        )
+        self._service = f"{self.prefix}:{safe_project}"
+        self._domain = safe_domain
         self._version = version
         # Validate version format
         if not is_valid_semver(version):
@@ -85,9 +92,10 @@ class KeychainStore(SecretStore):
         )
 
     def get(self, key: str) -> str | None:
-        return keyring.get_password(self._service, self._username(key))
+        return keyring.get_password(self._service, self._username(sanitize_secret_key(key)))
 
     def set(self, key: str, value: str) -> None:
+        key, value = sanitize_secret_pair(key, value)
         keyring.set_password(self._service, self._username(key), value)
         manifest = self._read_manifest()
         if key not in manifest:
@@ -95,6 +103,7 @@ class KeychainStore(SecretStore):
             self._write_manifest(manifest)
 
     def delete(self, key: str) -> None:
+        key = sanitize_secret_key(key)
         try:
             keyring.delete_password(self._service, self._username(key))
         except keyring.errors.PasswordDeleteError:

@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from enveloper.env_file import parse_env_file
+from enveloper.security import sanitize_file_access_path, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import SecretStore
 
 
@@ -33,7 +34,7 @@ class FileStore(SecretStore):
     key_separator: str = "/"
 
     def __init__(self, path: str | Path = ".env") -> None:
-        self._path = Path(path)
+        self._path = sanitize_file_access_path(path)
 
     def _read(self) -> dict[str, str]:
         if not self._path.is_file():
@@ -46,14 +47,16 @@ class FileStore(SecretStore):
         self._path.write_text("\n".join(lines) + "\n" if lines else "")
 
     def get(self, key: str) -> str | None:
-        return self._read().get(key)
+        return self._read().get(sanitize_secret_key(key))
 
     def set(self, key: str, value: str) -> None:
+        key, value = sanitize_secret_pair(key, value)
         data = self._read()
         data[key] = value
         self._write(data)
 
     def delete(self, key: str) -> None:
+        key = sanitize_secret_key(key)
         data = self._read()
         if key in data:
             del data[key]

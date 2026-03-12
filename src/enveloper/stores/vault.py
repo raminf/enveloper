@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from enveloper.security import sanitize_file_access_path, sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_HVAC = (
@@ -82,12 +83,13 @@ class VaultStore(SecretStore):
         **kwargs: object,
     ) -> None:
         # from_config passes prefix= (build_default_prefix result); use as path when present
-        self._path = (prefix if prefix is not None else path).strip("/")
+        safe_path = sanitize_file_access_path(prefix if prefix is not None else path)
+        self._path = str(safe_path).strip("/")
         self._mount_point = mount_point
         self._url = url
         self._token = token
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         self._version = version
         self._client: Any = None
 
@@ -146,11 +148,17 @@ class VaultStore(SecretStore):
         return data.get(self._resolve_key(key))
 
     def set(self, key: str, value: str) -> None:
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = self.sanitize_secret_value(value)
         data = self._read_data()
         data[self._resolve_key(key)] = value
         self._write_data(data)
 
     def delete(self, key: str) -> None:
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         data = self._read_data()
         full_key = self._resolve_key(key)
         if full_key in data:

@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 _MISSING_AZURE = (
@@ -75,8 +76,8 @@ class AzureKvStore(SecretStore):
             vault_url = f"https://{vault_url}.vault.azure.net/"
         self._vault_url = vault_url.rstrip("/") + "/"
         self._path_prefix = prefix  # e.g. envr--domain--project-- for list filter
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         self._version = version
         self._client: Any = None
 
@@ -156,6 +157,10 @@ class AzureKvStore(SecretStore):
             raise
 
     def set(self, key: str, value: str) -> None:
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = self.sanitize_secret_value(value)
         name = self._secret_name(key)
         try:
             self.client.set_secret(name, value)
@@ -170,6 +175,8 @@ class AzureKvStore(SecretStore):
 
     def delete(self, key: str) -> None:
         """Delete the secret and purge it so the name can be reused immediately (no soft-delete retention)."""
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         name = self._secret_name(key)
         try:
             self.client.begin_delete_secret(name).wait()
@@ -194,4 +201,3 @@ class AzureKvStore(SecretStore):
             elif not filter_prefix and name.lower().startswith("envr"):
                 keys.append(self._name_to_key(name))
         return sorted(set(keys))
-

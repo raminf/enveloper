@@ -4,6 +4,18 @@
 
 `enveloper` prioritizes security by storing secrets in encrypted, vendor-provided storage systems. This document outlines the security mechanisms and best practices.
 
+## Input Sanitization
+
+Before `enveloper` writes a secret to the local keychain, `.env` file store, or a cloud secret backend, it validates the input with a shared sanitization layer.
+
+- Keys must be ASCII environment-variable names: start with a letter or `_`, then use only letters, digits, and `_`
+- Keys reject invalid unicode, compatibility forms, spaces, punctuation variants, and control characters
+- Values reject suspicious SQL injection, shell injection, and prompt-injection patterns
+- Keys and values are length-limited so a `KEY=value` pair stays within the most conservative cross-platform environment size budget used by the project
+- File access paths are checked for traversal patterns such as `..`, `../`, `..\\`, shell metacharacters, and similar unsafe constructs before reads or writes happen
+
+These checks are implemented in one reusable module so new rules can be added in a single place and immediately apply across CLI, SDK, file import/export, and store backends.
+
 ## Local Keychain
 
 ### macOS Keychain

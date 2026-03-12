@@ -23,6 +23,7 @@ from enveloper.cli import (
     console,
     key_to_export_name,
 )
+from enveloper.security import SanitizationError, sanitize_file_access_path, sanitize_secret_pair
 
 if HAS_YAML:
     import yaml
@@ -68,7 +69,8 @@ def export(ctx: click.Context, fmt: str, output: str | None) -> None:
             for key in store.list_keys():
                 val = store.get(key)
                 if val is not None:
-                    pairs[key] = val
+                    safe_key, safe_value = sanitize_secret_pair(key, val)
+                    pairs[safe_key] = safe_value
     else:
         store = _get_store(ctx)
         pairs = {}
@@ -77,10 +79,14 @@ def export(ctx: click.Context, fmt: str, output: str | None) -> None:
             val = store.get(key)
             if val is not None:
                 out_key = key_to_export_name(store, key) if use_export_name else key
-                pairs[out_key] = val
+                safe_key, safe_value = sanitize_secret_pair(out_key, val)
+                pairs[safe_key] = safe_value
 
     if output:
-        path = Path(output)
+        try:
+            path = sanitize_file_access_path(output)
+        except SanitizationError as e:
+            raise click.ClickException(str(e))
         with path.open("w") as f:
             if fmt == "json":
                 f.write(json.dumps(pairs, indent=2))
@@ -123,14 +129,15 @@ def _powershell_escape(value: str) -> str:
 def _format_export_lines(pairs: dict[str, str], fmt: str) -> list[str]:
     lines: list[str] = []
     for key, value in sorted(pairs.items()):
+        safe_key, safe_value = sanitize_secret_pair(key, value)
         if fmt == "dotenv":
-            lines.append(f"{key}={value}")
+            lines.append(f"{safe_key}={safe_value}")
         elif fmt == "unix":
-            lines.append(f"export {key}={_shell_escape(value)}")
+            lines.append(f"export {safe_key}={_shell_escape(safe_value)}")
         elif fmt == "win":
-            lines.append(f"$env:{key} = '{_powershell_escape(value)}'")
+            lines.append(f"$env:{safe_key} = '{_powershell_escape(safe_value)}'")
         else:
-            lines.append(f"{key}={value}")
+            lines.append(f"{safe_key}={safe_value}")
     return lines
 
 

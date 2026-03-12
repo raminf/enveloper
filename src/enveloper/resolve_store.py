@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from enveloper.security import sanitize_file_access_path, sanitize_namespace_segment
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_VERSION
 from enveloper.stores import get_store_class
 from enveloper.stores.file_store import FileStore
@@ -38,8 +39,8 @@ def make_cloud_store(
     """
     store_cls = get_store_class(store_name)
     default_ns = getattr(store_cls, "default_namespace", DEFAULT_NAMESPACE)
-    domain_str = domain or default_ns
-    project_str = project or default_ns
+    domain_str = sanitize_namespace_segment(domain or default_ns, default=default_ns, field_name="domain")
+    project_str = sanitize_namespace_segment(project or default_ns, default=default_ns, field_name="project")
     version_str = version or DEFAULT_VERSION
 
     # Build kwargs for store constructor (version and store-specific; domain/project passed to from_config)
@@ -125,11 +126,10 @@ def get_store(
     if service == "local":
         return KeychainStore(project=project, domain=domain, version=version or DEFAULT_VERSION)
     if service == "file":
-        return FileStore(path=path)
+        return FileStore(path=sanitize_file_access_path(path))
     return make_cloud_store(
         service, config, domain, env_name,
         project=project,
         prefix=None, profile=None, region=None, repo=None,
         version=version,
     )
-

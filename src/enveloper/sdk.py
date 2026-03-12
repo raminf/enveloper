@@ -18,6 +18,7 @@ import os
 
 from enveloper.config import EnveloperConfig, load_config
 from enveloper.resolve_store import get_store
+from enveloper.security import sanitize_file_access_path, sanitize_namespace_segment, sanitize_secret_pair
 from enveloper.stores.keychain import KeychainStore
 from enveloper.util import key_to_export_name
 
@@ -37,7 +38,10 @@ def _resolve_project_domain(
     resolved_domain = (
         domain or os.environ.get("ENVELOPER_DOMAIN") or "_default_"
     )
-    return resolved_project, resolved_domain
+    return (
+        sanitize_namespace_segment(resolved_project, default="_default_", field_name="project"),
+        sanitize_namespace_segment(resolved_domain, default="_default_", field_name="domain"),
+    )
 
 
 def _resolve_service(service: str | None) -> str:
@@ -121,13 +125,22 @@ def _collect_secrets(
 
     if service != "local":
         # Single store: file or cloud
-        store = get_store(service, project, domain, cfg, path=path, env_name=env_name, version=version_str)
+        store = get_store(
+            service,
+            project,
+            domain,
+            cfg,
+            path=str(sanitize_file_access_path(path)),
+            env_name=env_name,
+            version=version_str,
+        )
         strip_prefix = service not in ("file",)  # strip prefix/version when loading from cloud
         for key in store.list_keys():
             value = store.get(key)
             if value is not None:
                 out_key = key_to_export_name(store, key) if strip_prefix else key
-                merged[out_key] = value
+                safe_key, safe_value = sanitize_secret_pair(out_key, value)
+                merged[safe_key] = safe_value
         if include_os_environ:
             for k, v in os.environ.items():
                 if k not in merged and v is not None:
@@ -143,7 +156,8 @@ def _collect_secrets(
         if key not in merged:
             value = store.get(key)
             if value is not None:
-                merged[key] = value
+                safe_key, safe_value = sanitize_secret_pair(key, value)
+                merged[safe_key] = safe_value
 
     if include_os_environ:
         for key, value in os.environ.items():

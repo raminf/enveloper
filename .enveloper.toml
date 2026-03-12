@@ -1,0 +1,15 @@
+[enveloper]
+project = "stillup"
+
+[enveloper.domains.aws]
+env_file = "cloud/aws/.env"
+ssm_prefix = "/stillup/{env}/"
+
+[enveloper.domains.webdash]
+env_file = "webdash/.env"
+
+[enveloper.aws]
+profile = "default"
+
+[enveloper.github]
+prefix = ""

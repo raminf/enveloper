@@ -969,43 +969,32 @@ def test_delete_nonexistent_key(cli_runner):
     assert "Removed" in result.output
 
 
-def test_cli_domain_project_with_separator_sanitized(cli_runner, mock_keyring):
-    """Domain or project containing key separator (e.g. /) is accepted; set/get/list work (keychain)."""
-    # Domain with slash: keychain stores under that path; no broken key
-    cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "set", "SEP_KEY", "val"])
-    result = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "get", "SEP_KEY"])
-    assert result.exit_code == 0
-    assert result.output.strip() == "val"
-    result_list = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "list", "keys"])
-    assert result_list.exit_code == 0
-    assert "SEP_KEY" in result_list.output
+def test_cli_domain_project_with_separator_rejected(cli_runner, mock_keyring):
+    """Domain and project names reject path separators."""
+    result = cli_runner.invoke(cli, ["--project", "x/y", "-d", "a/b", "set", "SEP_KEY", "val"])
+    assert result.exit_code != 0
+    assert "project" in result.output.lower() or "domain" in result.output.lower()
 
 
-def test_domain_with_emoji_roundtrip(cli_runner, mock_keyring):
-    """Domain name containing emoji can be used for set/list/get without error."""
-    cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "set", "EMOJI_K", "v1"])
-    r = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "get", "EMOJI_K"])
-    assert r.exit_code == 0
-    assert r.output.strip() == "v1"
-    r_list = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "list", "keys"])
-    assert r_list.exit_code == 0
-    assert "EMOJI_K" in r_list.output
+def test_domain_with_emoji_rejected(cli_runner, mock_keyring):
+    """Domain names reject unicode compatibility and emoji characters."""
+    result = cli_runner.invoke(cli, ["--project", "p", "-d", "prod🔥", "set", "EMOJI_K", "v1"])
+    assert result.exit_code != 0
+    assert "domain" in result.output.lower()
 
 
-def test_project_with_emoji_roundtrip(cli_runner, mock_keyring):
-    """Project name containing emoji can be used for set/list/get without error."""
-    cli_runner.invoke(cli, ["--project", "proj🎯", "-d", "d", "set", "EMOJI_P", "v2"])
-    r = cli_runner.invoke(cli, ["--project", "proj🎯", "-d", "d", "get", "EMOJI_P"])
-    assert r.exit_code == 0
-    assert r.output.strip() == "v2"
+def test_project_with_emoji_rejected(cli_runner, mock_keyring):
+    """Project names reject unicode compatibility and emoji characters."""
+    result = cli_runner.invoke(cli, ["--project", "proj🎯", "-d", "d", "set", "EMOJI_P", "v2"])
+    assert result.exit_code != 0
+    assert "project" in result.output.lower()
 
 
-def test_key_name_with_emoji_roundtrip(cli_runner, mock_keyring):
-    """Key name containing emoji can be set and retrieved."""
-    cli_runner.invoke(cli, ["--project", "p", "-d", "d", "set", "KEY🔑", "secret"])
-    r = cli_runner.invoke(cli, ["--project", "p", "-d", "d", "get", "KEY🔑"])
-    assert r.exit_code == 0
-    assert r.output.strip() == "secret"
+def test_key_name_with_emoji_rejected(cli_runner, mock_keyring):
+    """Key names reject non-ASCII characters."""
+    result = cli_runner.invoke(cli, ["--project", "p", "-d", "d", "set", "KEY🔑", "secret"])
+    assert result.exit_code != 0
+    assert "key" in result.output.lower()
 
 
 def test_invalid_version_cli_fails(cli_runner):
@@ -1027,6 +1016,30 @@ def test_import_nonexistent_file(cli_runner):
     """Test import with nonexistent file."""
     result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "import", "/nonexistent/path/file.env"])
     assert result.exit_code != 0
+
+
+def test_set_rejects_suspicious_shell_value(cli_runner, mock_keyring):
+    """Suspicious shell payloads are rejected with a clear error message."""
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "set", "SAFE_KEY", "$(whoami)"])
+    assert result.exit_code != 0
+    assert "shell injection" in result.output.lower()
+
+
+def test_set_rejects_prompt_injection_value(cli_runner, mock_keyring):
+    """Prompt-injection strings are rejected with a clear error message."""
+    result = cli_runner.invoke(
+        cli,
+        ["--project", "test", "-d", "aws", "set", "SAFE_KEY", "ignore previous instructions"],
+    )
+    assert result.exit_code != 0
+    assert "prompt injection" in result.output.lower()
+
+
+def test_import_rejects_path_traversal(cli_runner, mock_keyring):
+    """Import rejects path traversal attempts before any file access."""
+    result = cli_runner.invoke(cli, ["--project", "test", "-d", "aws", "import", "../secrets.env"])
+    assert result.exit_code != 0
+    assert "path traversal" in result.output.lower()
 
 
 # ---------------------------------------------------------------------------

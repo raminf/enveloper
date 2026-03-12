@@ -14,6 +14,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from enveloper.security import SanitizationError
 from enveloper.store import DEFAULT_PREFIX
 from enveloper.stores.vault import VaultStore
 
@@ -22,7 +23,8 @@ def test_vault_build_default_prefix():
     """VaultStore uses envr/domain/project path."""
     assert VaultStore.build_default_prefix("dev", "myapp") == f"{DEFAULT_PREFIX}/dev/myapp"
     assert VaultStore.build_default_prefix("staging", "svc") == f"{DEFAULT_PREFIX}/staging/svc"
-    assert VaultStore.sanitize_key_segment("a/b") == "a_b"
+    with pytest.raises(SanitizationError):
+        VaultStore.sanitize_key_segment("a/b")
 
 
 @pytest.fixture

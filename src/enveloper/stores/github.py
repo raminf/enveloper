@@ -15,6 +15,7 @@ import json
 import shutil
 import subprocess
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_VERSION, SecretStore, is_valid_semver
 
 _MISSING_GH = (
@@ -59,8 +60,8 @@ class GitHubStore(SecretStore):
         self._prefix = prefix
         self._repo = repo
         self._version = version
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         # Validate version format
         if not is_valid_semver(version):
             raise ValueError(f"Invalid version format: {version}. Must be valid semver (e.g., 1.0.0)")
@@ -100,9 +101,11 @@ class GitHubStore(SecretStore):
         )
 
     def set(self, key: str, value: str) -> None:
+        key, value = sanitize_secret_pair(key, value)
         self._gh("set", self._prefixed(key), "--body", value)
 
     def delete(self, key: str) -> None:
+        key = sanitize_secret_key(key)
         try:
             self._gh("delete", self._prefixed(key))
         except subprocess.CalledProcessError:
@@ -116,4 +119,3 @@ class GitHubStore(SecretStore):
             return sorted(s["name"] for s in secrets)
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             return []
-

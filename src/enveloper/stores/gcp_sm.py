@@ -14,6 +14,7 @@ import re
 import subprocess
 from typing import Any
 
+from enveloper.security import sanitize_namespace_segment, sanitize_secret_key, sanitize_secret_pair
 from enveloper.store import DEFAULT_NAMESPACE, DEFAULT_PREFIX, DEFAULT_VERSION, SecretStore
 
 # GCP project ID: 6-30 lowercase chars, starts with letter, ends with alphanumeric, can include hyphens
@@ -210,8 +211,8 @@ class GcpSmStore(SecretStore):
 
         self._project_id = project_id
         self._path_prefix = prefix
-        self._domain = domain
-        self._project = project
+        self._domain = sanitize_namespace_segment(domain, default=DEFAULT_NAMESPACE, field_name="domain")
+        self._project = sanitize_namespace_segment(project, default=DEFAULT_NAMESPACE, field_name="project")
         self._version = version
         self._client: Any = None
 
@@ -304,6 +305,10 @@ class GcpSmStore(SecretStore):
             raise
 
     def set(self, key: str, value: str) -> None:
+        if self.parse_key(key) is None:
+            key, value = sanitize_secret_pair(key, value)
+        else:
+            value = self.sanitize_secret_value(value)
         secret_id = self._secret_id(key)
         parent = f"projects/{self._project_id}"
         full_name = self._secret_name(secret_id)
@@ -333,6 +338,8 @@ class GcpSmStore(SecretStore):
         )
 
     def delete(self, key: str) -> None:
+        if self.parse_key(key) is None:
+            key = sanitize_secret_key(key)
         secret_id = self._secret_id(key)
         name = self._secret_name(secret_id)
         try:
