@@ -205,6 +205,12 @@ ENVELOPER_TEST_ALIBABA=1 pytest -m integration_alibaba tests/integration/
 - Use Google-style docstrings
 - Include examples for complex functions
 
+## GitHub Actions version pinning
+
+Workflows under `.github/workflows/` (repo root) and `enveloper-py/.github/workflows/` pin actions to **full commit SHAs**, with a trailing comment naming the tag or branch (see [GitHub’s hardening guide](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)). Paths are listed in the repo root `.pinact.yaml`.
+
+From the **monorepo root**, install [pinact](https://github.com/suzuki-shunsuke/pinact) and run `make update-action-shas` to bump actions to their latest versions and rewrite SHAs. Use a `GITHUB_TOKEN` (or `PINACT_GITHUB_TOKEN`) so the GitHub API quota is sufficient.
+
 ## Pull Request Process
 
 1. Fork the repository
